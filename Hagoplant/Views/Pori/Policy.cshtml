@@ -1,0 +1,651 @@
+﻿@{
+    ViewData["Title"] = "Chính sách";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hago Tree - Chính Sách</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Francois One -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: #579a62 !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #579a62 !important;
+                font-weight: bold;
+            }
+
+        .input-group .form-control {
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid #579a62;
+        }
+
+        .input-group .form-control:focus {
+            border-color: #579a62;
+            box-shadow: none;
+        }
+
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #478152;
+                border-color: #478152;
+            }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+        main {
+            flex: 1;
+            background-color: #f8f5f0;
+            padding: 30px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .policy-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-left: 4px solid #579a62;
+        }
+
+            .policy-section h3 {
+                color: #2c5f2d;
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #e8f5e9;
+            }
+
+            .policy-section p {
+                font-size: 1.1rem;
+                line-height: 1.7;
+                margin-bottom: 15px;
+                color: #444;
+            }
+
+            .policy-section ul {
+                list-style-type: none;
+                padding-left: 0;
+                margin: 20px 0;
+            }
+
+                .policy-section ul li {
+                    padding: 8px 0 8px 35px;
+                    position: relative;
+                    margin-bottom: 10px;
+                    color: #444;
+                    font-size: 1.1rem;
+                }
+
+                    .policy-section ul li::before {
+                        content: '✓';
+                        position: absolute;
+                        left: 0;
+                        top: 8px;
+                        width: 25px;
+                        height: 25px;
+                        background-color: #579a62;
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 14px;
+                        font-weight: bold;
+                    }
+
+        .highlight-box {
+            background-color: #f0f7f0;
+            border-left: 4px solid #579a62;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .note-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #d4af37;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 50px 0 20px;
+            margin-top: auto;
+        }
+
+            footer a {
+                color: white;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    color: #579a62;
+                }
+
+        .social-icon {
+            display: inline-block;
+            width: 45px;
+            height: 45px;
+            background-color: #444;
+            color: white;
+            text-align: center;
+            line-height: 45px;
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+
+            .social-icon:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        .facebook {
+            background-color: #3b5998;
+        }
+
+        .zalo {
+            background-color: #0068ff;
+        }
+
+        .shopee {
+            background-color: #ee4d2d;
+        }
+        /* Footer */
+        /* Footer styles */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: #579a62 !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        /* Responsive footer */
+        @@media (max-width: 768px) {
+            footer .d-flex.align-items-center {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                footer .d-flex.align-items-center .me-3 {
+                    margin-right: 0 !important;
+                    margin-bottom: 1rem;
+                }
+        }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+
+        .footerlogo {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Thêm phần Header này ngay sau thẻ <body> -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
+                </a>
+
+                <!-- Toggle button cho mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Menu và thanh tìm kiếm -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Thanh tìm kiếm -->
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh..." aria-label="Tìm kiếm">
+                            <button class="btn btn-primary-custom" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Menu điều hướng -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#products">
+                                <i class="fas fa-tree me-1"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#contact">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <!-- Giỏ hàng -->
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">3</span>
+                            </a>
+                        </li>
+
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Đã đăng nhập: hiển thị tên + menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/Order/History">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="fas fa-id-card me-2"></i> Tài khoản
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> Tài khoản
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                            <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1 class="text-primary-custom mb-3" style="font-size: 3rem; font-weight: bold;">
+                    CHÍNH SÁCH HAGO TREE
+                </h1>
+                <p class="lead" style="font-size: 1.3rem; color: #666; max-width: 800px; margin: 0 auto;">
+                    Hago Tree cam kết bảo mật thông tin khách hàng và tuân thủ các quy định pháp luật về bảo vệ dữ liệu cá nhân.
+                </p>
+            </div>
+
+            <!-- Mục 1 -->
+            <div class="policy-section">
+                <h3>1. Mục đích và phạm vi thu thập thông tin</h3>
+                <p>Khi bạn truy cập và sử dụng các dịch vụ tại Hago Tree, có thể bạn sẽ được yêu cầu cung cấp một số thông tin cá nhân cần thiết như họ tên, địa chỉ liên lạc, email, số điện thoại,... để tạo tài khoản hoặc đặt hàng.</p>
+                <p>Mọi thông tin mà khách hàng cung cấp phải đảm bảo tính chính xác và hợp pháp; Hago Tree sẽ không chịu trách nhiệm đối với những vấn đề pháp lý phát sinh từ thông tin khai báo không chính xác.</p>
+
+                <div class="highlight-box">
+                    <p><strong>Thu thập tự động:</strong> Chúng tôi cũng thu thập dữ liệu về lần truy cập của bạn như: địa chỉ IP, loại trình duyệt, thời gian truy cập, các trang đã xem, thông qua cookie và công cụ phân tích của bên thứ ba.</p>
+                </div>
+            </div>
+
+            <!-- Mục 2 -->
+            <div class="policy-section">
+                <h3>2. Phạm vi sử dụng thông tin</h3>
+                <p>Thông tin của bạn được sử dụng để:</p>
+                <ul>
+                    <li>Xử lý đơn hàng và cung cấp sản phẩm/dịch vụ</li>
+                    <li>Liên hệ xác nhận đơn hàng, thông báo khuyến mãi</li>
+                    <li>Nâng cao trải nghiệm khách hàng</li>
+                    <li>Phân tích hành vi truy cập để cải thiện website</li>
+                    <li>Thực hiện các chiến dịch tiếp thị phù hợp</li>
+                </ul>
+            </div>
+
+            <!-- Mục 3 -->
+            <div class="policy-section">
+                <h3>3. Thời gian lưu trữ thông tin</h3>
+                <p>Thông tin cá nhân của khách hàng sẽ được lưu trữ cho đến khi có yêu cầu hủy bỏ hoặc khách hàng tự đăng nhập vào tài khoản và thực hiện việc hủy bỏ dữ liệu.</p>
+                <p>Trong mọi trường hợp, thông tin sẽ được bảo mật trên máy chủ của Hago Tree trong suốt thời gian cần thiết để cung cấp dịch vụ.</p>
+            </div>
+
+            <!-- Mục 4 -->
+            <div class="policy-section">
+                <h3>4. Địa chỉ thu thập và quản lý thông tin</h3>
+                <div class="highlight-box">
+                    <p><strong>Công ty TNHH Hago Tree</strong></p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i> Hẻm 1581, Đường Bùi Hữu Nghĩa, P. Tân Hạnh, TP. Biên Hòa, tỉnh Đồng Nai</p>
+                    <p><i class="fas fa-envelope me-2"></i> hagotreevn@gmail.com</p>
+                    <p><i class="fas fa-phone me-2"></i> 0947 192 590</p>
+                </div>
+            </div>
+
+            <!-- Mục 5 -->
+            <div class="policy-section">
+                <h3>5. Phương tiện chỉnh sửa thông tin cá nhân</h3>
+                <p>Bạn có thể chỉnh sửa thông tin cá nhân bằng cách:</p>
+                <ul>
+                    <li><strong>Qua tài khoản cá nhân:</strong> Đăng nhập và cập nhật thông tin trong phần tài khoản</li>
+                    <li><strong>Liên hệ hỗ trợ:</strong> Gọi 0947 192 590 hoặc email hagotreevn@gmail.com</li>
+                </ul>
+            </div>
+
+            <!-- Mục 6 -->
+            <div class="policy-section">
+                <h3>6. Cam kết bảo mật thông tin</h3>
+                <p>Hago Tree cam kết bảo mật tuyệt đối thông tin cá nhân của khách hàng theo chính sách này. Chúng tôi không sử dụng, chuyển giao, cung cấp hay tiết lộ thông tin cho bên thứ ba khi không có sự cho phép của bạn.</p>
+
+                <div class="note-box">
+                    <p><strong>Lưu ý:</strong> Trường hợp ngoại lệ chỉ xảy ra khi phải tuân thủ yêu cầu pháp lý từ cơ quan chức năng có thẩm quyền.</p>
+                </div>
+            </div>
+
+            <!-- Mục 7 -->
+            <div class="policy-section">
+                <h3>7. Bảo mật giao dịch thanh toán</h3>
+                <p>Chúng tôi áp dụng nhiều lớp bảo vệ:</p>
+                <ul>
+                    <li>Mã hóa SSL 256-bit cho tất cả giao dịch</li>
+                    <li>Xác thực OTP qua SMS</li>
+                    <li>Không lưu trữ thông tin thẻ thanh toán trên hệ thống</li>
+                    <li>Tuân thủ tiêu chuẩn PCI DSS</li>
+                    <li>Hợp tác với cổng thanh toán uy tín được cấp phép</li>
+                </ul>
+            </div>
+
+            <!-- Mục 8 -->
+            <div class="policy-section">
+                <h3>8. Quyền chỉnh sửa và xóa dữ liệu</h3>
+                <p>Bạn có quyền yêu cầu xóa dữ liệu cá nhân bằng cách gửi email đến hagotreevn@gmail.com với thông tin chi tiết về dữ liệu cần xóa.</p>
+
+                <div class="note-box">
+                    <p><strong>Lưu ý:</strong> Việc xóa dữ liệu có thể ảnh hưởng đến việc sử dụng dịch vụ hoặc bảo hành sau này. Trong một số trường hợp, chúng tôi có thể lưu giữ thông tin nếu pháp luật yêu cầu.</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <p style="font-weight: bold; color: #579a62; font-size: 1.2rem;">Mọi thay đổi về chính sách bảo mật sẽ được thông báo công khai trên website Hago Tree.</p>
+                <p>Nếu có câu hỏi, vui lòng liên hệ với chúng tôi qua thông tin ở mục 4.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Thêm phần Footer này trước thẻ đóng </body> -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo và mô tả -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">HagoTree@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Theo dõi và liên kết -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="#" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <!-- Liên kết nhanh -->
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
+                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
+                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation cho các section
+            const sections = document.querySelectorAll('.policy-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.8s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Cart functionality
+            let cartCount = 3;
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    cartCount++;
+                    document.querySelector('.cart-badge').textContent = cartCount;
+                    alert('Đã thêm sản phẩm vào giỏ hàng!');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

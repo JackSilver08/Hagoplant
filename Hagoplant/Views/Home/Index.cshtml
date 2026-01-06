@@ -1,0 +1,1116 @@
+﻿@{
+    var toastOk = TempData["Toast.Ok"]?.ToString();
+    var toastMessage = TempData["Toast.Message"]?.ToString();
+    var showToast = !string.IsNullOrWhiteSpace(toastMessage);
+    var isOk = toastOk == "1";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hago Tree - Cây Cảnh Cao Cấp</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Francois One -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+    <!-- EmailJS CDN phiên bản mới nhất (v4) -->
+    <script src="https://cdn.jsdelivr.net/npm/@("@")emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+        }
+        /* Thêm các style này vào phần CSS hiện có */
+
+        /* Header styles */
+        header {
+            z-index: 1030;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: #579a62 !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #579a62 !important;
+                font-weight: bold;
+            }
+
+        /* Search bar styling */
+        .input-group .form-control {
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid #579a62;
+        }
+
+        .input-group .form-control:focus {
+            border-color: #579a62;
+            box-shadow: none;
+        }
+
+        /* Cart styling */
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 991px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .navbar-nav .nav-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .navbar-nav .nav-item:not(:last-child) {
+                margin-right: 0.5rem;
+            }
+        }
+
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #478152;
+                border-color: #478152;
+            }
+
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: #579a62;
+            color: #579a62;
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+            }
+
+        .ornament {
+            position: relative;
+        }
+
+            .ornament::before,
+            .ornament::after {
+                content: '❦';
+                position: absolute;
+                color: #d4af37;
+                font-size: 28px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .ornament::before {
+                left: -50px;
+            }
+
+            .ornament::after {
+                right: -50px;
+            }
+
+        .product-card {
+            transition: all 0.3s ease;
+            border: 2px solid #d4af37;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+            .product-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(87, 154, 98, 0.25);
+            }
+
+            .product-card img {
+                transition: transform 0.5s ease;
+            }
+
+            .product-card:hover img {
+                transform: scale(1.05);
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center; /* căn giữa theo chiều dọc */
+            justify-content: center; /* căn giữa theo chiều ngang */
+
+            font-size: 12px;
+            line-height: 1; /* tránh bị lệch chữ */
+        }
+
+        /* Hero Section Slider */
+        .hero-section {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+            color: white;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+            .hero-slide.active {
+                opacity: 1;
+            }
+
+            .hero-slide::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+            }
+
+        /* Ảnh 1: Vintage Botanical */
+        .hero-slide-1 {
+            background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20250929/pngtree-elegant-gold-and-green-botanical-illustration-decorative-design-image_19708320.webp');
+        }
+
+        /* Ảnh 2: Cây cảnh trong nhà */
+        .hero-slide-2 {
+            background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+        }
+
+        /* Ảnh 3: Không gian xanh */
+        .hero-slide-3 {
+            background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dots navigation */
+        .slider-dots {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 3;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .dot.active {
+                background-color: #d4af37;
+                transform: scale(1.2);
+            }
+
+        /* Animation cho text */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .hero-subtitle {
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .hero-btn {
+            animation: fadeInUp 1s ease-out 1.5s both;
+        }
+        /* Register modal - otp */
+        #registerAlert {
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            background: rgba(248, 245, 240, 0.8);
+            color: #333;
+        }
+
+        #registerOtp {
+            letter-spacing: 6px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #btnRegisterSubmit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        /* Footer styles */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: #579a62 !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        /* Responsive footer */
+        @@media (max-width: 768px) {
+            footer .d-flex.align-items-center {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                footer .d-flex.align-items-center .me-3 {
+                    margin-right: 0 !important;
+                    margin-bottom: 1rem;
+                }
+        }
+
+        .imglogo{
+            width: 50px;
+            height: 50px;
+        }
+
+        
+        .footerlogo{
+            width: 80px;
+            height: 80px;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <!-- Thêm phần Header này ngay sau thẻ <body> -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
+                </a>
+
+                <!-- Toggle button cho mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Menu và thanh tìm kiếm -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Thanh tìm kiếm -->
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh..." aria-label="Tìm kiếm">
+                            <button class="btn btn-primary-custom" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Menu điều hướng -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#products">
+                                <i class="fas fa-tree me-1"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#contact">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <!-- Giỏ hàng -->
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">3</span>
+                            </a>
+                        </li>
+
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Đã đăng nhập: hiển thị tên + menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/Order/History">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="fas fa-id-card me-2"></i> Tài khoản
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> Tài khoản
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                            <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Modal Đăng nhập -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary-custom">Đăng nhập</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- MVC POST -->
+                    <form method="post" action="/Account/Login">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="Email"
+                                   id="loginEmail"
+                                   placeholder="name@example.com"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="Password"
+                                   id="loginPassword"
+                                   required />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   name="RememberMe"
+                                   id="rememberMe"
+                                   value="true" />
+                            <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <!-- Quên mật khẩu -->
+                        <a href="#"
+                           class="small text-decoration-none"
+                           data-bs-toggle="modal"
+                           data-bs-target="#forgotPasswordModal"
+                           data-bs-dismiss="modal">
+                            Quên mật khẩu?
+                        </a>
+                        <button type="submit" class="btn btn-primary-custom w-100">Đăng nhập</button>
+                    </form>
+                </div>
+         
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đăng ký -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary-custom">Đăng ký tài khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form method="post" action="/Account/Register" id="registerForm">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Alert status trong modal -->
+                        <div id="registerAlert" class="alert d-none" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="FullName"
+                                   id="registerFullName"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel"
+                                   class="form-control"
+                                   name="Phone"
+                                   id="registerPhone"
+                                   placeholder="VD: 0947xxxxxx" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="Email"
+                                   id="registerEmail"
+                                   placeholder="name@example.com"
+                                   required />
+                        </div>
+
+                        <!-- OTP Actions -->
+                        <div class="mb-3 d-flex gap-2">
+                            <button type="button" class="btn btn-secondary-custom flex-grow-1" id="btnSendOtp">
+                                <i class="fa-solid fa-paper-plane me-2"></i>Gửi OTP
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="btnResendOtp" disabled>
+                                Gửi lại <span id="otpCountdown" class="ms-1"></span>
+                            </button>
+                        </div>
+
+                        <!-- OTP Input (ẩn cho đến khi đã gửi) -->
+                        <div id="otpBlock" class="mb-3 d-none">
+                            <label class="form-label">Nhập mã OTP</label>
+                            <div class="input-group">
+                                <input type="text"
+                                       class="form-control"
+                                       id="registerOtp"
+                                       inputmode="numeric"
+                                       autocomplete="one-time-code"
+                                       maxlength="6"
+                                       placeholder="Nhập 6 số" />
+                                <button type="button" class="btn btn-primary-custom" id="btnVerifyOtp">
+                                    Xác nhận
+                                </button>
+                            </div>
+                            <div class="form-text">OTP có hiệu lực trong 5 phút.</div>
+
+                            <!-- Hidden field để backend biết đã verify -->
+                            <input type="hidden" name="OtpVerified" id="OtpVerified" value="0" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="Password"
+                                   id="registerPassword"
+                                   minlength="6"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Xác nhận mật khẩu</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="ConfirmPassword"
+                                   id="confirmPassword"
+                                   minlength="6"
+                                   required />
+                        </div>
+
+                        <!-- Submit bị khóa cho đến khi verify OTP -->
+                        <button type="submit" class="btn btn-primary-custom w-100" id="btnRegisterSubmit" disabled>
+                            Đăng ký
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Hero Section với Slider -->
+    <section id="home" class="hero-section">
+        <!-- Slide 1 - Vintage Botanical -->
+        <div class="hero-slide hero-slide-1 active"></div>
+
+        <!-- Slide 2 - Cây cảnh trong nhà -->
+        <div class="hero-slide hero-slide-2"></div>
+
+        <!-- Slide 3 - Không gian xanh -->
+        <div class="hero-slide hero-slide-3"></div>
+
+        <!-- Nội dung Hero -->
+        <div class="hero-content text-center fade-in">
+            <div class="container">
+                <h2 class="display-3 text-white mb-4 hero-title">Hago Tree</h2>
+                <p class="lead text-white mb-5 hero-subtitle">Sống xanh - Sống trọn</p>
+                <button class="btn btn-primary-custom btn-lg px-5 shadow hero-btn">KHÁM PHÁ BỘ SƯU TẬP</button>
+            </div>
+        </div>
+
+        <!-- Dots navigation -->
+        <div class="slider-dots">
+            <div class="dot active" data-slide="0"></div>
+            <div class="dot" data-slide="1"></div>
+            <div class="dot" data-slide="2"></div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-5">
+        <div class="container">
+            <h3 class="text-center text-primary-custom mb-5 ornament display-5">Sản Phẩm Nổi Bật</h3>
+            <div class="row g-5">
+
+                <!-- Cây Kim Tiền -->
+                <div class="col-md-4">
+                    <div class="product-card rounded shadow-sm">
+                        <img src="https://bizweb.dktcdn.net/100/275/164/files/cay-gia-tong-hop-1-76419b20-c451-4eca-9764-97b55063c583.jpg?v=1751945481877" class="w-100" style="height: 300px; object-fit: cover;" alt="Cây Kim Tiền">
+                        <div class="p-4">
+                            <h4 class="h5 text-primary-custom">Cây Kim Tiền</h4>
+                            <p class="small text-muted">Biểu tượng của sự thành đạt và tài lộc</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-warning fs-5">2.500.000₫</span>
+                                <button class="btn btn-primary-custom btn-sm add-to-cart">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cây Phát Tài Núi -->
+                <div class="col-md-4">
+                    <div class="product-card rounded shadow-sm">
+                        <img src="https://phuongtrunggreen.com/resource/gellary/images/Cay-van-phong-old/phat-tai-nui/dac-diem-hinh-thai-phat-tai-nui.jpg" class="w-100" style="height: 300px; object-fit: cover;" alt="Cây Phát Tài Núi">
+                        <div class="p-4">
+                            <h4 class="h5 text-primary-custom">Cây Phát Tài Núi</h4>
+                            <p class="small text-muted">Mang lại tài lộc và thịnh vượng mạnh mẽ</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-warning fs-5">3.800.000₫</span>
+                                <button class="btn btn-primary-custom btn-sm add-to-cart">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cây Lan Ý -->
+                <div class="col-md-4">
+                    <div class="product-card rounded shadow-sm">
+                        <img src="https://bizweb.dktcdn.net/100/275/164/products/lan-y-6eab0b7e-4cf5-4efe-b1ff-ac28bb2a034f.jpg?v=1695713488143" class="w-100" style="height: 300px; object-fit: cover;" alt="Cây Lan Ý">
+                        <div class="p-4">
+                            <h4 class="h5 text-primary-custom">Cây Lan Ý</h4>
+                            <p class="small text-muted">Tượng trưng cho tình yêu và sự tinh tế</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-warning fs-5">4.200.000₫</span>
+                                <button class="btn btn-primary-custom btn-sm add-to-cart">
+                                    <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- Thêm phần Footer này trước thẻ đóng </body> -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo và mô tả -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">HagoTree@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Theo dõi và liên kết -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="#" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <!-- Liên kết nhanh -->
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
+                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
+                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    @if (showToast)
+    {
+        <div id="hagoToast"
+             class="position-fixed top-0 end-0 p-3"
+             style="z-index: 2000; width: min(420px, 92vw);">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex gap-3 align-items-start">
+                    <div class="mt-1">
+                        @if (isOk)
+                        {
+                            <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-xmark text-danger fs-4"></i>
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold mb-1">@(isOk ? "Thành công" : "Không thành công")</div>
+                        <div class="small text-muted">@toastMessage</div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-link text-muted" id="hagoToastClose">Đóng</button>
+                </div>
+
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div id="hagoToastProgress"
+                         class="progress-bar"
+                         role="progressbar"
+                         style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    }
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- Khởi tạo EmailJS với publicKey (phiên bản mới) -->
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({
+                publicKey: "_YYchVTTYd3felsD_"
+            });
+        })();
+    </script>
+
+    <!-- Các script khác của bạn -->
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Add to cart simple
+        let cartCount = 3;
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', () => {
+                cartCount++;
+                document.querySelector('.cart-badge').textContent = cartCount;
+                alert('Đã thêm sản phẩm vào giỏ hàng!');
+            });
+        });
+
+        // Slider Hero Section
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.dot');
+            let currentSlide = 0;
+            const slideInterval = 5000;
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                slides[index].classList.add('active');
+                dots[index].classList.add('active');
+                currentSlide = index;
+            }
+            function nextSlide() {
+                let nextIndex = (currentSlide + 1) % slides.length;
+                showSlide(nextIndex);
+            }
+            let slideTimer = setInterval(nextSlide, slideInterval);
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    clearInterval(slideTimer);
+                    showSlide(index);
+                    slideTimer = setInterval(nextSlide, slideInterval);
+                });
+            });
+            const heroSection = document.querySelector('.hero-section');
+            heroSection.addEventListener('mouseenter', () => clearInterval(slideTimer));
+            heroSection.addEventListener('mouseleave', () => slideTimer = setInterval(nextSlide, slideInterval));
+        });
+
+        // Toast
+        document.addEventListener('DOMContentLoaded', function () {
+            const toast = document.getElementById('hagoToast');
+            if (!toast) return;
+            const btnClose = document.getElementById('hagoToastClose');
+            const bar = document.getElementById('hagoToastProgress');
+            const DURATION = 5000;
+            const TICK = 50;
+            let elapsed = 0;
+            function hideToast() {
+                toast.style.transition = 'opacity 250ms ease, transform 250ms ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 260);
+            }
+            const timer = setInterval(() => {
+                elapsed += TICK;
+                const remain = Math.max(0, DURATION - elapsed);
+                const pct = (remain / DURATION) * 100;
+                if (bar) bar.style.width = pct + '%';
+                if (elapsed >= DURATION) {
+                    clearInterval(timer);
+                    hideToast();
+                }
+            }, TICK);
+            btnClose?.addEventListener('click', () => {
+                clearInterval(timer);
+                hideToast();
+            });
+        });
+
+        // ==================== SCRIPT OTP EMAILJS CHÍNH ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registerForm');
+            if (!form) return;
+
+            const emailEl = document.getElementById('registerEmail');
+            const otpBlock = document.getElementById('otpBlock');
+            const otpEl = document.getElementById('registerOtp');
+            const alertEl = document.getElementById('registerAlert');
+            const btnSendOtp = document.getElementById('btnSendOtp');
+            const btnResendOtp = document.getElementById('btnResendOtp');
+            const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+            const btnSubmit = document.getElementById('btnRegisterSubmit');
+            const otpVerifiedEl = document.getElementById('OtpVerified');
+            const countdownEl = document.getElementById('otpCountdown');
+
+            let currentOtp = '';
+            let countdownTimer = null;
+            let remaining = 0;
+
+            function showAlert(type, msg) {
+                alertEl.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning', 'alert-info');
+                alertEl.classList.add('alert-' + type);
+                alertEl.innerHTML = msg;
+            }
+
+            function clearAlert() {
+                alertEl.classList.add('d-none');
+                alertEl.innerHTML = '';
+            }
+
+            function setVerified(isVerified) {
+                otpVerifiedEl.value = isVerified ? '1' : '0';
+                btnSubmit.disabled = !isVerified;
+            }
+
+            function startCountdown(seconds) {
+                remaining = seconds;
+                btnResendOtp.disabled = true;
+                countdownEl.textContent = `(${remaining}s)`;
+                if (countdownTimer) clearInterval(countdownTimer);
+                countdownTimer = setInterval(() => {
+                    remaining--;
+                    if (remaining <= 0) {
+                        clearInterval(countdownTimer);
+                        countdownTimer = null;
+                        countdownEl.textContent = '';
+                        btnResendOtp.disabled = false;
+                    } else {
+                        countdownEl.textContent = `(${remaining}s)`;
+                    }
+                }, 1000);
+            }
+
+            emailEl.addEventListener('input', () => {
+                setVerified(false);
+                otpBlock.classList.add('d-none');
+                currentOtp = '';
+                otpEl.value = '';
+                clearAlert();
+            });
+
+            btnSendOtp.addEventListener('click', async () => {
+                clearAlert();
+                setVerified(false);
+                const email = emailEl.value.trim();
+                if (!email) {
+                    showAlert('warning', 'Vui lòng nhập email hợp lệ.');
+                    return;
+                }
+
+                btnSendOtp.disabled = true;
+                btnSendOtp.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+
+                currentOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+                try {
+                    await emailjs.send("service_k5l82mh", "template_auosw4p", {
+                        to_email: email,
+                        otp: currentOtp
+                    });
+                            console.log("otpBlock before:", otpBlock?.className);
+        otpBlock.classList.remove('d-none');
+        console.log("otpBlock after:", otpBlock?.className);
+                    otpEl.focus();
+                    showAlert('info', 'Mã OTP đã gửi! Kiểm tra email (cả spam).');
+                    startCountdown(30);
+                } catch (err) {
+                    console.error("EmailJS lỗi:", err);
+                    showAlert('danger', 'Gửi OTP thất bại. Thử lại sau.');
+                } finally {
+                    btnSendOtp.disabled = false;
+                    btnSendOtp.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Gửi OTP';
+                }
+            });
+
+            btnResendOtp.addEventListener('click', () => btnSendOtp.click());
+
+            btnVerifyOtp.addEventListener('click', () => {
+                clearAlert();
+                const inputOtp = otpEl.value.trim();
+                if (!/^\d{6}$/.test(inputOtp)) {
+                    showAlert('warning', 'OTP phải đúng 6 chữ số.');
+                    return;
+                }
+                if (inputOtp === currentOtp) {
+                    setVerified(true);
+                    showAlert('success', '<i class="fa-solid fa-circle-check me-2"></i>OTP hợp lệ! Bấm Đăng ký được rồi.');
+                } else {
+                    showAlert('danger', 'OTP sai. Kiểm tra lại nhé.');
+                }
+            });
+
+            form.addEventListener('submit', e => {
+                if (otpVerifiedEl.value !== '1') {
+                    e.preventDefault();
+                    showAlert('warning', 'Bạn cần xác nhận OTP trước khi đăng ký.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

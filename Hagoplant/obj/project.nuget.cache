@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "dgSpecHash": "8kdY4+Jlprc=",
+  "success": true,
+  "projectFilePath": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.aspnetcore.authentication.cookies\\2.3.0\\microsoft.aspnetcore.authentication.cookies.2.3.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\10.0.1\\microsoft.aspnetcore.authentication.google.10.0.1.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.aspnetcore.identity\\2.3.1\\microsoft.aspnetcore.identity.2.3.1.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.0\\microsoft.entityframeworkcore.10.0.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.0\\microsoft.entityframeworkcore.abstractions.10.0.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.0\\microsoft.entityframeworkcore.analyzers.10.0.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.0\\microsoft.entityframeworkcore.relational.10.0.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\npgsql\\10.0.0\\npgsql.10.0.0.nupkg.sha512",
+    "C:\\Users\\tuant\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\10.0.0\\npgsql.entityframeworkcore.postgresql.10.0.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
+      "libraryId": "Microsoft.AspNetCore.Identity",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.AspNetCore.Authentication.Cookies will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
+      "libraryId": "Microsoft.AspNetCore.Authentication.Cookies",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
