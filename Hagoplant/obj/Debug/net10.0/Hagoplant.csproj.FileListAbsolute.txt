@@ -100,3 +100,4 @@ C:\Hagoplant\Hagoplant\obj\Debug\net10.0\refint\Hagoplant.dll
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.pdb
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.genruntimeconfig.cache
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\ref\Hagoplant.dll
+C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.sourcelink.json
