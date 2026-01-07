@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hago Tree - Quản trị hệ thống</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Francois One -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+        }
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #478152;
+            border-color: #478152;
+        }
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: #579a62;
+            color: #579a62;
+        }
+        .btn-secondary-custom:hover {
+            background-color: rgba(87, 154, 98, 0.1);
+        }
+
+        /* Header Admin */
+        .admin-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: 80px;
+        }
+        .admin-logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Sidebar Admin */
+        .admin-sidebar {
+            background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+            color: white;
+            min-height: calc(100vh - 80px);
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .admin-sidebar .nav-link {
+            color: #ddd;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .admin-sidebar .nav-link:hover {
+            background-color: rgba(87, 154, 98, 0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+        .admin-sidebar .nav-link.active {
+            background-color: #579a62;
+            color: white;
+        }
+        .admin-sidebar .nav-link i {
+            width: 25px;
+        }
+
+        /* Content area */
+        .admin-content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+            background-color: #f8f5f0;
+        }
+
+        /* Cards */
+        .admin-card {
+            border: 2px solid #d4af37;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .admin-card-header {
+            background: linear-gradient(to right, #579a62, #6bbf7a);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            text-align: center;
+            padding: 25px 15px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .stat-card.revenue { background: linear-gradient(135deg, #4e54c8, #8f94fb); }
+        .stat-card.users { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .stat-card.products { background: linear-gradient(135deg, #f46b45, #eea849); }
+        .stat-card.orders { background: linear-gradient(135deg, #8E2DE2, #4A00E0); }
+        .stat-card i { font-size: 2.5rem; margin-bottom: 15px; opacity: 0.9; }
+        .stat-card .number { font-size: 2.2rem; font-weight: bold; margin-bottom: 5px; }
+        .stat-card .label { font-size: 0.9rem; opacity: 0.9; }
+
+        /* Table search bar */
+        .table-search {
+            max-width: 300px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-content { padding: 15px; }
+            .stat-card .number { font-size: 1.8rem; }
+            .table-search { max-width: 100%; margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="admin-header d-flex align-items-center px-4">
+        <img src="https://via.placeholder.com/50" alt="Logo" class="admin-logo me-3">
+        <h4 class="text-white mb-0">Hago Tree - Quản trị</h4>
+        <div class="ms-auto">
+            <i class="fas fa-user-circle text-white fs-3"></i>
+        </div>
+    </header>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link active" href="#dashboard"><i class="fas fa-home"></i> Tổng quan</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#users"><i class="fas fa-users"></i> Người dùng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#products"><i class="fas fa-tree"></i> Sản phẩm</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#orders"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#blog"><i class="fas fa-blog"></i> Blog</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reports"><i class="fas fa-chart-bar"></i> Báo cáo</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9">
+                <div class="admin-content">
+
+                    <!-- Dashboard -->
+                    <section id="dashboard" class="section-content">
+                        <h2 class="text-primary-custom mb-4">Tổng quan hệ thống</h2>
+                        <div class="row mb-5">
+                            <div class="col-md-3"><div class="stat-card revenue"><i class="fas fa-money-bill-wave"></i><div class="number">0 ₫</div><div class="label">Doanh thu tháng</div></div></div>
+                            <div class="col-md-3"><div class="stat-card users"><i class="fas fa-users"></i><div class="number">0</div><div class="label">Người dùng</div></div></div>
+                            <div class="col-md-3"><div class="stat-card products"><i class="fas fa-tree"></i><div class="number">0</div><div class="label">Sản phẩm</div></div></div>
+                            <div class="col-md-3"><div class="stat-card orders"><i class="fas fa-shopping-cart"></i><div class="number">0</div><div class="label">Đơn hàng</div></div></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-4">
+                                <div class="admin-card">
+                                    <div class="admin-card-header"><h5 class="mb-0">Doanh thu 6 tháng gần nhất</h5></div>
+                                    <div class="card-body p-4">
+                                        <div class="empty-state"><i class="fas fa-chart-line"></i><p>Chưa có dữ liệu doanh thu</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="admin-card">
+                                    <div class="admin-card-header"><h5 class="mb-0">Phân loại sản phẩm</h5></div>
+                                    <div class="card-body p-4">
+                                        <div class="empty-state"><i class="fas fa-chart-pie"></i><p>Chưa có dữ liệu sản phẩm</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quản lý Người dùng -->
+                    <section id="users" class="section-content d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="text-primary-custom mb-0">Quản lý người dùng</h2>
+                            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="fas fa-user-plus me-2"></i>Thêm người dùng
+                            </button>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách người dùng</h5>
+                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tên, email...">
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Họ tên</th>
+                                                <th>Email</th>
+                                                <th>Số điện thoại</th>
+                                                <th>Ngày đăng ký</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <div class="empty-state py-5">
+                                                        <i class="fas fa-users"></i>
+                                                        <p>Chưa có người dùng nào</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quản lý Sản phẩm -->
+                    <section id="products" class="section-content d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="text-primary-custom mb-0">Quản lý sản phẩm</h2>
+                            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                            </button>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-tree me-2"></i>Danh sách sản phẩm</h5>
+                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tên, mã sản phẩm...">
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Hình ảnh</th>
+                                                <th>Tên sản phẩm</th>
+                                                <th>Loại cây</th>
+                                                <th>Giá</th>
+                                                <th>Kho</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="7">
+                                                    <div class="empty-state py-5">
+                                                        <i class="fas fa-tree"></i>
+                                                        <p>Chưa có sản phẩm nào</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quản lý Đơn hàng -->
+                    <section id="orders" class="section-content d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="text-primary-custom mb-0">Quản lý đơn hàng</h2>
+                            <button class="btn btn-primary-custom" disabled>
+                                <i class="fas fa-plus me-2"></i>Thêm đơn hàng (tính năng sắp có)
+                            </button>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Danh sách đơn hàng</h5>
+                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo mã đơn, khách hàng...">
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Mã đơn</th>
+                                                <th>Khách hàng</th>
+                                                <th>Ngày đặt</th>
+                                                <th>Tổng tiền</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <div class="empty-state py-5">
+                                                        <i class="fas fa-shopping-cart"></i>
+                                                        <p>Chưa có đơn hàng nào</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quản lý Blog -->
+                    <section id="blog" class="section-content d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="text-primary-custom mb-0">Quản lý bài viết blog</h2>
+                            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addBlogModal">
+                                <i class="fas fa-plus me-2"></i>Viết bài mới
+                            </button>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-blog me-2"></i>Danh sách bài viết</h5>
+                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tiêu đề, tác giả...">
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tiêu đề</th>
+                                                <th>Tác giả</th>
+                                                <th>Ngày đăng</th>
+                                                <th>Lượt xem</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <div class="empty-state py-5">
+                                                        <i class="fas fa-blog"></i>
+                                                        <p>Chưa có bài viết nào</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Báo cáo -->
+                    <section id="reports" class="section-content d-none">
+                        <h2 class="text-primary-custom mb-4">Báo cáo & Thống kê</h2>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="admin-card">
+                                    <div class="admin-card-header"><h5 class="mb-0">Thống kê chi tiết</h5></div>
+                                    <div class="card-body p-5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-chart-bar"></i>
+                                            <p>Chưa có dữ liệu để hiển thị báo cáo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ví dụ (có thể mở rộng thêm) -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title">Thêm người dùng mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Form thêm người dùng sẽ được kết nối API sau...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary-custom">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('d-none'));
+            document.getElementById(sectionId).classList.remove('d-none');
+
+            document.querySelectorAll('.admin-sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            const activeLink = document.querySelector(`.admin-sidebar .nav-link[href="#${sectionId}"]`);
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.admin-sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    showSection(link.getAttribute('href').substring(1));
+                });
+            });
+
+            // Placeholder cho nút lưu modal
+            document.querySelectorAll('.modal .btn-primary-custom').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    alert('Thao tác thành công! (Sẽ gọi API thực tế sau)');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
