@@ -1,0 +1,1625 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Hago Tree</title>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-WX29HS7M');
+    </script>
+    <!-- End Google Tag Manager -->
+
+
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+
+    <!-- CSS dùng CHUNG từ About -->
+    <!-- ⚠️ GIỮ NGUYÊN STYLE BẠN ĐÃ GỬI -->
+    <style>
+       
+
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        /* Thêm các style này vào phần CSS hiện có */
+
+        /* Header styles */
+        header {
+            z-index: 1030;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: #579a62 !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #579a62 !important;
+                font-weight: bold;
+            }
+
+        /* Search bar styling */
+        .input-group .form-control {
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid #579a62;
+        }
+
+        .input-group .form-control:focus {
+            border-color: #579a62;
+            box-shadow: none;
+        }
+
+        /* Cart styling */
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 991px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .navbar-nav .nav-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .navbar-nav .nav-item:not(:last-child) {
+                margin-right: 0.5rem;
+            }
+        }
+
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #478152;
+                border-color: #478152;
+            }
+
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: #579a62;
+            color: #579a62;
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+            }
+
+        .ornament {
+            position: relative;
+        }
+
+            .ornament::before,
+            .ornament::after {
+                content: '❦';
+                position: absolute;
+                color: #d4af37;
+                font-size: 28px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .ornament::before {
+                left: -50px;
+            }
+
+            .ornament::after {
+                right: -50px;
+            }
+
+        .product-card {
+            transition: all 0.3s ease;
+            border: 2px solid #d4af37;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+            .product-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(87, 154, 98, 0.25);
+            }
+
+            .product-card img {
+                transition: transform 0.5s ease;
+            }
+
+            .product-card:hover img {
+                transform: scale(1.05);
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center; /* căn giữa theo chiều dọc */
+            justify-content: center; /* căn giữa theo chiều ngang */
+
+            font-size: 12px;
+            line-height: 1; /* tránh bị lệch chữ */
+        }
+
+        /* Hero Section Slider */
+        .hero-section {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+            color: white;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+            .hero-slide.active {
+                opacity: 1;
+            }
+
+            .hero-slide::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+            }
+
+        /* Ảnh 1: Vintage Botanical */
+        .hero-slide-1 {
+            background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20250929/pngtree-elegant-gold-and-green-botanical-illustration-decorative-design-image_19708320.webp');
+        }
+
+        /* Ảnh 2: Cây cảnh trong nhà */
+        .hero-slide-2 {
+            background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+        }
+
+        /* Ảnh 3: Không gian xanh */
+        .hero-slide-3 {
+            background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dots navigation */
+        .slider-dots {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 3;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .dot.active {
+                background-color: #d4af37;
+                transform: scale(1.2);
+            }
+
+        /* Animation cho text */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .hero-subtitle {
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .hero-btn {
+            animation: fadeInUp 1s ease-out 1.5s both;
+        }
+
+        /* Footer */
+        /* Footer styles */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+            flex-shrink: 0;
+            margin-top: auto !important;
+            width: 100%;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: #579a62 !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        /* Responsive footer */
+        @@media (max-width: 768px) {
+            footer .d-flex.align-items-center {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                footer .d-flex.align-items-center .me-3 {
+                    margin-right: 0 !important;
+                    margin-bottom: 1rem;
+                }
+        }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+
+        /* THÊM STYLE CHO PHẦN BODY NỘI DUNG (chỉ phần main) */
+
+        /* Container chính */
+        main.container, main .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Container trong main */
+        main .container {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            margin-bottom: 0 !important;
+        }
+
+        /* Giảm margin của các sections */
+        main section.mb-5 {
+            margin-bottom: 2rem !important;
+        }
+
+        /* Section cuối cùng không có margin dưới */
+        main section:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 1.5rem !important;
+        }
+
+        /* Tiêu đề chính */
+        main h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            text-align: center;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+            main h1::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100px;
+                height: 4px;
+                background: linear-gradient(90deg, #579a62, #d4af37);
+                border-radius: 2px;
+            }
+
+        main h2 {
+            font-size: 2.2rem;
+            margin: 2.5rem 0 1.5rem;
+            color: #34495e;
+            position: relative;
+            padding-left: 20px;
+        }
+
+            main h2::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 6px;
+                height: 70%;
+                background-color: #579a62;
+                border-radius: 3px;
+            }
+
+        main h3 {
+            font-size: 1.8rem;
+            color: #579a62;
+            margin: 2rem 0 1rem;
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 8px;
+        }
+
+        main h4 {
+            font-size: 1.4rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        /* Đoạn văn */
+        main p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            color: #4a5568;
+            text-align: justify;
+        }
+
+        main .lead {
+            font-size: 1.3rem;
+            color: #555;
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Danh sách */
+        main ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+
+            main ul li {
+                padding: 8px 0 8px 35px;
+                position: relative;
+                margin-bottom: 8px;
+                color: #4a5568;
+                font-size: 1.1rem;
+            }
+
+                main ul li::before {
+                    content: '✓';
+                    position: absolute;
+                    left: 0;
+                    top: 8px;
+                    width: 25px;
+                    height: 25px;
+                    background-color: #579a62;
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+
+        /* Card boxes */
+        main .bg-white {
+            background-color: #ffffff !important;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(87, 154, 98, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+            main .bg-white:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 25px rgba(87, 154, 98, 0.15);
+                border-color: #579a62;
+            }
+
+        /* Các section */
+        main section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: linear-gradient(to bottom, #ffffff, #f9f9f9);
+            border-radius: 15px;
+            border-left: 5px solid #579a62;
+        }
+
+        /* Timeline items */
+        main .col-md-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Quotes và text đặc biệt */
+        main .fw-bold {
+            font-size: 1.2rem;
+            color: #579a62;
+            background-color: rgba(87, 154, 98, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #d4af37;
+            margin: 2rem 0;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            main h1 {
+                font-size: 2.2rem;
+            }
+
+            main h2 {
+                font-size: 1.8rem;
+            }
+
+            main h3 {
+                font-size: 1.5rem;
+            }
+
+            main p {
+                font-size: 1rem;
+            }
+
+            main section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Animation cho các phần tử */
+        .fade-in-element {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Styling cho ornament đã có */
+        main .ornament::before,
+        main .ornament::after {
+            content: '❦';
+            position: absolute;
+            color: #d4af37;
+            font-size: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        main .ornament::before {
+            left: -50px;
+        }
+
+        main .ornament::after {
+            right: -50px;
+        }
+
+        /* Custom cho nội dung giới thiệu */
+        main .text-primary-custom {
+            background: linear-gradient(90deg, #579a62, #2c5f2d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* Background nền tổng thể */
+        main {
+            flex: 1;
+            background: linear-gradient(135deg, #f8f5f0 0%, #f0f7f0 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+            main::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: radial-gradient(circle at 20% 80%, rgba(87, 154, 98, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.06) 0%, transparent 50%);
+                pointer-events: none;
+            }
+
+            /* Tiêu đề chính với hiệu ứng đặc biệt */
+            main h1 {
+                font-size: 3.5rem;
+                font-weight: 800;
+                margin-bottom: 2rem;
+                text-align: center;
+                position: relative;
+                padding: 1.5rem 0;
+                background: linear-gradient(45deg, #2c5f2d, #579a62, #d4af37);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+                letter-spacing: 1px;
+            }
+
+                main h1::before {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 200px;
+                    height: 4px;
+                    background: linear-gradient(90deg, transparent, #579a62, #d4af37, transparent);
+                    border-radius: 2px;
+                }
+
+                main h1::after {
+                    content: '✿';
+                    position: absolute;
+                    bottom: -15px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    color: #d4af37;
+                    font-size: 24px;
+                    animation: float 3s ease-in-out infinite;
+                }
+
+            /* Tiêu đề phụ */
+            main h2 {
+                font-size: 2.5rem;
+                margin: 3rem 0 2rem;
+                text-align: center;
+                position: relative;
+                padding: 1rem 4rem;
+                background: white;
+                display: inline-block;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(87, 154, 98, 0.15);
+                border: 2px solid #e8f5e9;
+                transform-style: preserve-3d;
+                perspective: 1000px;
+            }
+
+                main h2 .ornament {
+                    position: relative;
+                    padding: 0 4rem;
+                }
+
+                    main h2 .ornament::before,
+                    main h2 .ornament::after {
+                        content: '❧';
+                        position: absolute;
+                        color: #d4af37;
+                        font-size: 32px;
+                        top: 50%;
+                        transform: translateY(-50%) rotate(-15deg);
+                        animation: spin 10s linear infinite;
+                    }
+
+                    main h2 .ornament::before {
+                        left: 0;
+                        animation-delay: -5s;
+                    }
+
+                    main h2 .ornament::after {
+                        right: 0;
+                        transform: translateY(-50%) rotate(15deg);
+                    }
+
+            /* Timeline cards - Thiết kế giống như những lá cây */
+            main .col-md-6 .bg-white {
+                background: linear-gradient(145deg, #ffffff, #f5f5f5) !important;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(87, 154, 98, 0.15), inset 0 1px 0 rgba(255,255,255,0.8);
+                border: none;
+                padding: 2.5rem;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                min-height: 280px;
+                border-top: 5px solid #579a62;
+            }
+
+                main .col-md-6 .bg-white::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 5px;
+                    background: linear-gradient(90deg, #579a62, #d4af37);
+                }
+
+                main .col-md-6 .bg-white::after {
+                    content: '2025';
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    font-size: 4rem;
+                    font-weight: 900;
+                    color: rgba(87, 154, 98, 0.05);
+                    z-index: 0;
+                }
+
+            main .col-md-6:nth-child(2) .bg-white::after {
+                content: '2026';
+            }
+
+            main .col-md-6:nth-child(3) .bg-white::after {
+                content: '2027';
+            }
+
+            main .col-md-6:nth-child(4) .bg-white::after {
+                content: '2028';
+            }
+
+            main .col-md-6 .bg-white:hover {
+                transform: translateY(-15px) rotateX(5deg);
+                box-shadow: 0 25px 50px rgba(87, 154, 98, 0.25), 0 0 100px rgba(212, 175, 55, 0.1);
+            }
+
+            /* Timeline year indicator */
+            main .col-md-6 .text-warning {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #d4af37 !important;
+                position: relative;
+                display: inline-block;
+                padding-bottom: 10px;
+                margin-bottom: 1.5rem;
+            }
+
+                main .col-md-6 .text-warning::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 60px;
+                    height: 3px;
+                    background: linear-gradient(90deg, #d4af37, #ffd700);
+                    border-radius: 2px;
+                }
+
+            /* Paragraph styling với hiệu ứng */
+            main p {
+                font-size: 1.15rem;
+                line-height: 1.9;
+                color: #4a5568;
+                position: relative;
+                padding-left: 1.5rem;
+                margin-bottom: 1.5rem;
+                text-align: justify;
+            }
+
+                main p::before {
+                    content: '❖';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    color: #579a62;
+                    font-size: 1rem;
+                }
+
+            main .lead {
+                font-size: 1.4rem;
+                font-weight: 300;
+                line-height: 1.8;
+                color: #555;
+                text-align: center;
+                max-width: 900px;
+                margin: 2rem auto 4rem;
+                padding: 2rem;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 15px;
+                border-left: 5px solid #d4af37;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+                position: relative;
+                overflow: hidden;
+            }
+
+                main .lead::before {
+                    content: '"';
+                    position: absolute;
+                    top: 10px;
+                    left: 20px;
+                    font-size: 8rem;
+                    color: rgba(87, 154, 98, 0.1);
+                    font-family: serif;
+                    line-height: 1;
+                }
+
+            /* Sections với hiệu ứng đặc biệt */
+            main > section {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 25px;
+                padding: 3rem;
+                margin-bottom: 2rem !important; /* Giảm margin giữa các sections */
+                box-shadow: 0 15px 35px rgba(87, 154, 98, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+                border: 1px solid rgba(87, 154, 98, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+
+                main > section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 8px;
+                    background: linear-gradient(90deg, #579a62 0%, #8bc34a 25%, #d4af37 50%, #8bc34a 75%, #579a62 100%);
+                }
+
+            /* List với hiệu ứng đẹp */
+            main ul {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+                margin: 2rem 0;
+            }
+
+                main ul li {
+                    background: linear-gradient(145deg, #f8fff8, #e8f5e9);
+                    padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+                    border-radius: 12px;
+                    position: relative;
+                    margin-bottom: 0.8rem;
+                    border: 1px solid rgba(87, 154, 98, 0.2);
+                    transition: all 0.3s ease;
+                    font-size: 1.1rem;
+                    color: #2c3e50;
+                }
+
+                    main ul li:hover {
+                        transform: translateX(10px);
+                        background: linear-gradient(145deg, #e8f5e9, #f8fff8);
+                        box-shadow: 0 5px 15px rgba(87, 154, 98, 0.2);
+                    }
+
+                    main ul li::before {
+                        content: '🌿';
+                        position: absolute;
+                        left: 1rem;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        font-size: 1.3rem;
+                        background: linear-gradient(45deg, #579a62, #8bc34a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        animation: leafMove 2s ease-in-out infinite;
+                    }
+
+            /* Highlight text */
+            main strong {
+                background: linear-gradient(120deg, rgba(87, 154, 98, 0.1) 0%, rgba(87, 154, 98, 0.2) 100%);
+                padding: 0.2rem 0.5rem;
+                border-radius: 4px;
+                color: #2c5f2d;
+                font-weight: 600;
+            }
+
+            /* Quote đặc biệt */
+            main .fw-bold.text-center {
+                font-size: 1.4rem;
+                background: linear-gradient(135deg, rgba(87, 154, 98, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+                padding: 2rem;
+                border-radius: 20px;
+                position: relative;
+                margin: 3rem 0;
+                border: 2px dashed #579a62;
+                font-style: italic;
+                color: #2c5f2d;
+                font-weight: 500;
+            }
+
+                main .fw-bold.text-center::before,
+                main .fw-bold.text-center::after {
+                    content: '"';
+                    font-size: 4rem;
+                    color: #d4af37;
+                    position: absolute;
+                    font-family: serif;
+                }
+
+                main .fw-bold.text-center::before {
+                    top: -10px;
+                    left: 20px;
+                }
+
+                main .fw-bold.text-center::after {
+                    bottom: -30px;
+                    right: 20px;
+                }
+
+            /* Override Bootstrap padding/margin */
+            main.py-5 {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+
+            main.bg-light {
+                background: transparent !important;
+            }
+
+        /* Hiệu ứng floating leaf */
+        .floating-leaf {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.3;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatAround 20s linear infinite;
+        }
+
+        /* ANIMATIONS */
+        @@keyframes float {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        @@keyframes spin {
+            from {
+                transform: translateY(-50%) rotate(0deg);
+            }
+
+            to {
+                transform: translateY(-50%) rotate(360deg);
+            }
+        }
+
+        @@keyframes leafMove {
+            0%, 100% {
+                transform: translateY(-50%) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-50%) rotate(-10deg);
+            }
+        }
+
+        @@keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translate(100vw, 100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            main h1 {
+                font-size: 2.5rem;
+            }
+
+            main h2 {
+                font-size: 2rem;
+                padding: 1rem 2rem;
+            }
+
+            main .col-md-6 .bg-white {
+                padding: 2rem;
+                min-height: auto;
+            }
+
+            main > section {
+                padding: 2rem 1.5rem;
+            }
+
+            main ul {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* CUSTOM SCROLLBAR CHO MAIN */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        main::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        main::-webkit-scrollbar-thumb {
+            background: linear-gradient(#579a62, #d4af37);
+            border-radius: 4px;
+        }
+
+        /* GIẢI PHÁP TRIỆT ĐỂ - THÊM VÀO CUỐI PHẦN STYLE */
+
+        /* Reset khoảng cách body */
+        body {
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Sửa main */
+        main {
+            flex: 1 0 auto !important;
+            min-height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Xóa tất cả padding/margin thừa */
+        .py-5 {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .my-5 {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Container chỉ có padding trên/dưới nhẹ */
+        main .container {
+            padding-top: 20px !important;
+            padding-bottom: 20px !important;
+        }
+
+        /* Section cuối cùng */
+        main > section:last-child {
+            padding-bottom: 20px !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Footer dính chặt */
+        footer {
+            margin-top: 0 !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Background pattern vẫn hoạt động */
+        main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 20% 80%, rgba(87, 154, 98, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* DEBUG CSS - Thêm tạm để kiểm tra */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Đảm bảo body chiếm toàn bộ màn hình */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Layout flex chính */
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main phải chiếm không gian còn lại */
+        main {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(135deg, #f8f5f0 0%, #f0f7f0 100%);
+        }
+
+            /* Loại bỏ mọi khoảng cách từ Bootstrap classes */
+            main .py-5 {
+                padding: 0 !important;
+            }
+
+            main .bg-light {
+                background: transparent !important;
+            }
+
+        /* Container chỉ có padding nhỏ */
+        .container {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Giảm margin các section */
+        section {
+            margin-bottom: 1.5rem !important;
+        }
+
+            section:last-child {
+                margin-bottom: 0 !important;
+                padding-bottom: 1rem !important;
+            }
+
+        /* Footer luôn ở dưới cùng */
+        footer {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+
+        .footerlogo {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+</head>
+
+<body>
+
+  
+        <!-- Google Tag Manager (noscript) -->
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WX29HS7M"
+                    height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        </noscript>
+
+    <!-- ================= HEADER ================= -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img class="imglogo me-2" src="~/images/Hago_Logo.jpg" />
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group ">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh...">
+                            <button class="btn btn-primary-custom">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <ul class="navbar-nav ms-auto">
+
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#products">
+                                <i class="fas fa-tree me-1"></i> Sản phẩm
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium active" href="/Home/Contact">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="#">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">1</span>
+                            </a>
+                        </li>
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Đã đăng nhập: hiển thị tên + menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/Order/History">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="fas fa-id-card me-2"></i> Tài khoản
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> Tài khoản
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                            <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main>
+        <div class="container py-5">
+
+            <section class="fade-in-element">
+                <h1>Liên hệ với Hago Tree</h1>
+                <p class="lead text-center">
+                    Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn 🌿
+                </p>
+            </section>
+
+            <br />
+
+            <section class="row g-4 fade-in-element">
+
+                <!-- Thông tin liên hệ -->
+                <div class="col-md-5">
+                    <div class="bg-white h-100 p-4">
+                        <h3>Thông tin liên hệ</h3>
+
+                        <p>
+                            <i class="fas fa-map-marker-alt text-primary-custom me-2"></i>
+                            Hẻm 1581, Bùi Hữu Nghĩa, Biên Hòa, Đồng Nai
+                        </p>
+
+                        <p>
+                            <i class="fas fa-envelope text-primary-custom me-2"></i>
+                            hagotreevn@gmail.com
+                        </p>
+
+                        <p>
+                            <i class="fas fa-phone text-primary-custom me-2"></i>
+                            0947 192 590
+                        </p>
+
+                        <hr />
+
+                        <p class="fw-bold">
+                            Hago Tree – Mang không gian xanh bền vững đến mọi ngôi nhà.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FORM FORMSpree -->
+                <div class="col-md-7">
+                    <div class="bg-white p-4">
+                        <h3>Gửi tin nhắn cho chúng tôi</h3>
+
+                        <form id="contactForm"
+                              action="https://formspree.io/f/xykzrkyw"
+                              method="POST">
+
+                            <div class="mb-3">
+                                <label class="form-label">Họ và tên</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nội dung</label>
+                                <textarea name="message" class="form-control" rows="5" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="fas fa-paper-plane me-2"></i> Gửi liên hệ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo và mô tả -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">Hagotreevn@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Theo dõi và liên kết -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="#" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <!-- Liên kết nhanh -->
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#" class="text-light text-decoration-none small">Chính sách</a></li>
+                                <li class="mb-2"><a href="#" class="text-light text-decoration-none small">Bảo mật</a></li>
+                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= SCRIPT FORMSpree + Toast ================= -->
+    <script>
+        const form = document.getElementById("contactForm");
+
+        // Tạo toast container nếu chưa có (giống Index)
+        if (!document.getElementById('hagoToastContainer')) {
+            const toastContainer = document.createElement('div');
+            toastContainer.id = 'hagoToastContainer';
+            toastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:2000;';
+            document.body.appendChild(toastContainer);
+        }
+
+        function showToast(isSuccess, message) {
+            const container = document.getElementById('hagoToastContainer');
+
+            const toast = document.createElement('div');
+            toast.className = 'card shadow-sm border-0';
+            toast.style.cssText = 'width:min(420px,92vw);margin-bottom:1rem;';
+
+            toast.innerHTML = `
+                <div class="card-body d-flex gap-3 align-items-start">
+                    <div class="mt-1">
+                        ${isSuccess
+                            ? '<i class="fa-solid fa-circle-check text-success fs-4"></i>'
+                            : '<i class="fa-solid fa-circle-xmark text-danger fs-4"></i>'
+                        }
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold mb-1">${isSuccess ? 'Thành công' : 'Không thành công'}</div>
+                        <div class="small text-muted">${message}</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-link text-muted" onclick="this.closest('.card').remove()">
+                        Đóng
+                    </button>
+                </div>
+                <div class="progress rounded-0" style="height:4px;">
+                    <div class="progress-bar bg-${isSuccess ? 'success' : 'danger'}"
+                         role="progressbar"
+                         style="width:100%;transition:width 5s linear;">
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Tự động ẩn sau 5 giây
+            const progressBar = toast.querySelector('.progress-bar');
+            setTimeout(() => {
+                progressBar.style.width = '0%';
+            }, 100);
+
+            setTimeout(() => {
+                if (toast.isConnected) toast.remove();
+            }, 5100);
+        }
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const data = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (response.ok) {
+                    // Đẩy event thành công vào GTM nếu cần
+                    if (window.dataLayer) {
+                        window.dataLayer.push({
+                            event: "contactFormSubmit",
+                            formStatus: "success",
+                            formData: {
+                                name: data.get("name"),
+                                email: data.get("email")
+                            }
+                        });
+                    }
+
+                    showToast(true, "Đã gửi liên hệ thành công! Hago Tree sẽ phản hồi sớm nhất.");
+                    form.reset(); // Xóa form sau khi gửi thành công
+
+                    // Tùy chọn: chuyển về trang chủ sau 3 giây
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 3000);
+
+                } else {
+                    if (window.dataLayer) {
+                        window.dataLayer.push({
+                            event: "contactFormSubmit",
+                            formStatus: "error"
+                        });
+                    }
+                    showToast(false, "Gửi liên hệ thất bại. Vui lòng thử lại sau.");
+                }
+            } catch (error) {
+                if (window.dataLayer) {
+                    window.dataLayer.push({
+                        event: "contactFormSubmit",
+                        formStatus: "exception",
+                        errorMessage: error.message
+                    });
+                }
+                showToast(false, "Không thể gửi liên hệ. Vui lòng kiểm tra kết nối mạng.");
+            }
+        });
+    </script>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

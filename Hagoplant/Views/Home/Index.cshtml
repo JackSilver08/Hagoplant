@@ -238,18 +238,17 @@
 
         /* Ảnh 1: Vintage Botanical */
         .hero-slide-1 {
-            background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20250929/pngtree-elegant-gold-and-green-botanical-illustration-decorative-design-image_19708320.webp');
+            background-image: url('/images/BannerIndex1.png');
         }
 
-        /* Ảnh 2: Cây cảnh trong nhà */
         .hero-slide-2 {
-            background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-image: url('/images/BannerIndex2.png');
         }
 
-        /* Ảnh 3: Không gian xanh */
         .hero-slide-3 {
-            background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-image: url('/images/BannerIndex3.png');
         }
+
 
         .hero-content {
             position: relative;
@@ -300,11 +299,14 @@
             }
         }
 
+        /* Tăng kích thước chữ Hero Section */
         .hero-title {
+            font-size: 10rem !important; /* Hiện tại display-3 ≈ 4rem, tăng lên 4.5rem hoặc lớn hơn */
             animation: fadeInUp 1s ease-out 0.5s both;
         }
 
         .hero-subtitle {
+            font-size: 2rem !important; /* Hiện tại lead ≈ 1.25rem, tăng lên 2rem hoặc tùy ý */
             animation: fadeInUp 1s ease-out 1s both;
         }
 
@@ -397,6 +399,7 @@
         }
 
 
+
     </style>
 </head>
 <body>
@@ -449,7 +452,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#contact">
+                            <a class="nav-link text-dark fw-medium" href="/Home/contact ">
                                 <i class="fas fa-phone-alt me-1"></i> Liên hệ
                             </a>
                         </li>

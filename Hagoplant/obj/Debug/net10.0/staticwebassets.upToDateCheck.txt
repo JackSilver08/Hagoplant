@@ -1,5 +1,8 @@
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\images\BannerIndex1.png
+wwwroot\images\BannerIndex2.png
+wwwroot\images\BannerIndex3.png
 wwwroot\images\HagoGreen.png
 wwwroot\images\Hago_Logo.jpg
 wwwroot\js\site.js
