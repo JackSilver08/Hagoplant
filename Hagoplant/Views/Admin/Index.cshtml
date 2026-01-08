@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@model Hagoplant.ViewModels.AdminDashboardVm
+@@model Hagoplant.ViewModels.HomeIndexVm
+@using System.Linq
+
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -245,47 +249,156 @@
 
                     <!-- Quản lý Sản phẩm -->
                     <section id="products" class="section-content d-none">
+
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="text-primary-custom mb-0">Quản lý sản phẩm</h2>
-                            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            <button class="btn btn-primary-custom"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addProductModal">
                                 <i class="fas fa-plus me-2"></i>Thêm sản phẩm
                             </button>
                         </div>
 
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="fas fa-tree me-2"></i>Danh sách sản phẩm</h5>
-                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tên, mã sản phẩm...">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-tree me-2"></i>Danh sách sản phẩm
+                                </h5>
+                                <input id="productSearch"
+                                       type="text"
+                                       class="form-control table-search"
+                                       placeholder="Tìm theo tên, slug, id..." />
                             </div>
+
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Hình ảnh</th>
-                                                <th>Tên sản phẩm</th>
-                                                <th>Loại cây</th>
-                                                <th>Giá</th>
-                                                <th>Kho</th>
-                                                <th>Thao tác</th>
+                                                <th style="min-width:180px;">ID</th>
+                                                <th style="width:90px;">Ảnh</th>
+                                                <th style="min-width:220px;">Tên sản phẩm</th>
+                                                <th style="min-width:200px;">Slug</th>
+                                                <th style="min-width:120px;">Giá</th>
+                                                <th style="min-width:120px;">Giá sale</th>
+                                                <th style="min-width:110px;">Đang bán</th>
+                                                <th style="min-width:110px;">Nổi bật</th>
+                                                <th style="min-width:170px;">Ngày tạo</th>
+                                                <th style="min-width:140px;">Thao tác</th>
                                             </tr>
                                         </thead>
+
                                         <tbody>
-                                            <tr>
-                                                <td colspan="7">
-                                                    <div class="empty-state py-5">
-                                                        <i class="fas fa-tree"></i>
-                                                        <p>Chưa có sản phẩm nào</p>
-                                                    </div>
+                                            @if (Model?.Products == null || Model.Products.Count == 0)
+                                            {
+                                                <tr>
+                                                    <td colspan="10">
+                                                        <div class="empty-state py-5 text-center">
+                                                            <i class="fas fa-tree"></i>
+                                                            <p class="mb-0">Chưa có sản phẩm nào</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                foreach (var p in Model.Products)
+                                                {
+                                                    <tr>
+                                                        <td class="text-muted small">@p.Id</td>
+
+                                                        <td>
+                                                            @if (!string.IsNullOrWhiteSpace(p.ImageUrl))
+                                                            {
+                                                                <img src="@p.ImageUrl"
+                                                                     class="rounded"
+                                                                     style="width:60px;height:60px;object-fit:cover;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted small">No image</span>
+                                                            }
                                                 </td>
-                                            </tr>
+
+                                                <td class="fw-semibold">@p.Name</td>
+                                                <td class="text-muted">@p.Slug</td>
+
+                                                <td>@string.Format("{0:N0}", p.Price)</td>
+                                                <td>
+                                                    @(p.SalePrice.HasValue
+                                                                                                        ? string.Format("{0:N0}", p.SalePrice.Value)
+                                                                                                        : "-")
+                                                        </td>
+
+                                                        <td>
+                                                            @if (p.IsActive)
+                                                            {
+                                                                <span class="badge bg-success">Active</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-secondary">Off</span>
+                                                            }
+                                                        </td>
+
+                                                        <td>
+                                                            @if (p.IsFeatured)
+                                                            {
+                                                                <span class="badge bg-warning text-dark">Yes</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-secondary">No</span>
+                                                            }
+                                                        </td>
+
+                                                        <td class="text-muted">
+                                                            @p.CreatedAt.ToLocalTime()
+                                                            .ToString("dd/MM/yyyy HH:mm")
+                                                        </td>
+
+                                                        <td>
+                                                            <!-- Edit -->
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-outline-primary btn-edit-product"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editProductModal"
+                                                                    data-id="@p.Id"
+                                                                    data-name="@p.Name"
+                                                                    data-slug="@p.Slug"
+                                                                    data-description="@p.Description"
+                                                                    data-price="@p.Price"
+                                                                    data-saleprice="@(p.SalePrice?.ToString() ?? "")"
+                                                                    data-imageurl="@p.ImageUrl"
+                                                                    data-isactive="@p.IsActive"
+                                                                    data-isfeatured="@p.IsFeatured">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+
+                                                            <!-- Delete -->
+                                                            <form method="post"
+                                                                  action="/Admin/DeleteProduct"
+                                                                  class="d-inline"
+                                                                  onsubmit="return confirm('Xóa sản phẩm này?');">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="id" value="@p.Id" />
+                                                                <button type="submit"
+                                                                        class="btn btn-sm btn-outline-danger ms-1">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </section>
+
+
 
                     <!-- Quản lý Đơn hàng -->
                     <section id="orders" class="section-content d-none">
@@ -395,6 +508,250 @@
             </div>
         </div>
     </div>
+    <!-- Modal Thêm sản phẩm -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title" id="addProductModalLabel">
+                        <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <form method="post"
+                      action="@Url.Action("CreateProduct", "Admin")"
+                      id="addProductForm"
+                      novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="modal-body">
+                        <input type="hidden" name="Id" value="" />
+                        <input type="hidden" name="ImageUrl" id="productImageUrlHidden" />
+                        <input type="hidden" name="CreatedAt" value="" />
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="productName"
+                                       name="Name"
+                                       required
+                                       maxlength="200"
+                                       placeholder="Ví dụ: Cây Trầu Bà Leo Cột" />
+                                <div class="invalid-feedback">Vui lòng nhập tên sản phẩm.</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Slug <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="productSlug"
+                                       name="Slug"
+                                       required
+                                       maxlength="250"
+                                       placeholder="cay-trau-ba-leo-cot" />
+                                <div class="invalid-feedback">Vui lòng nhập slug.</div>
+                                <small class="text-muted">Tự tạo từ tên, bạn có thể sửa lại.</small>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Mô tả</label>
+                                <textarea class="form-control"
+                                          id="productDescription"
+                                          name="Description"
+                                          rows="4"
+                                          placeholder="Mô tả ngắn về sản phẩm..."></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Giá gốc (Price) <span class="text-danger">*</span></label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="productPrice"
+                                       name="Price"
+                                       required
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="0" />
+                                <div class="invalid-feedback">Vui lòng nhập giá hợp lệ.</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Giá sale (SalePrice)</label>
+                                <input type="number"
+                                       class="form-control"
+                                       id="productSalePrice"
+                                       name="SalePrice"
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="(không bắt buộc)" />
+                                <small class="text-muted">Có thể để trống.</small>
+                            </div>
+
+                            <!-- Trạng thái: KHÔNG hidden boolean -->
+                            <div class="col-md-4">
+                                <label class="form-label">Trạng thái</label>
+                                <div class="d-flex gap-3 align-items-center mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="productIsActive"
+                                               name="IsActive"
+                                               value="true"
+                                               checked />
+                                        <label class="form-check-label" for="productIsActive">Đang bán</label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="productIsFeatured"
+                                               name="IsFeatured"
+                                               value="true" />
+                                        <label class="form-check-label" for="productIsFeatured">Nổi bật</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload ảnh -> Cloudinary (JS upload và set ImageUrl hidden) -->
+                            <div class="col-md-8">
+                                <label class="form-label">Ảnh sản phẩm</label>
+                                <input type="file"
+                                       class="form-control"
+                                       id="productImageFile"
+                                       accept="image/*" />
+                                <small class="text-muted">Chọn ảnh để upload lên Cloudinary; link sẽ tự lưu vào database.</small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Xem trước ảnh</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                    <img id="productImagePreview" alt="preview" style="max-height:110px;max-width:100%;display:none;" />
+                                    <span id="productImageEmpty" class="text-muted">Chưa có ảnh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-save me-2"></i>Lưu sản phẩm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sửa sản phẩm -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary-custom text-white">
+                    <h5 class="modal-title"><i class="fas fa-pen me-2"></i>Sửa sản phẩm</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form method="post"
+                      action="@Url.Action("UpdateProduct", "Admin")"
+                      id="editProductForm"
+                      novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" id="editId" />
+
+                    <!-- JS sẽ set URL ảnh mới vào đây (nếu upload ảnh mới) -->
+                    <input type="hidden" name="ImageUrl" id="editImageUrlHidden" />
+
+                    <!-- Luôn giữ URL ảnh hiện tại để server có thể giữ lại nếu không upload mới -->
+                    <input type="hidden" name="ExistingImageUrl" id="editExistingImageUrl" />
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Tên sản phẩm *</label>
+                                <input type="text" class="form-control" id="editName" name="Name" required />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Slug *</label>
+                                <input type="text" class="form-control" id="editSlug" name="Slug" required />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="editDescription" name="Description" rows="4"></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Giá *</label>
+                                <input type="number" class="form-control" id="editPrice" name="Price" step="0.01" min="0" required />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Giá sale</label>
+                                <input type="number" class="form-control" id="editSalePrice" name="SalePrice" step="0.01" min="0" />
+                            </div>
+
+                            <!-- Trạng thái: KHÔNG hidden boolean -->
+                            <div class="col-md-4">
+                                <label class="form-label">Trạng thái</label>
+                                <div class="d-flex gap-3 align-items-center mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="editIsActive"
+                                               name="IsActive"
+                                               value="true" />
+                                        <label class="form-check-label" for="editIsActive">Đang bán</label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="editIsFeatured"
+                                               name="IsFeatured"
+                                               value="true" />
+                                        <label class="form-check-label" for="editIsFeatured">Nổi bật</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chọn ảnh mới (nếu cần). JS upload và set editImageUrlHidden -->
+                            <div class="col-md-8">
+                                <label class="form-label">Đổi ảnh sản phẩm (nếu cần)</label>
+                                <input type="file"
+                                       class="form-control"
+                                       id="editImageFile"
+                                       accept="image/*" />
+                                <small class="text-muted">Nếu không chọn ảnh mới, hệ thống sẽ giữ ảnh hiện tại.</small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Xem trước ảnh</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                    <img id="editImgPreview" alt="preview" style="max-height:110px;max-width:100%;display:none;" />
+                                    <span id="editImgEmpty" class="text-muted">Chưa có ảnh</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-save me-2"></i>Cập nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal ví dụ (có thể mở rộng thêm) -->
     <div class="modal fade" id="addUserModal" tabindex="-1">
@@ -417,30 +774,227 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function showSection(sectionId) {
-            document.querySelectorAll('.section-content').forEach(s => s.classList.add('d-none'));
-            document.getElementById(sectionId).classList.remove('d-none');
+        (() => {
+          "use strict";
 
-            document.querySelectorAll('.admin-sidebar .nav-link').forEach(l => l.classList.remove('active'));
-            const activeLink = document.querySelector(`.admin-sidebar .nav-link[href="#${sectionId}"]`);
-            if (activeLink) activeLink.classList.add('active');
-        }
+          // ====== Cloudinary unsigned config ======
+          const CLOUD_NAME = "dksk0yoma";      // ví dụ: "hagotree"
+          const UPLOAD_PRESET = "hago_unsigned_products";    // đúng preset bạn tạo
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.admin-sidebar .nav-link').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    showSection(link.getAttribute('href').substring(1));
-                });
+          // ====== Helpers ======
+          const $  = (sel, root = document) => root.querySelector(sel);
+          const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+          function makeSlug(text) {
+            return (text || "")
+              .toString().trim().toLowerCase()
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+              .replace(/đ/g, "d")
+              .replace(/[^a-z0-9\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/-+/g, "-")
+              .replace(/^-+|-+$/g, "");
+          }
+
+          function setPreviewUrl(url, imgEl, emptyEl) {
+            if (!imgEl || !emptyEl) return;
+            const u = (url || "").trim();
+
+            if (!u) {
+              imgEl.style.display = "none";
+              imgEl.removeAttribute("src");
+              emptyEl.style.display = "inline";
+              return;
+            }
+
+            imgEl.src = u;
+            imgEl.style.display = "block";
+            emptyEl.style.display = "none";
+
+            imgEl.onerror = () => {
+              imgEl.style.display = "none";
+              imgEl.removeAttribute("src");
+              emptyEl.style.display = "inline";
+            };
+          }
+
+          function bindFilePreview(fileInput, imgEl, emptyEl) {
+            if (!fileInput || !imgEl || !emptyEl) return;
+
+            fileInput.addEventListener("change", () => {
+              const f = fileInput.files && fileInput.files[0];
+              if (!f || !f.type?.startsWith("image/")) {
+                setPreviewUrl("", imgEl, emptyEl);
+                return;
+              }
+              imgEl.src = URL.createObjectURL(f);
+              imgEl.style.display = "block";
+              emptyEl.style.display = "none";
+            });
+          }
+
+          async function uploadToCloudinaryUnsigned(file, publicIdOptional) {
+            const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("upload_preset", UPLOAD_PRESET);
+
+            // (tuỳ chọn) đặt public_id để dễ quản trị trên Cloudinary
+            // Không cần secret cho unsigned upload.
+            if (publicIdOptional) fd.append("public_id", publicIdOptional);
+
+            const res = await fetch(endpoint, { method: "POST", body: fd });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+              const msg = data?.error?.message || "Upload Cloudinary thất bại.";
+              throw new Error(msg);
+            }
+
+            if (!data.secure_url) throw new Error("Không nhận được secure_url từ Cloudinary.");
+            return data.secure_url;
+          }
+
+          // Upload trước khi submit form
+          function wireUploadBeforeSubmit({
+            formId,
+            fileInputId,
+            hiddenUrlId,
+            nameForPublicId // dùng slug để đặt public_id (tuỳ chọn)
+          }) {
+            const form = document.getElementById(formId);
+            const fileInput = document.getElementById(fileInputId);
+            const hiddenUrl = document.getElementById(hiddenUrlId);
+            if (!form || !fileInput || !hiddenUrl) return;
+
+            form.addEventListener("submit", async (e) => {
+              const file = fileInput.files && fileInput.files[0];
+              if (!file) return; // không chọn file => submit bình thường (EDIT sẽ giữ URL cũ)
+
+              if (!file.type?.startsWith("image/")) {
+                e.preventDefault();
+                alert("Vui lòng chọn đúng định dạng ảnh (image/*).");
+                return;
+              }
+
+              e.preventDefault();
+
+              // Disable nút submit để tránh bấm nhiều lần
+              const submitBtn = form.querySelector('button[type="submit"]');
+              const oldHtml = submitBtn ? submitBtn.innerHTML : null;
+              if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = "Đang tải ảnh...";
+              }
+
+              try {
+                const base = nameForPublicId ? makeSlug(nameForPublicId()) : "product";
+                const publicId = `${base}-${Date.now()}`; // tránh trùng
+                const url = await uploadToCloudinaryUnsigned(file, publicId);
+
+                hiddenUrl.value = url;
+                form.submit();
+              } catch (err) {
+                console.error(err);
+                alert(err?.message || "Upload ảnh thất bại. Vui lòng thử lại.");
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = oldHtml;
+                }
+              }
+            });
+          }
+
+          document.addEventListener("DOMContentLoaded", () => {
+            // ===== Sidebar sections (giữ nếu bạn vẫn dùng) =====
+            function showSection(sectionId) {
+              $$(".section-content").forEach(s => s.classList.add("d-none"));
+              const section = document.getElementById(sectionId);
+              if (section) section.classList.remove("d-none");
+
+              $$(".admin-sidebar .nav-link").forEach(l => l.classList.remove("active"));
+              const activeLink = $(`.admin-sidebar .nav-link[href="#${sectionId}"]`);
+              if (activeLink) activeLink.classList.add("active");
+            }
+
+            $$(".admin-sidebar .nav-link").forEach(link => {
+              link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const id = (link.getAttribute("href") || "").replace("#", "");
+                if (id) showSection(id);
+              });
             });
 
-            // Placeholder cho nút lưu modal
-            document.querySelectorAll('.modal .btn-primary-custom').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    alert('Thao tác thành công! (Sẽ gọi API thực tế sau)');
-                });
+            // ===== Auto slug (ADD) =====
+            const nameInput = $("#productName");
+            const slugInput = $("#productSlug");
+            let slugTouched = false;
+
+            if (slugInput) {
+              slugInput.addEventListener("input", () => {
+                slugTouched = slugInput.value.trim().length > 0;
+              });
+            }
+            if (nameInput && slugInput) {
+              nameInput.addEventListener("input", () => {
+                if (!slugTouched) slugInput.value = makeSlug(nameInput.value);
+              });
+            }
+
+            // ===== Preview file =====
+            bindFilePreview($("#productImageFile"), $("#productImagePreview"), $("#productImageEmpty"));
+            bindFilePreview($("#editImageFile"), $("#editImgPreview"), $("#editImgEmpty"));
+
+            // ===== Fill EDIT modal từ data-* =====
+            $$(".btn-edit-product").forEach(btn => {
+              btn.addEventListener("click", () => {
+                const d = btn.dataset;
+
+                $("#editId").value = d.id || "";
+                $("#editName").value = d.name || "";
+                $("#editSlug").value = d.slug || "";
+                $("#editDescription").value = d.description || "";
+                $("#editPrice").value = d.price || "0";
+                $("#editSalePrice").value = d.saleprice || "";
+
+                $("#editIsActive").checked = (d.isactive === "True" || d.isactive === "true");
+                $("#editIsFeatured").checked = (d.isfeatured === "True" || d.isfeatured === "true");
+
+                const currentUrl = d.imageurl || "";
+
+                // giữ URL cũ để submit nếu không chọn file mới
+                if ($("#editExistingImageUrl")) $("#editExistingImageUrl").value = currentUrl;
+                if ($("#editImageUrlHidden")) $("#editImageUrlHidden").value = currentUrl;
+
+                // reset file input để không dính file lần trước
+                const editFile = $("#editImageFile");
+                if (editFile) editFile.value = "";
+
+                // preview ảnh hiện tại
+                setPreviewUrl(currentUrl, $("#editImgPreview"), $("#editImgEmpty"));
+              });
             });
-        });
+
+            // ===== Upload before submit (ADD) =====
+            wireUploadBeforeSubmit({
+              formId: "addProductForm",
+              fileInputId: "productImageFile",
+              hiddenUrlId: "productImageUrlHidden",
+              nameForPublicId: () => ($("#productSlug")?.value || $("#productName")?.value || "product")
+            });
+
+            // ===== Upload before submit (EDIT) =====
+            wireUploadBeforeSubmit({
+              formId: "editProductForm",
+              fileInputId: "editImageFile",
+              hiddenUrlId: "editImageUrlHidden",
+              nameForPublicId: () => ($("#editSlug")?.value || $("#editName")?.value || "product")
+            });
+          });
+        })();
     </script>
+
+
+
 </body>
 </html>

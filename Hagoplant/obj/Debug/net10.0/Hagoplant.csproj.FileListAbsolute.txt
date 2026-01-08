@@ -22,6 +22,7 @@ C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.csproj.CoreCompileInputs.cach
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.MvcApplicationPartsAssemblyInfo.cache
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.RazorAssemblyInfo.cache
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.RazorAssemblyInfo.cs
+C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.sourcelink.json
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
@@ -100,4 +101,3 @@ C:\Hagoplant\Hagoplant\obj\Debug\net10.0\refint\Hagoplant.dll
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.pdb
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.genruntimeconfig.cache
 C:\Hagoplant\Hagoplant\obj\Debug\net10.0\ref\Hagoplant.dll
-C:\Hagoplant\Hagoplant\obj\Debug\net10.0\Hagoplant.sourcelink.json

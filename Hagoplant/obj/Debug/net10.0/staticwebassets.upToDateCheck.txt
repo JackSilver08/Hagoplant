@@ -67,6 +67,7 @@ wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
 C:\Hagoplant\Hagoplant\wwwroot\css\site.css
+C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\LICENSE.txt
 C:\Hagoplant\Hagoplant\wwwroot\favicon.ico
 C:\Hagoplant\Hagoplant\wwwroot\js\site.js
 C:\Hagoplant\Hagoplant\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -127,4 +128,3 @@ C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\dist\jquery.min.map
 C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\dist\jquery.slim.js
 C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\dist\jquery.slim.min.map
-C:\Hagoplant\Hagoplant\wwwroot\lib\jquery\LICENSE.txt
