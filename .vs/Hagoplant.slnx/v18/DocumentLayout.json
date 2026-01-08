@@ -7,8 +7,20 @@
       "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\product\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\product\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\admin\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\admin\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\pori\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\pori\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\controllers\\admincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -17,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\home\\contact.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\models\\viewmodels\\homeindexvm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -71,10 +79,6 @@
       "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\views\\pori\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\views\\pori\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|c:\\hagoplant\\hagoplant\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D1529366-9069-4B81-5439-FD0DFC141496}|Hagoplant\\Hagoplant.csproj|solutionrelative:hagoplant\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -94,7 +98,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 12,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -122,80 +126,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "HomeIndexVm.cs",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
-              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
-              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-08T06:06:00.549Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Admin\\Index.cshtml",
-              "RelativeDocumentMoniker": "Hagoplant\\Views\\Admin\\Index.cshtml",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Admin\\Index.cshtml",
-              "RelativeToolTip": "Hagoplant\\Views\\Admin\\Index.cshtml",
-              "ViewState": "AgIAAJQCAAAAAAAAAADwv/ECAAAAAAAAAAAAAA==",
+              "Title": "Detail.cshtml",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Product\\Detail.cshtml",
+              "RelativeDocumentMoniker": "Hagoplant\\Views\\Product\\Detail.cshtml",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Product\\Detail.cshtml",
+              "RelativeToolTip": "Hagoplant\\Views\\Product\\Detail.cshtml",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAADcAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-01-07T14:28:14.451Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "RegisterVm.cs",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
-              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
-              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-06T07:04:50.879Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "AdminDashboardVm.cs",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
-              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
-              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-08T05:57:23.22Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AccountController.cs",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\AccountController.cs",
-              "RelativeDocumentMoniker": "Hagoplant\\Controllers\\AccountController.cs",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Controllers\\AccountController.cs",
-              "RelativeToolTip": "Hagoplant\\Controllers\\AccountController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-07T14:49:40.281Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "AdminController.cs",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\AdminController.cs",
-              "RelativeDocumentMoniker": "Hagoplant\\Controllers\\AdminController.cs",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Controllers\\AdminController.cs",
-              "RelativeToolTip": "Hagoplant\\Controllers\\AdminController.cs",
-              "ViewState": "AgIAALYAAAAAAAAAAAAIwMUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-07T14:36:38.637Z",
+              "WhenOpened": "2026-01-08T16:36:19.371Z",
               "EditorCaption": ""
             },
             {
@@ -206,10 +145,84 @@
               "RelativeDocumentMoniker": "Hagoplant\\Views\\Home\\Index.cshtml",
               "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Home\\Index.cshtml",
               "RelativeToolTip": "Hagoplant\\Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAL4BAAAAAAAAAAAiwNQBAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAACwAAAAAAAAAAAAowEMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-01-05T04:38:16.379Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AdminDashboardVm.cs",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
+              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
+              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\AdminDashboardVm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T05:57:23.22Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Hagoplant\\Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Hagoplant\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-07T14:49:40.281Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Admin\\Index.cshtml",
+              "RelativeDocumentMoniker": "Hagoplant\\Views\\Admin\\Index.cshtml",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Admin\\Index.cshtml",
+              "RelativeToolTip": "Hagoplant\\Views\\Admin\\Index.cshtml",
+              "ViewState": "AgIAALcAAAAAAAAAAADwv58AAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-07T14:28:14.451Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AdminController.cs",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\AdminController.cs",
+              "RelativeDocumentMoniker": "Hagoplant\\Controllers\\AdminController.cs",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Controllers\\AdminController.cs",
+              "RelativeToolTip": "Hagoplant\\Controllers\\AdminController.cs",
+              "ViewState": "AgIAALYAAAAAAAAAAAAIwMUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-07T14:36:38.637Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Privacy.cshtml",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Pori\\Privacy.cshtml",
+              "RelativeDocumentMoniker": "Hagoplant\\Views\\Pori\\Privacy.cshtml",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Pori\\Privacy.cshtml",
+              "RelativeToolTip": "Hagoplant\\Views\\Pori\\Privacy.cshtml",
+              "ViewState": "AgIAANoAAAAAAAAAAAAgwOwAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-06T16:06:53.191Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "RegisterVm.cs",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
+              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
+              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\RegisterVm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-06T07:04:50.879Z"
             },
             {
               "$type": "Document",
@@ -226,7 +239,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 7,
+              "Title": "HomeIndexVm.cs",
+              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
+              "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
+              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
+              "RelativeToolTip": "Hagoplant\\Models\\ViewModels\\HomeIndexVm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-08T06:06:00.549Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "Product.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\Product.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Models\\Product.cs",
@@ -234,12 +259,11 @@
               "RelativeToolTip": "Hagoplant\\Models\\Product.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-08T05:26:07.719Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-08T05:26:07.719Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\User.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Models\\User.cs",
@@ -251,7 +275,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "About.cshtml",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Home\\About.cshtml",
               "RelativeDocumentMoniker": "Hagoplant\\Views\\Home\\About.cshtml",
@@ -263,7 +287,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Controllers\\HomeController.cs",
@@ -275,7 +299,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "HagoDbContext.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\DBcontext\\HagoDbContext.cs",
               "RelativeDocumentMoniker": "Hagoplant\\DBcontext\\HagoDbContext.cs",
@@ -287,7 +311,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "Hagoplant.csproj",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Hagoplant.csproj",
               "RelativeDocumentMoniker": "Hagoplant\\Hagoplant.csproj",
@@ -299,7 +323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "PoriController.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Controllers\\PoriController.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Controllers\\PoriController.cs",
@@ -311,7 +335,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "Policy.cshtml",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Pori\\Policy.cshtml",
               "RelativeDocumentMoniker": "Hagoplant\\Views\\Pori\\Policy.cshtml",
@@ -323,7 +347,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Program.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Program.cs",
@@ -335,7 +359,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "AuthService.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Services\\AuthService.cs",
@@ -347,19 +371,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Privacy.cshtml",
-              "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Views\\Pori\\Privacy.cshtml",
-              "RelativeDocumentMoniker": "Hagoplant\\Views\\Pori\\Privacy.cshtml",
-              "ToolTip": "C:\\Hagoplant\\Hagoplant\\Views\\Pori\\Privacy.cshtml",
-              "RelativeToolTip": "Hagoplant\\Views\\Pori\\Privacy.cshtml",
-              "ViewState": "AgIAANoAAAAAAAAAAAAgwOwAAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-01-06T16:06:53.191Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "LoginVm.cs",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\Models\\ViewModels\\LoginVm.cs",
               "RelativeDocumentMoniker": "Hagoplant\\Models\\ViewModels\\LoginVm.cs",
@@ -371,7 +383,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Hagoplant\\Hagoplant\\appsettings.json",
               "RelativeDocumentMoniker": "Hagoplant\\appsettings.json",

@@ -1,0 +1,861 @@
+﻿@model Hagoplant.Models.Product
+@{
+    ViewData["Title"] = Model?.Name + " - Hago Tree";
+    var hasDiscount = Model?.SalePrice.HasValue == true && Model.SalePrice.Value > 0 && Model.SalePrice.Value < Model.Price;
+    var currentPrice = hasDiscount ? Model!.SalePrice!.Value : Model?.Price ?? 0;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Vintage Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+
+
+    <style>
+        /* =========================
+               THEME GIỐNG HOME (Hago Tree)
+               ========================= */
+        :root {
+            --primary: #579a62;
+            --primary-hover: #478152;
+            --gold: #d4af37;
+            --bg: #f8f5f0;
+            --text: #333;
+            --muted: #6c757d;
+            --border: #e0e0e0;
+            --shadow: 0 15px 30px rgba(87, 154, 98, 0.25);
+        }
+
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* ===== Header / Navbar y như Home ===== */
+        header {
+            z-index: 1030;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: var(--primary) !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: var(--primary) !important;
+                font-weight: bold;
+            }
+
+        /* Search bar */
+        .input-group .form-control {
+            border: 2px solid var(--border);
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid var(--primary);
+        }
+
+        .input-group .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: none;
+        }
+
+        /* Cart badge */
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--gold);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .text-primary-custom {
+            color: var(--primary) !important;
+        }
+
+        .bg-primary-custom {
+            background-color: var(--primary) !important;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: var(--primary-hover);
+                border-color: var(--primary-hover);
+            }
+
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+            }
+
+        /* Responsive navbar (y như Home) */
+        @@media (max-width: 991px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .navbar-nav .nav-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .navbar-nav .nav-item:not(:last-child) {
+                margin-right: 0.5rem;
+            }
+        }
+
+        /* Logo sizes giống Home */
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .footerlogo {
+            width: 80px;
+            height: 80px;
+        }
+
+        /* ===== Footer y như Home ===== */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: var(--primary) !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        @@media (max-width: 768px) {
+            footer .d-flex.align-items-center {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                footer .d-flex.align-items-center .me-3 {
+                    margin-right: 0 !important;
+                    margin-bottom: 1rem;
+                }
+        }
+
+        /* =========================
+               MAP STYLE TRANG DETAIL (thay vintage-* bằng style Home)
+               ========================= */
+
+        /* Breadcrumb */
+        .vintage-breadcrumb {
+            background: transparent;
+            padding: 1.25rem 0;
+        }
+
+            .vintage-breadcrumb .breadcrumb-item a {
+                color: var(--muted);
+                text-decoration: none;
+            }
+
+                .vintage-breadcrumb .breadcrumb-item a:hover {
+                    color: var(--primary);
+                }
+
+            .vintage-breadcrumb .breadcrumb-item.active {
+                color: var(--primary);
+                font-weight: 700;
+            }
+
+        /* Container */
+        .vintage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 0;
+        }
+
+        /* Card chính */
+        .vintage-card {
+            background: #fff;
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        /* Khung ảnh giống product-card */
+        .vintage-image-frame {
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+        }
+
+            .vintage-image-frame img {
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+
+            .vintage-image-frame:hover img {
+                transform: scale(1.05);
+            }
+
+        @@media (max-width: 768px) {
+            .vintage-image-frame img {
+                height: 320px;
+            }
+        }
+
+        /* Title */
+        .vintage-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: .75rem;
+            border-bottom: 2px solid rgba(212,175,55,0.6);
+            text-align: left;
+        }
+
+        /* Price */
+        .vintage-price-container {
+            background: rgba(87, 154, 98, 0.06);
+            border: 1px solid rgba(87, 154, 98, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+        }
+
+        .price-old {
+            font-size: 1.1rem;
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .price-current {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #f0ad4e; /* tương đồng "text-warning" */
+            line-height: 1.1;
+        }
+
+        .discount-badge {
+            background: var(--gold);
+            color: #fff;
+            border-radius: 999px;
+            padding: .35rem .75rem;
+            font-size: .95rem;
+            white-space: nowrap;
+        }
+
+        /* Description */
+        .vintage-description {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            line-height: 1.6;
+        }
+
+        /* Info box */
+        .vintage-info-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+        }
+
+        .info-item {
+            padding: .75rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+            .info-item:last-child {
+                border-bottom: 0;
+            }
+
+        .info-icon {
+            color: var(--primary);
+            width: 40px;
+            text-align: center;
+            font-size: 1.25rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .25rem .6rem;
+            border-radius: 999px;
+            font-size: .9rem;
+            font-weight: 700;
+        }
+
+        .status-available {
+            background: rgba(87,154,98,0.12);
+            color: var(--primary);
+        }
+
+        .status-soldout {
+            background: rgba(220,53,69,0.12);
+            color: #dc3545;
+        }
+
+        /* Featured badge */
+        .featured-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            background: var(--gold);
+            color: #fff;
+            padding: .35rem .75rem;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: .9rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+        }
+
+        /* Buttons: map vintage-btn -> nút Home */
+        .vintage-btn {
+            border-radius: 10px;
+            padding: .8rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 2px solid transparent;
+            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .vintage-btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+            .vintage-btn-primary:hover {
+                background: var(--primary-hover);
+                border-color: var(--primary-hover);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow);
+                color: #fff;
+            }
+
+        .vintage-btn-secondary {
+            background: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+            .vintage-btn-secondary:hover {
+                background: rgba(87,154,98,0.1);
+                transform: translateY(-2px);
+            }
+
+        /* Optional: animation nhẹ (không cần nếu bạn muốn y hệt Home) */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .vintage-animate {
+            animation: fadeIn 0.8s ease-out;
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Thêm phần Header này ngay sau thẻ <body> -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
+                </a>
+
+                <!-- Toggle button cho mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Menu và thanh tìm kiếm -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Thanh tìm kiếm -->
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh..." aria-label="Tìm kiếm">
+                            <button class="btn btn-primary-custom" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Menu điều hướng -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#products">
+                                <i class="fas fa-tree me-1"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="/Home/contact ">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <!-- Giỏ hàng -->
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">0</span>
+                            </a>
+                        </li>
+
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Đã đăng nhập: hiển thị tên + menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/Order/History">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="fas fa-id-card me-2"></i> Tài khoản
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> Tài khoản
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                            <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ===== BREADCRUMB VINTAGE ===== -->
+    <nav aria-label="breadcrumb" class="container vintage-breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/">Trang Chủ</a></li>
+            <li class="breadcrumb-item"><a href="/#products">Bộ Sưu Tập</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model?.Name</li>
+        </ol>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container vintage-container">
+        @if (Model == null)
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--vintage-red);"></i>
+                <h3 class="mb-3">Sản Phẩm Không Tồn Tại</h3>
+                <p class="mb-4">Tác phẩm bạn tìm kiếm đã không còn trong bộ sưu tập của chúng tôi.</p>
+                <a href="/" class="vintage-btn vintage-btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Về Trang Chủ
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-5">
+                <!-- Hình Ảnh Sản Phẩm -->
+                <div class="col-lg-6 vintage-animate">
+                    <div class="vintage-image-frame position-relative">
+                        @{
+                            var img = string.IsNullOrWhiteSpace(Model.ImageUrl)
+                            ? "https://via.placeholder.com/1200x800/5D4037/C5A572?text=HAGO+TREE+VINTAGE"
+                            : Model.ImageUrl;
+                        }
+                        <img src="@img" alt="@Model.Name" class="img-fluid">
+
+                        @if (Model.IsFeatured)
+                        {
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="featured-badge">
+                                    <i class="fas fa-crown me-1"></i>NỔI BẬT
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Thông Tin Chi Tiết -->
+                <div class="col-lg-6">
+                    <div class="vintage-card p-4 p-lg-5 vintage-animate" style="animation-delay: 0.2s;">
+                        <!-- Tiêu Đề -->
+                        <h1 class="vintage-title">
+                            @Model.Name
+                        </h1>
+
+                        <!-- Giá -->
+                        <div class="vintage-price-container text-center">
+                            @if (hasDiscount)
+                            {
+                                <div class="mb-3">
+                                    <span class="price-old">@string.Format("{0:N0}₫", Model.Price)</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center gap-4">
+                                    <span class="price-current">@string.Format("{0:N0}", currentPrice)</span>
+                                    <span class="discount-badge">
+                                        TIẾT KIỆM @string.Format("{0:N0}₫", Model.Price - currentPrice)
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="price-current">@string.Format("{0:N0}", currentPrice)</div>
+                            }
+                        </div>
+
+                        <!-- Mô Tả -->
+                        <div class="vintage-description">
+                            @if (!string.IsNullOrWhiteSpace(Model.Description))
+                            {
+                                <div class="mb-4">
+                                    @Html.Raw(Model.Description.Replace("\n", "<br/>"))
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="fst-italic text-center mb-0">
+                                    <i class="fas fa-quote-left me-2" style="color: var(--gold);"></i>
+                                    Tác phẩm nghệ thuật từ thiên nhiên, mang vẻ đẹp vượt thời gian
+                                    <i class="fas fa-quote-right ms-2" style="color: var(--gold);"></i>
+                                </p>
+                            }
+                        </div>
+
+                        <!-- Thông Tin Bổ Sung -->
+                        <div class="vintage-info-box">
+                            <div class="info-item d-flex align-items-center">
+                                <div class="info-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <strong>Trạng Thái:</strong>
+                                    <span class="ms-2 status-badge @(Model.IsActive ? "status-available" : "status-soldout")">
+                                        @(Model.IsActive ? "SẴN SÀNG TRƯNG BÀY" : "ĐÃ HẾT HÀNG")
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex align-items-center">
+                                <div class="info-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <strong>Ngày Thêm Vào Bộ Sưu Tập:</strong>
+                                    <span class="ms-2">@Model.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex align-items-center">
+                                <div class="info-icon">
+                                    <i class="fas fa-certificate"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <strong>Phân Loại:</strong>
+                                    <span class="ms-2">@(Model.IsFeatured ? "Tác Phẩm Ưu Tú" : "Tác Phẩm Thường")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nút Hành Động -->
+                        <div class="text-center mt-5">
+                            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                                @if (Model.IsActive)
+                                {
+                                    <button class="vintage-btn vintage-btn-primary add-to-cart"
+                                            data-product-id="@Model.Id"
+                                            data-product-name="@Model.Name">
+                                        <i class="fas fa-cart-plus me-2"></i>
+                                        THÊM VÀO BỘ SƯU TẬP
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="vintage-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                        <i class="fas fa-clock me-2"></i>
+                                        ĐANG CHỜ TÁI SẢN XUẤT
+                                    </button>
+                                }
+
+                                <a href="/#products" class="vintage-btn vintage-btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    XEM BỘ SƯU TẬP
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
+    <!-- Thêm phần Footer này trước thẻ đóng </body> -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo và mô tả -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">HagoTree@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Theo dõi và liên kết -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="#" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <!-- Liên kết nhanh -->
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
+                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
+                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Thêm vào giỏ hàng
+            $('.add-to-cart').click(function(e) {
+                e.preventDefault();
+
+                const productId = $(this).data('product-id');
+                const productName = $(this).data('product-name');
+                const $btn = $(this);
+
+                // Hiệu ứng nút
+                $btn.prop('disabled', true);
+                $btn.html('<i class="fas fa-spinner fa-spin me-2"></i>ĐANG THÊM...');
+
+                // Giả lập thêm vào giỏ hàng
+                setTimeout(() => {
+                    // Cập nhật badge giỏ hàng
+                    const badge = $('.badge');
+                    let count = parseInt(badge.text()) || 0;
+                    badge.text(count + 1);
+
+                    // Hiển thị thông báo
+                    alert(`Đã thêm "${productName}" vào giỏ hàng!`);
+
+                    // Khôi phục nút
+                    $btn.prop('disabled', false);
+                    $btn.html('<i class="fas fa-cart-plus me-2"></i>THÊM VÀO BỘ SƯU TẬP');
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
