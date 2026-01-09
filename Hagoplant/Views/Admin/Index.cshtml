@@ -1,5 +1,4 @@
 ﻿@model Hagoplant.ViewModels.AdminDashboardVm
-@@model Hagoplant.ViewModels.HomeIndexVm
 @using System.Linq
 
 <!DOCTYPE html>
@@ -14,6 +13,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Francois One -->
     <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+    <!-- EasyMDE (Markdown Editor) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.20.0/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/easymde@2.20.0/dist/easymde.min.js"></script>
+
+    <!-- Marked: Markdown -> HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+
+    <!-- DOMPurify: sanitize HTML để chống XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.1/dist/purify.min.js"></script>
+
     <style>
         body {
             font-family: 'Francois One', sans-serif;
@@ -141,6 +150,74 @@
             .stat-card .number { font-size: 1.8rem; }
             .table-search { max-width: 100%; margin-bottom: 15px; }
         }
+        /* Markdown preview trong modal blog */
+        .markdown-preview {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 14px;
+            min-height: 420px;
+            overflow: auto;
+        }
+
+            .markdown-preview img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .markdown-preview pre {
+                background: #0f172a;
+                color: #f1f5f9;
+                padding: 12px;
+                border-radius: 10px;
+                overflow: auto;
+            }
+
+            .markdown-preview code {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            }
+
+        /* === BLOG MODALS: giới hạn chiều cao để modal luôn cuộn được === */
+        #addBlogModal .modal-dialog,
+        #editBlogModal .modal-dialog {
+            max-width: 1140px;
+        }
+
+        #addBlogModal .modal-content,
+        #editBlogModal .modal-content {
+            height: 92vh;
+        }
+
+        #addBlogModal .modal-body,
+        #editBlogModal .modal-body {
+            overflow-y: auto;
+        }
+
+        /* footer luôn hiện, không bị trôi mất khi scroll */
+        #addBlogModal .modal-footer,
+        #editBlogModal .modal-footer {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            z-index: 10;
+            border-top: 1px solid #eee;
+        }
+
+        /* === EasyMDE/CodeMirror: KHÓA chiều cao để bài dài scroll bên trong editor === */
+        #addBlogModal .EasyMDEContainer .CodeMirror,
+        #editBlogModal .EasyMDEContainer .CodeMirror {
+            height: 52vh; /* bạn có thể tăng/giảm */
+            max-height: 52vh;
+        }
+
+        #addBlogModal .EasyMDEContainer .CodeMirror-scroll,
+        #editBlogModal .EasyMDEContainer .CodeMirror-scroll {
+            max-height: 52vh;
+        }
+
+        /* Preview bạn đã có overflow:auto rồi, ok */
+
+
     </style>
 </head>
 <body>
@@ -304,7 +381,9 @@
                                             {
                                                 foreach (var p in Model.Products)
                                                 {
-                                                    <tr>
+                                                    <tr class="product-row"
+                                                        data-id="@p.Id"
+                                                        data-name="@p.Name">
                                                         <td class="text-muted small">@p.Id</td>
 
                                                         <td>
@@ -455,7 +534,8 @@
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-blog me-2"></i>Danh sách bài viết</h5>
-                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tiêu đề, tác giả...">
+                                <input id="blogSearch" type="text" class="form-control table-search"
+                                       placeholder="Tìm theo tiêu đề, slug, id...">
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -471,14 +551,66 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td colspan="6">
-                                                    <div class="empty-state py-5">
-                                                        <i class="fas fa-blog"></i>
-                                                        <p>Chưa có bài viết nào</p>
-                                                    </div>
+                                            @if (Model?.BlogPosts == null || Model.BlogPosts.Count == 0)
+                                            {
+                                                <tr>
+                                                    <td colspan="6">
+                                                        <div class="empty-state py-5">
+                                                            <i class="fas fa-blog"></i>
+                                                            <p>Chưa có bài viết nào</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                foreach (var b in Model.BlogPosts)
+                                                {
+                                                    <tr>
+                                                        <td class="text-muted small">@b.Id</td>
+                                                        <td class="fw-semibold">@b.Title</td>
+                                                        <td>@(b.AuthorUserId?.ToString() ?? "-")</td>
+                                                        <td class="text-muted">@((b.PublishedAt ?? b.CreatedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</td>
+                                                        <td>@b.ViewCount</td>
+                                                        <td>
+                                                            <!-- Edit -->
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-outline-primary btn-edit-blog"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editBlogModal"
+                                                                    data-id="@b.Id">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+
+                                                            <!-- Delete -->
+                                                            <form method="post"
+                                                                  action="/Admin/DeleteBlogPost"
+                                                                  class="d-inline"
+                                                                  onsubmit="return confirm('Xóa bài viết này?');">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="id" value="@b.Id" />
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+
+                                                            <!-- JSON data cho JS đọc (tránh data-* bị vỡ do HTML dài) -->
+                                                            <script type="application/json" id="blog-data-@b.Id">
+                                                                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+                                                                    id = b.Id,
+                                                                                                                        title = b.Title,
+                                                                                                                        slug = b.Slug,
+                                                                                                                        excerpt = b.Excerpt,
+                                                                                                                        status = b.Status,
+                                                                                                                        coverImageUrl = b.CoverImageUrl,
+                                                                                                                        contentHtml = b.ContentHtml
+                                                                                                                }))
+                                                    </script>
                                                 </td>
-                                            </tr>
+
+                                                    </tr>
+                                                }
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
@@ -753,24 +885,194 @@
     </div>
 
 
-    <!-- Modal ví dụ (có thể mở rộng thêm) -->
-    <div class="modal fade" id="addUserModal" tabindex="-1">
-        <div class="modal-dialog">
+    <!-- Modal Viết bài Blog -->
+    <div class="modal fade" id="addBlogModal" tabindex="-1" aria-labelledby="addBlogModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary-custom text-white">
-                    <h5 class="modal-title">Thêm người dùng mới</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="addBlogModalLabel">
+                        <i class="fas fa-pen-nib me-2"></i>Viết bài blog mới
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Form thêm người dùng sẽ được kết nối API sau...</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary-custom">Lưu</button>
-                </div>
+
+                <form method="post" action="/Admin/CreateBlogPost" id="addBlogForm" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <!-- DB của bạn cần ContentHtml, CoverImageUrl, PublishedAt,... -->
+                    <input type="hidden" name="ContentHtml" id="blogContentHtml" />
+                    <input type="hidden" name="CoverImageUrl" id="blogCoverImageUrl" />
+                    <input type="hidden" name="PublishedAt" id="blogPublishedAt" />
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="blogTitle" name="Title" required maxlength="250"
+                                       placeholder="Ví dụ: 5 cách chọn cây để bàn giúp tập trung" />
+                                <div class="invalid-feedback">Vui lòng nhập tiêu đề.</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Slug <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="blogSlug" name="Slug" required maxlength="250"
+                                       placeholder="5-cach-chon-cay-de-ban-giup-tap-trung" />
+                                <small class="text-muted">Tự tạo từ tiêu đề, bạn có thể sửa.</small>
+                                <div class="invalid-feedback">Vui lòng nhập slug.</div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label">Tóm tắt (Excerpt)</label>
+                                <textarea class="form-control" id="blogExcerpt" name="Excerpt" rows="2"
+                                          placeholder="Tóm tắt ngắn 1–2 câu... (có thể để trống, hệ thống tự sinh)"></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-select" id="blogStatus" name="Status">
+                                    <option value="draft" selected>Nháp (draft)</option>
+                                    <option value="published">Đăng ngay (published)</option>
+                                    <option value="archived">Lưu trữ (archived)</option>
+                                </select>
+                                <small class="text-muted">Nếu “Đăng ngay”, hệ thống tự set thời gian đăng.</small>
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label">Ảnh bìa</label>
+                                <input type="file" class="form-control" id="blogCoverFile" accept="image/*">
+                                <small class="text-muted">Chọn ảnh để upload lên Cloudinary; link sẽ lưu vào DB.</small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Xem trước ảnh bìa</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                    <img id="blogCoverPreview" alt="cover" style="max-height:110px;max-width:100%;display:none;" />
+                                    <span id="blogCoverEmpty" class="text-muted">Chưa có ảnh</span>
+                                </div>
+                            </div>
+
+                            <hr class="my-2">
+
+                            <div class="col-lg-6">
+                                <label class="form-label">Nội dung (Markdown) <span class="text-danger">*</span></label>
+                                <textarea id="blogMarkdown" name="ContentMarkdown"></textarea>
+                                <small class="text-muted">Bạn viết Markdown. Khi lưu, hệ thống chuyển thành HTML và gửi về backend.</small>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label class="form-label">Xem trước (HTML)</label>
+                                <div id="blogPreview" class="markdown-preview">
+                                    <div class="text-muted">Preview sẽ hiển thị tại đây.</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-save me-2"></i>Lưu bài viết
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+        <!-- Modal Sửa bài Blog -->
+        <div class="modal fade" id="editBlogModal" tabindex="-1" aria-labelledby="editBlogModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary-custom text-white">
+                        <h5 class="modal-title" id="editBlogModalLabel">
+                            <i class="fas fa-pen me-2"></i>Sửa bài blog
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+
+                    <form method="post" action="/Admin/UpdateBlogPost" id="editBlogForm" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="id" id="editBlogId" />
+                        <input type="hidden" name="ContentHtml" id="editBlogContentHtml" />
+                        <input type="hidden" name="CoverImageUrl" id="editBlogCoverImageUrl" />
+
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editBlogTitle" name="Title" required maxlength="250">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Slug <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editBlogSlug" name="Slug" required maxlength="250">
+                                    <small class="text-muted">Tự tạo từ tiêu đề, bạn có thể sửa.</small>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label">Tóm tắt (Excerpt)</label>
+                                    <textarea class="form-control" id="editBlogExcerpt" name="Excerpt" rows="2"
+                                              placeholder="Tóm tắt ngắn 1–2 câu..."></textarea>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="editBlogStatus" name="Status">
+                                        <option value="draft">Nháp (draft)</option>
+                                        <option value="published">Đăng (published)</option>
+                                        <option value="archived">Lưu trữ (archived)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label">Đổi ảnh bìa (nếu cần)</label>
+                                    <input type="file" class="form-control" id="editBlogCoverFile" accept="image/*">
+                                    <small class="text-muted">Nếu không chọn ảnh mới, hệ thống sẽ giữ ảnh bìa hiện tại.</small>
+
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearEditCover">
+                                            Xóa ảnh bìa
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Xem trước ảnh bìa</label>
+                                    <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                        <img id="editBlogCoverPreview" alt="cover" style="max-height:110px;max-width:100%;display:none;" />
+                                        <span id="editBlogCoverEmpty" class="text-muted">Chưa có ảnh</span>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2">
+
+                                <div class="col-lg-6">
+                                    <label class="form-label">Nội dung (Markdown) <span class="text-danger">*</span></label>
+                                    <textarea id="editBlogMarkdown"></textarea>
+                                    <small class="text-muted">Bài cũ lưu HTML, hệ thống sẽ cố gắng chuyển về text để bạn chỉnh sửa.</small>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label class="form-label">Xem trước (HTML)</label>
+                                    <div id="editBlogPreview" class="markdown-preview">
+                                        <div class="text-muted">Preview sẽ hiển thị tại đây.</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary-custom">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -778,8 +1080,8 @@
           "use strict";
 
           // ====== Cloudinary unsigned config ======
-          const CLOUD_NAME = "dksk0yoma";      // ví dụ: "hagotree"
-          const UPLOAD_PRESET = "hago_unsigned_products";    // đúng preset bạn tạo
+          const CLOUD_NAME = "dksk0yoma";
+          const UPLOAD_PRESET = "hago_unsigned_products";
 
           // ====== Helpers ======
           const $  = (sel, root = document) => root.querySelector(sel);
@@ -838,9 +1140,6 @@
             const fd = new FormData();
             fd.append("file", file);
             fd.append("upload_preset", UPLOAD_PRESET);
-
-            // (tuỳ chọn) đặt public_id để dễ quản trị trên Cloudinary
-            // Không cần secret cho unsigned upload.
             if (publicIdOptional) fd.append("public_id", publicIdOptional);
 
             const res = await fetch(endpoint, { method: "POST", body: fd });
@@ -850,18 +1149,11 @@
               const msg = data?.error?.message || "Upload Cloudinary thất bại.";
               throw new Error(msg);
             }
-
             if (!data.secure_url) throw new Error("Không nhận được secure_url từ Cloudinary.");
             return data.secure_url;
           }
 
-          // Upload trước khi submit form
-          function wireUploadBeforeSubmit({
-            formId,
-            fileInputId,
-            hiddenUrlId,
-            nameForPublicId // dùng slug để đặt public_id (tuỳ chọn)
-          }) {
+          function wireUploadBeforeSubmit({ formId, fileInputId, hiddenUrlId, nameForPublicId }) {
             const form = document.getElementById(formId);
             const fileInput = document.getElementById(fileInputId);
             const hiddenUrl = document.getElementById(hiddenUrlId);
@@ -869,7 +1161,7 @@
 
             form.addEventListener("submit", async (e) => {
               const file = fileInput.files && fileInput.files[0];
-              if (!file) return; // không chọn file => submit bình thường (EDIT sẽ giữ URL cũ)
+              if (!file) return;
 
               if (!file.type?.startsWith("image/")) {
                 e.preventDefault();
@@ -879,9 +1171,9 @@
 
               e.preventDefault();
 
-              // Disable nút submit để tránh bấm nhiều lần
               const submitBtn = form.querySelector('button[type="submit"]');
               const oldHtml = submitBtn ? submitBtn.innerHTML : null;
+
               if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = "Đang tải ảnh...";
@@ -889,7 +1181,7 @@
 
               try {
                 const base = nameForPublicId ? makeSlug(nameForPublicId()) : "product";
-                const publicId = `${base}-${Date.now()}`; // tránh trùng
+                const publicId = `${base}-${Date.now()}`;
                 const url = await uploadToCloudinaryUnsigned(file, publicId);
 
                 hiddenUrl.value = url;
@@ -906,7 +1198,7 @@
           }
 
           document.addEventListener("DOMContentLoaded", () => {
-            // ===== Sidebar sections (giữ nếu bạn vẫn dùng) =====
+            // ===== Sidebar sections =====
             function showSection(sectionId) {
               $$(".section-content").forEach(s => s.classList.add("d-none"));
               const section = document.getElementById(sectionId);
@@ -925,7 +1217,7 @@
               });
             });
 
-            // ===== Auto slug (ADD) =====
+            // ===== Product: auto slug (ADD) =====
             const nameInput = $("#productName");
             const slugInput = $("#productSlug");
             let slugTouched = false;
@@ -941,11 +1233,11 @@
               });
             }
 
-            // ===== Preview file =====
+            // ===== Product: preview file =====
             bindFilePreview($("#productImageFile"), $("#productImagePreview"), $("#productImageEmpty"));
             bindFilePreview($("#editImageFile"), $("#editImgPreview"), $("#editImgEmpty"));
 
-            // ===== Fill EDIT modal từ data-* =====
+            // ===== Product: fill EDIT modal =====
             $$(".btn-edit-product").forEach(btn => {
               btn.addEventListener("click", () => {
                 const d = btn.dataset;
@@ -961,21 +1253,17 @@
                 $("#editIsFeatured").checked = (d.isfeatured === "True" || d.isfeatured === "true");
 
                 const currentUrl = d.imageurl || "";
-
-                // giữ URL cũ để submit nếu không chọn file mới
                 if ($("#editExistingImageUrl")) $("#editExistingImageUrl").value = currentUrl;
                 if ($("#editImageUrlHidden")) $("#editImageUrlHidden").value = currentUrl;
 
-                // reset file input để không dính file lần trước
                 const editFile = $("#editImageFile");
                 if (editFile) editFile.value = "";
 
-                // preview ảnh hiện tại
                 setPreviewUrl(currentUrl, $("#editImgPreview"), $("#editImgEmpty"));
               });
             });
 
-            // ===== Upload before submit (ADD) =====
+            // ===== Product: upload before submit =====
             wireUploadBeforeSubmit({
               formId: "addProductForm",
               fileInputId: "productImageFile",
@@ -983,16 +1271,385 @@
               nameForPublicId: () => ($("#productSlug")?.value || $("#productName")?.value || "product")
             });
 
-            // ===== Upload before submit (EDIT) =====
             wireUploadBeforeSubmit({
               formId: "editProductForm",
               fileInputId: "editImageFile",
               hiddenUrlId: "editImageUrlHidden",
               nameForPublicId: () => ($("#editSlug")?.value || $("#editName")?.value || "product")
             });
+
+            // ===== Product: search filter =====
+            const productSearch = document.getElementById("productSearch");
+            if (productSearch) {
+              const rows = document.querySelectorAll("tr.product-row");
+              const normalize = (s) => (s || "").toString().trim().toLowerCase();
+
+              function filterProducts() {
+                const q = normalize(productSearch.value);
+                rows.forEach(row => {
+                  const id = normalize(row.dataset.id);
+                  const name = normalize(row.dataset.name);
+                  const match = q === "" || id.includes(q) || name.includes(q);
+                  row.classList.toggle("d-none", !match);
+                });
+              }
+              productSearch.addEventListener("input", filterProducts);
+            }
+
+            // ================= BLOG: EasyMDE + preview + submit =================
+            let blogMde = null;
+            let blogSlugTouched2 = false;
+
+            const blogModalEl = document.getElementById("addBlogModal");
+            const blogForm = document.getElementById("addBlogForm");
+
+            const blogTitle = document.getElementById("blogTitle");
+            const blogSlug = document.getElementById("blogSlug");
+            const blogExcerpt = document.getElementById("blogExcerpt");
+            const blogStatus = document.getElementById("blogStatus");
+
+            const blogMarkdown = document.getElementById("blogMarkdown");
+            const blogPreview = document.getElementById("blogPreview");
+
+            const blogContentHtml = document.getElementById("blogContentHtml");
+            const blogPublishedAt = document.getElementById("blogPublishedAt");
+
+            const blogCoverFile = document.getElementById("blogCoverFile");
+            const blogCoverUrlHidden = document.getElementById("blogCoverImageUrl");
+            const blogCoverPreview = document.getElementById("blogCoverPreview");
+            const blogCoverEmpty = document.getElementById("blogCoverEmpty");
+
+            // preview ảnh bìa
+            bindFilePreview(blogCoverFile, blogCoverPreview, blogCoverEmpty);
+
+            // auto slug
+            if (blogSlug) {
+              blogSlug.addEventListener("input", () => {
+                blogSlugTouched2 = blogSlug.value.trim().length > 0;
+              });
+            }
+            if (blogTitle && blogSlug) {
+              blogTitle.addEventListener("input", () => {
+                if (!blogSlugTouched2) blogSlug.value = makeSlug(blogTitle.value);
+              });
+            }
+
+                    function renderBlogPreview(md) {
+          const mk = window.marked;
+          if (!mk) {
+            console.error("Marked chưa load. Kiểm tra lại <script src='...marked...'>");
+            return;
+          }
+          const rawHtml = mk.parse(md || "");
+          const safeHtml = DOMPurify.sanitize(rawHtml);
+          blogPreview.innerHTML = safeHtml || '<div class="text-muted">Preview sẽ hiển thị tại đây.</div>';
+        }
+
+
+            if (blogModalEl) {
+              blogModalEl.addEventListener("shown.bs.modal", () => {
+                if (!blogMde && blogMarkdown) {
+                  blogMde = new EasyMDE({
+                    element: blogMarkdown,
+                    spellChecker: false,
+                    autofocus: true,
+                    minHeight: "320px",
+                    status: ["lines", "words"],
+                    toolbar: [
+                      "bold", "italic", "heading", "|",
+                      "quote", "unordered-list", "ordered-list", "|",
+                      "link", "image", "table", "|",
+                      "preview", "side-by-side", "fullscreen", "|",
+                      "guide"
+                    ]
+                  });
+
+                  blogMde.codemirror.on("change", () => renderBlogPreview(blogMde.value()));
+                }
+
+                if (blogMde) {
+                  blogMde.codemirror.refresh();
+                  renderBlogPreview(blogMde.value());
+                }
+              });
+
+              blogModalEl.addEventListener("hidden.bs.modal", () => {
+                blogSlugTouched2 = false;
+                if (blogForm) blogForm.reset();
+
+                if (blogCoverUrlHidden) blogCoverUrlHidden.value = "";
+                if (blogContentHtml) blogContentHtml.value = "";
+                if (blogPublishedAt) blogPublishedAt.value = "";
+
+                if (blogCoverPreview && blogCoverEmpty) {
+                  blogCoverPreview.style.display = "none";
+                  blogCoverPreview.removeAttribute("src");
+                  blogCoverEmpty.style.display = "inline";
+                }
+
+                if (blogMde) {
+                  blogMde.value("");
+                  renderBlogPreview("");
+                }
+              });
+            }
+
+            if (blogForm) {
+              blogForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const md = blogMde ? blogMde.value() : (blogMarkdown?.value || "");
+                if (!md.trim()) {
+                  alert("Vui lòng nhập nội dung bài viết.");
+                  return;
+                }
+
+                const html = DOMPurify.sanitize(marked.parse(md));
+                blogContentHtml.value = html;
+
+                if (blogExcerpt && !blogExcerpt.value.trim()) {
+                  const tmp = document.createElement("div");
+                  tmp.innerHTML = html;
+                  const plain = (tmp.textContent || tmp.innerText || "").trim().replace(/\s+/g, " ");
+                  blogExcerpt.value = plain.length > 160 ? plain.slice(0, 160) + "..." : plain;
+                }
+
+                const st = (blogStatus?.value || "draft").toLowerCase();
+                blogPublishedAt.value = (st === "published") ? new Date().toISOString() : "";
+
+                const submitBtn = blogForm.querySelector('button[type="submit"]');
+                const oldHtml = submitBtn ? submitBtn.innerHTML : null;
+
+                const file = blogCoverFile?.files?.[0];
+                if (file) {
+                  if (!file.type?.startsWith("image/")) {
+                    alert("Ảnh bìa phải là định dạng image/*.");
+                    return;
+                  }
+
+                  if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = "Đang tải ảnh...";
+                  }
+
+                  try {
+                    const publicId = `blog-${makeSlug(blogSlug?.value || blogTitle?.value || "post")}-${Date.now()}`;
+                    const url = await uploadToCloudinaryUnsigned(file, publicId);
+                    blogCoverUrlHidden.value = url;
+                  } catch (err) {
+                    console.error(err);
+                    alert(err?.message || "Upload ảnh bìa thất bại.");
+                    if (submitBtn) {
+                      submitBtn.disabled = false;
+                      submitBtn.innerHTML = oldHtml;
+                    }
+                    return;
+                  } finally {
+                    if (submitBtn) {
+                      submitBtn.disabled = false;
+                      submitBtn.innerHTML = oldHtml || "Lưu bài viết";
+                    }
+                  }
+                }
+
+                blogForm.submit();
+              });
+            }
           });
+                  // ================= BLOG EDIT: open modal + preview + submit =================
+        let editBlogMde = null;
+        let editSlugTouched = false;
+
+        const editBlogModalEl = document.getElementById("editBlogModal");
+        const editBlogForm = document.getElementById("editBlogForm");
+
+        const editBlogId = document.getElementById("editBlogId");
+        const editBlogTitle = document.getElementById("editBlogTitle");
+        const editBlogSlug = document.getElementById("editBlogSlug");
+        const editBlogExcerpt = document.getElementById("editBlogExcerpt");
+        const editBlogStatus = document.getElementById("editBlogStatus");
+
+        const editBlogMarkdown = document.getElementById("editBlogMarkdown");
+        const editBlogPreview = document.getElementById("editBlogPreview");
+
+        const editBlogContentHtml = document.getElementById("editBlogContentHtml");
+
+        const editBlogCoverFile = document.getElementById("editBlogCoverFile");
+        const editBlogCoverUrlHidden = document.getElementById("editBlogCoverImageUrl");
+        const editBlogCoverPreview = document.getElementById("editBlogCoverPreview");
+        const editBlogCoverEmpty = document.getElementById("editBlogCoverEmpty");
+        const btnClearEditCover = document.getElementById("btnClearEditCover");
+
+        function renderMarkdownPreview(md, targetEl) {
+          const mk = window.marked;
+          if (!mk) return;
+          const rawHtml = mk.parse(md || "");
+          const safeHtml = DOMPurify.sanitize(rawHtml);
+          targetEl.innerHTML = safeHtml || '<div class="text-muted">Preview sẽ hiển thị tại đây.</div>';
+        }
+
+        function htmlToPlainText(html) {
+          const div = document.createElement("div");
+          div.innerHTML = html || "";
+          return (div.textContent || div.innerText || "").trim();
+        }
+
+        if (editBlogModalEl) {
+          editBlogModalEl.addEventListener("shown.bs.modal", () => {
+            if (!editBlogMde && editBlogMarkdown) {
+              editBlogMde = new EasyMDE({
+                element: editBlogMarkdown,
+                spellChecker: false,
+                autofocus: true,
+                minHeight: "320px",
+                status: ["lines", "words"],
+                toolbar: [
+                  "bold", "italic", "heading", "|",
+                  "quote", "unordered-list", "ordered-list", "|",
+                  "link", "image", "table", "|",
+                  "preview", "side-by-side", "fullscreen", "|",
+                  "guide"
+                ]
+              });
+              editBlogMde.codemirror.on("change", () => renderMarkdownPreview(editBlogMde.value(), editBlogPreview));
+            }
+
+            if (editBlogMde) {
+              editBlogMde.codemirror.refresh();
+              renderMarkdownPreview(editBlogMde.value(), editBlogPreview);
+            }
+          });
+
+          editBlogModalEl.addEventListener("hidden.bs.modal", () => {
+            editSlugTouched = false;
+            if (editBlogForm) editBlogForm.reset();
+
+            if (editBlogCoverUrlHidden) editBlogCoverUrlHidden.value = "";
+            if (editBlogContentHtml) editBlogContentHtml.value = "";
+
+            if (editBlogCoverPreview && editBlogCoverEmpty) {
+              editBlogCoverPreview.style.display = "none";
+              editBlogCoverPreview.removeAttribute("src");
+              editBlogCoverEmpty.style.display = "inline";
+            }
+
+            if (editBlogMde) {
+              editBlogMde.value("");
+              renderMarkdownPreview("", editBlogPreview);
+            }
+          });
+        }
+
+        if (editBlogSlug) {
+          editBlogSlug.addEventListener("input", () => {
+            editSlugTouched = editBlogSlug.value.trim().length > 0;
+          });
+        }
+        if (editBlogTitle && editBlogSlug) {
+          editBlogTitle.addEventListener("input", () => {
+            if (!editSlugTouched) editBlogSlug.value = makeSlug(editBlogTitle.value);
+          });
+        }
+
+        bindFilePreview(editBlogCoverFile, editBlogCoverPreview, editBlogCoverEmpty);
+
+        if (btnClearEditCover) {
+          btnClearEditCover.addEventListener("click", () => {
+            if (editBlogCoverFile) editBlogCoverFile.value = "";
+            if (editBlogCoverUrlHidden) editBlogCoverUrlHidden.value = "";
+            setPreviewUrl("", editBlogCoverPreview, editBlogCoverEmpty);
+          });
+        }
+
+        $$(".btn-edit-blog").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            const scriptEl = document.getElementById(`blog-data-${id}`);
+            if (!scriptEl) return;
+
+            const data = JSON.parse(scriptEl.textContent || "{}");
+
+            if (editBlogId) editBlogId.value = data.id || "";
+            if (editBlogTitle) editBlogTitle.value = data.title || "";
+            if (editBlogSlug) editBlogSlug.value = data.slug || "";
+            if (editBlogExcerpt) editBlogExcerpt.value = data.excerpt || "";
+            if (editBlogStatus) editBlogStatus.value = (data.status || "draft").toLowerCase();
+
+            if (editBlogCoverUrlHidden) editBlogCoverUrlHidden.value = data.coverImageUrl || "";
+            setPreviewUrl(data.coverImageUrl || "", editBlogCoverPreview, editBlogCoverEmpty);
+
+            const mdFallback = htmlToPlainText(data.contentHtml || "");
+            if (editBlogMde) {
+              editBlogMde.value(mdFallback);
+              renderMarkdownPreview(editBlogMde.value(), editBlogPreview);
+            } else {
+              if (editBlogMarkdown) editBlogMarkdown.value = mdFallback;
+            }
+          });
+        });
+
+        if (editBlogForm) {
+          editBlogForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const md = editBlogMde ? editBlogMde.value() : (editBlogMarkdown?.value || "");
+            if (!md.trim()) {
+              alert("Vui lòng nhập nội dung bài viết.");
+              return;
+            }
+
+            const html = DOMPurify.sanitize(marked.parse(md));
+            editBlogContentHtml.value = html;
+
+            if (editBlogExcerpt && !editBlogExcerpt.value.trim()) {
+              const tmp = document.createElement("div");
+              tmp.innerHTML = html;
+              const plain = (tmp.textContent || tmp.innerText || "").trim().replace(/\s+/g, " ");
+              editBlogExcerpt.value = plain.length > 160 ? plain.slice(0, 160) + "..." : plain;
+            }
+
+            const submitBtn = editBlogForm.querySelector('button[type="submit"]');
+            const oldHtml = submitBtn ? submitBtn.innerHTML : null;
+
+            const file = editBlogCoverFile?.files?.[0];
+            if (file) {
+              if (!file.type?.startsWith("image/")) {
+                alert("Ảnh bìa phải là định dạng image/*.");
+                return;
+              }
+
+              if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = "Đang tải ảnh...";
+              }
+
+              try {
+                const publicId = `blog-${makeSlug(editBlogSlug?.value || editBlogTitle?.value || "post")}-${Date.now()}`;
+                const url = await uploadToCloudinaryUnsigned(file, publicId);
+                editBlogCoverUrlHidden.value = url;
+              } catch (err) {
+                console.error(err);
+                alert(err?.message || "Upload ảnh bìa thất bại.");
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = oldHtml;
+                }
+                return;
+              } finally {
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = oldHtml || "Lưu thay đổi";
+                }
+              }
+            }
+
+            editBlogForm.submit();
+          });
+        }
+
         })();
     </script>
+
 
 
 

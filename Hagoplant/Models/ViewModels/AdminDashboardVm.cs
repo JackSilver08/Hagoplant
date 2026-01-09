@@ -5,5 +5,7 @@ namespace Hagoplant.ViewModels
     public class AdminDashboardVm
     {
         public List<Product> Products { get; set; } = new();
+        // Blog posts cho trang Admin
+        public List<BlogPost> BlogPosts { get; set; } = new();
     }
 }

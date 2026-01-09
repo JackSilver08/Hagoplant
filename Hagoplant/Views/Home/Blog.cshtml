@@ -1,0 +1,1034 @@
+﻿
+
+@using Hagoplant.Models
+@model Hagoplant.ViewModels.HomeIndexVm
+
+@{
+    var toastOk = TempData["Toast.Ok"]?.ToString();
+    var toastMessage = TempData["Toast.Message"]?.ToString();
+    var showToast = !string.IsNullOrWhiteSpace(toastMessage);
+    var isOk = toastOk == "1";
+
+    var posts = Model?.BlogPosts ?? new List<BlogPost>();
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hago Tree - Blog</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@("@")emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+        }
+        /* Thêm các style này vào phần CSS hiện có */
+
+        /* Header styles */
+        header {
+            z-index: 1030;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: #579a62 !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #579a62 !important;
+                font-weight: bold;
+            }
+
+        /* Search bar styling */
+        .input-group .form-control {
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid #579a62;
+        }
+
+        .input-group .form-control:focus {
+            border-color: #579a62;
+            box-shadow: none;
+        }
+
+        /* Cart styling */
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 991px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .navbar-nav .nav-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .navbar-nav .nav-item:not(:last-child) {
+                margin-right: 0.5rem;
+            }
+        }
+
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #478152;
+                border-color: #478152;
+            }
+
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: #579a62;
+            color: #579a62;
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+            }
+
+        .ornament {
+            position: relative;
+        }
+
+            .ornament::before,
+            .ornament::after {
+                content: '❦';
+                position: absolute;
+                color: #d4af37;
+                font-size: 28px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .ornament::before {
+                left: -50px;
+            }
+
+            .ornament::after {
+                right: -50px;
+            }
+
+        .product-card {
+            transition: all 0.3s ease;
+            border: 2px solid #d4af37;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+            .product-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(87, 154, 98, 0.25);
+            }
+
+            .product-card img {
+                transition: transform 0.5s ease;
+            }
+
+            .product-card:hover img {
+                transform: scale(1.05);
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center; /* căn giữa theo chiều dọc */
+            justify-content: center; /* căn giữa theo chiều ngang */
+
+            font-size: 12px;
+            line-height: 1; /* tránh bị lệch chữ */
+        }
+
+        
+        #registerAlert {
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            background: rgba(248, 245, 240, 0.8);
+            color: #333;
+        }
+
+        #registerOtp {
+            letter-spacing: 6px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #btnRegisterSubmit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        /* Footer styles */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: #579a62 !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        /* Responsive footer */
+        @@media (max-width: 768px) {
+            footer .d-flex.align-items-center {
+                flex-direction: column;
+                text-align: center;
+            }
+
+                footer .d-flex.align-items-center .me-3 {
+                    margin-right: 0 !important;
+                    margin-bottom: 1rem;
+                }
+        }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+
+        .footerlogo {
+            width: 80px;
+            height: 80px;
+        }
+        /* =========================
+           BLOG MAIN ONLY (SCOPED)
+           Giữ nguyên CSS header + footer
+           ========================= */
+
+        /* Tổng thể khu vực blog */
+        #blogPage {
+            padding-top: 32px;
+            padding-bottom: 48px;
+        }
+
+            #blogPage .container {
+                max-width: 1080px; /* dễ đọc, không quá rộng */
+            }
+
+            /* Hero */
+            #blogPage .blog-hero {
+                background: linear-gradient(135deg, rgba(87,154,98,0.10), rgba(212,175,55,0.10));
+                border: 1px solid rgba(212,175,55,0.45);
+                border-radius: 18px;
+                padding: 22px 20px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            }
+
+                #blogPage .blog-hero h2 {
+                    font-size: 2.0rem;
+                    letter-spacing: 0.2px;
+                    margin-bottom: 6px;
+                }
+
+                #blogPage .blog-hero .text-muted {
+                    opacity: 0.9;
+                }
+
+            /* List spacing */
+            #blogPage #blogList {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            /* Card */
+            #blogPage .blog-card {
+                border-radius: 18px;
+                overflow: hidden;
+                background: #fff;
+                border: 1px solid rgba(212,175,55,0.35);
+                box-shadow: 0 10px 22px rgba(0,0,0,0.06);
+                transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+                cursor: pointer;
+            }
+
+                #blogPage .blog-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 18px 32px rgba(87, 154, 98, 0.14);
+                    border-color: rgba(87,154,98,0.35);
+                }
+
+                #blogPage .blog-card:active {
+                    transform: translateY(-1px);
+                }
+
+                /* Bố cục ảnh + nội dung */
+                #blogPage .blog-card .row {
+                    margin: 0; /* tránh lệch do g-0 */
+                }
+
+                #blogPage .blog-card .col-md-4,
+                #blogPage .blog-card .col-md-8 {
+                    padding: 0;
+                }
+
+            /* Cover */
+            #blogPage .blog-cover {
+                width: 100%;
+                height: 220px;
+                background-size: cover;
+                background-position: center;
+                position: relative;
+                isolation: isolate;
+            }
+
+                #blogPage .blog-cover::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient( to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.35) );
+                    z-index: 0;
+                }
+
+        /* Trên desktop: cover cao full cột */
+        @@media (min-width: 768px) {
+            #blogPage .blog-cover {
+                height: 100%;
+                min-height: 210px;
+            }
+        }
+
+        /* Nội dung phần preview */
+        #blogPage .blog-card .p-4 {
+            padding: 18px 20px !important;
+        }
+
+        #blogPage .blog-card h3 {
+            font-size: 1.25rem;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        /* Badge thời gian */
+        #blogPage .blog-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(212,175,55,0.12);
+            border: 1px solid rgba(212,175,55,0.35);
+            color: #6b4f00;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+            #blogPage .blog-badge i {
+                opacity: 0.85;
+            }
+
+        /* Excerpt */
+        #blogPage .blog-excerpt {
+            margin-top: 8px;
+            color: rgba(0,0,0,0.74);
+            font-size: 0.98rem;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Toggle */
+        #blogPage .blog-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(87,154,98,0.10);
+            border: 1px solid rgba(87,154,98,0.25);
+            transition: transform .18s ease, background .18s ease;
+            flex: 0 0 auto;
+        }
+
+        #blogPage .blog-card:hover .blog-toggle {
+            background: rgba(87,154,98,0.14);
+        }
+
+        #blogPage .blog-card.is-open .blog-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* Collapse body */
+        #blogPage .collapse > .px-4.pb-4 {
+            padding: 0 20px 18px !important;
+        }
+
+        #blogPage .collapse hr {
+            margin: 0;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* Blog content typography */
+        #blogPage .blog-content {
+            padding-top: 14px;
+            color: rgba(0,0,0,0.78);
+            line-height: 1.75;
+            font-size: 1.02rem;
+        }
+
+            /* Headings */
+            #blogPage .blog-content h1,
+            #blogPage .blog-content h2,
+            #blogPage .blog-content h3 {
+                color: rgba(0,0,0,0.86);
+                margin-top: 18px;
+                margin-bottom: 10px;
+                line-height: 1.25;
+            }
+
+            #blogPage .blog-content h1 {
+                font-size: 1.7rem;
+            }
+
+            #blogPage .blog-content h2 {
+                font-size: 1.45rem;
+            }
+
+            #blogPage .blog-content h3 {
+                font-size: 1.25rem;
+            }
+
+            /* Paragraph + lists */
+            #blogPage .blog-content p {
+                margin-bottom: 12px;
+            }
+
+            #blogPage .blog-content ul,
+            #blogPage .blog-content ol {
+                padding-left: 1.2rem;
+                margin-bottom: 12px;
+            }
+
+            /* Links */
+            #blogPage .blog-content a {
+                color: #579a62;
+                text-decoration: underline;
+                text-underline-offset: 2px;
+            }
+
+            /* Images */
+            #blogPage .blog-content img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 14px;
+                display: block;
+                margin: 10px 0 14px;
+                box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+            }
+
+            /* Blockquote (nếu có) */
+            #blogPage .blog-content blockquote {
+                margin: 14px 0;
+                padding: 12px 14px;
+                border-left: 4px solid rgba(87,154,98,0.55);
+                background: rgba(87,154,98,0.06);
+                border-radius: 10px;
+                color: rgba(0,0,0,0.72);
+            }
+
+            /* Code (nếu content có code) */
+            #blogPage .blog-content pre {
+                background: #0f172a;
+                color: #e5e7eb;
+                padding: 14px 16px;
+                border-radius: 12px;
+                overflow: auto;
+                box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+                margin: 12px 0 14px;
+            }
+
+            #blogPage .blog-content code {
+                background: rgba(0,0,0,0.06);
+                padding: 2px 6px;
+                border-radius: 8px;
+            }
+
+        /* No result */
+        #blogPage #blogNoResult {
+            border: 1px dashed rgba(0,0,0,0.18);
+            border-radius: 14px;
+            padding: 24px 18px;
+            background: rgba(255,255,255,0.65);
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Thêm phần Header này ngay sau thẻ <body> -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
+                </a>
+
+                <!-- Toggle button cho mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Menu và thanh tìm kiếm -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+
+                    <!-- Thanh tìm kiếm -->
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group">
+                            <input id="homeProductSearch"
+                                   type="search"
+                                   class="form-control"
+                                   placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                                   aria-label="Tìm kiếm"
+                                   autocomplete="off" />
+                            <button id="homeProductSearchBtn" class="btn btn-primary-custom" type="button" aria-label="Tìm">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Menu điều hướng -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="#products">
+                                <i class="fas fa-tree me-1"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="/Home/Blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="/Home/contact ">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <!-- Giỏ hàng -->
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">0</span>
+                            </a>
+                        </li>
+
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Đã đăng nhập: hiển thị tên + menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="/Order/History">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Account/Profile">
+                                            <i class="fas fa-id-card me-2"></i> Tài khoản
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> Tài khoản
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                            <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ====== HEADER + MODAL LOGIN/REGISTER: COPY NGUYÊN TỪ INDEX ====== -->
+    <!-- Bạn giữ nguyên header + loginModal + registerModal như Index -->
+    <!-- Gợi ý chỉnh link cho đúng trang:
+         - Sản phẩm: href="/#products"
+         - Blog: href="/Blog" (hoặc "/Home/Blog" tùy route)
+    -->
+    <!-- ====== MAIN BLOG ====== -->
+    <main class="py-5" id="blogPage">
+        <div class="container">
+
+            <div class="blog-hero mb-4">
+                <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2">
+                    <div>
+                        <h2 class="text-primary-custom mb-1">Blog Hago Tree</h2>
+                        <div class="text-muted">Mẹo chọn cây, chăm cây, phong cách trang trí và gợi ý phối không gian.</div>
+                    </div>
+                    <div class="text-muted small">
+                        Tổng bài viết: <span class="fw-semibold">@posts.Count</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (posts.Count == 0)
+            {
+                <div class="text-center text-muted py-5">
+                    Chưa có bài viết để hiển thị.
+                </div>
+            }
+            else
+            {
+                <div id="blogList" class="d-flex flex-column gap-3">
+                    @for (int i = 0; i < posts.Count; i++)
+                    {
+                        var p = posts[i];
+                        var collapseId = $"blogBody_{p.Id:N}";
+
+                        var coverRaw = p.CoverImageUrl;
+                        var cover = string.IsNullOrWhiteSpace(coverRaw)
+                        ? Url.Content("~/images/blog-default.jpg")
+                        : (coverRaw.StartsWith("~/") ? Url.Content(coverRaw) : coverRaw);
+
+                        var excerpt = string.IsNullOrWhiteSpace(p.Excerpt) ? "" : p.Excerpt;
+
+                        var displayTime = (p.PublishedAt ?? p.CreatedAt).ToLocalTime();
+
+                        <div class="blog-card"
+                             data-title="@p.Title"
+                             data-excerpt="@excerpt"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#@collapseId"
+                             role="button"
+                             aria-expanded="false"
+                             aria-controls="@collapseId">
+
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <div class="blog-cover" style="background-image: url('@cover');"></div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="p-4">
+                                        <div class="d-flex align-items-start justify-content-between gap-3">
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                                    <h3 class="h5 mb-0 text-primary-custom">@p.Title</h3>
+
+                                                    <span class="blog-badge">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                        @displayTime.ToString("dd/MM/yyyy HH:mm")
+                                                    </span>
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(excerpt))
+                                                {
+                                                    <div class="blog-excerpt">@excerpt</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-muted small">Nhấn để xem nội dung.</div>
+                                                }
+                                            </div>
+
+                                            <div class="blog-toggle" aria-hidden="true">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="@collapseId" class="collapse" data-bs-parent="#blogList">
+                                <div class="px-4 pb-4">
+                                    <hr class="mt-0" />
+                                    <div class="blog-content">
+                                        @Html.Raw(p.ContentHtml ?? "")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                <div id="blogNoResult" class="text-center text-muted py-5 d-none">
+                    Không tìm thấy bài viết phù hợp.
+                </div>
+            }
+        </div>
+    </main>
+    <!-- Thêm phần Footer này trước thẻ đóng </body> -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <!-- Cột 1: Logo và mô tả -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên hệ -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">HagoTree@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Theo dõi và liên kết -->
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="#" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <!-- Liên kết nhanh -->
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
+                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
+                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- ====== FOOTER: COPY NGUYÊN TỪ INDEX ====== -->
+    <!-- Giữ nguyên footer + toast như Index -->
+    @if (showToast)
+    {
+        <div id="hagoToast"
+             class="position-fixed top-0 end-0 p-3"
+             style="z-index: 2000; width: min(420px, 92vw);">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex gap-3 align-items-start">
+                    <div class="mt-1">
+                        @if (isOk)
+                        {
+                            <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-xmark text-danger fs-4"></i>
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold mb-1">@(isOk ? "Thành công" : "Không thành công")</div>
+                        <div class="small text-muted">@toastMessage</div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-link text-muted" id="hagoToastClose">Đóng</button>
+                </div>
+
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div id="hagoToastProgress" class="progress-bar" role="progressbar" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="text/javascript">
+        (function () {
+            emailjs.init({ publicKey: "_YYchVTTYd3felsD_" });
+        })();
+    </script>
+
+    <script>
+        // Smooth scroll: chỉ scroll nếu tồn tại phần tử đích (tránh lỗi khi link # không có trên trang Blog)
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function (e) {
+                const id = this.getAttribute('href');
+                const target = id ? document.querySelector(id) : null;
+                if (!target) return;
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Toggle icon trạng thái mở/đóng
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.blog-card').forEach(card => {
+                const targetSel = card.getAttribute('data-bs-target');
+                const body = targetSel ? document.querySelector(targetSel) : null;
+                if (!body) return;
+
+                body.addEventListener('shown.bs.collapse', () => card.classList.add('is-open'));
+                body.addEventListener('hidden.bs.collapse', () => card.classList.remove('is-open'));
+            });
+        });
+
+        // Tìm kiếm blog dùng luôn ô search trên header (giữ giao diện, đổi công năng)
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('homeProductSearch');
+            const btn = document.getElementById('homeProductSearchBtn');
+            const cards = document.querySelectorAll('.blog-card');
+            const noResult = document.getElementById('blogNoResult');
+
+            if (!input || !btn || cards.length === 0) return;
+
+            // (tuỳ chọn) đổi placeholder cho đúng trang Blog
+            input.placeholder = "Tìm theo tiêu đề hoặc tóm tắt bài viết...";
+
+            function normalize(str) {
+                return (str || '')
+                    .toString()
+                    .trim()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            }
+
+            function applyFilter() {
+                const q = normalize(input.value);
+                let visible = 0;
+
+                cards.forEach(card => {
+                    const title = normalize(card.getAttribute('data-title'));
+                    const excerpt = normalize(card.getAttribute('data-excerpt'));
+                    const match = !q || title.includes(q) || excerpt.includes(q);
+
+                    card.classList.toggle('d-none', !match);
+                    if (match) visible++;
+                });
+
+                if (noResult) noResult.classList.toggle('d-none', visible !== 0);
+            }
+
+            input.addEventListener('input', applyFilter);
+            btn.addEventListener('click', applyFilter);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilter();
+                }
+            });
+        });
+
+        // Toast (giữ như Index)
+        document.addEventListener('DOMContentLoaded', function () {
+            const toast = document.getElementById('hagoToast');
+            if (!toast) return;
+            const btnClose = document.getElementById('hagoToastClose');
+            const bar = document.getElementById('hagoToastProgress');
+            const DURATION = 5000;
+            const TICK = 50;
+            let elapsed = 0;
+
+            function hideToast() {
+                toast.style.transition = 'opacity 250ms ease, transform 250ms ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 260);
+            }
+
+            const timer = setInterval(() => {
+                elapsed += TICK;
+                const remain = Math.max(0, DURATION - elapsed);
+                const pct = (remain / DURATION) * 100;
+                if (bar) bar.style.width = pct + '%';
+                if (elapsed >= DURATION) {
+                    clearInterval(timer);
+                    hideToast();
+                }
+            }, TICK);
+
+            btnClose?.addEventListener('click', () => {
+                clearInterval(timer);
+                hideToast();
+            });
+        });
+
+        // OTP EmailJS (giữ như Index nếu bạn muốn đăng ký ngay trên Blog)
+        // ... bạn copy nguyên script OTP của Index xuống đây ...
+    </script>
+</body>
+</html>

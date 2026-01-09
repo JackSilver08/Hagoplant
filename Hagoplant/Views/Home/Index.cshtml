@@ -425,15 +425,22 @@
 
                 <!-- Menu và thanh tìm kiếm -->
                 <div class="collapse navbar-collapse" id="navbarNav">
+                    
                     <!-- Thanh tìm kiếm -->
                     <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh..." aria-label="Tìm kiếm">
-                            <button class="btn btn-primary-custom" type="button">
+                            <input id="homeProductSearch"
+                                   type="search"
+                                   class="form-control"
+                                   placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                                   aria-label="Tìm kiếm"
+                                   autocomplete="off" />
+                            <button id="homeProductSearchBtn" class="btn btn-primary-custom" type="button" aria-label="Tìm">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
+
 
                     <!-- Menu điều hướng -->
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -449,7 +456,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#blog">
+                            <a class="nav-link text-dark fw-medium" href="/Home/Blog">
                                 <i class="fas fa-blog me-1"></i> Blog
                             </a>
                         </li>
@@ -753,6 +760,8 @@
                 {
                     foreach (var p in products)
                     {
+                        
+
                         var img = string.IsNullOrWhiteSpace(p.ImageUrl)
                         ? "https://via.placeholder.com/800x600?text=Hago+Tree"
                         : p.ImageUrl;
@@ -761,7 +770,10 @@
                         ? ""
                         : (p.Description.Length > 80 ? p.Description.Substring(0, 80) + "..." : p.Description);
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 home-product-item"
+                             data-id="@p.Id"
+                             data-name="@p.Name"
+                             data-slug="@p.Slug">
                             <div class="product-card rounded shadow-sm">
                                 <img src="@img"
                                      class="w-100"
@@ -809,6 +821,9 @@
                             </div>
                         </div>
                     }
+                    <div id="homeNoResult" class="text-center text-muted py-5 d-none">
+                        Không tìm thấy sản phẩm phù hợp.
+                    </div>
                 }
             </div>
         </div>
@@ -1136,6 +1151,62 @@
                 if (otpVerifiedEl.value !== '1') {
                     e.preventDefault();
                     showAlert('warning', 'Bạn cần xác nhận OTP trước khi đăng ký.');
+                }
+            });
+        });
+
+                document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('homeProductSearch');
+            const btn = document.getElementById('homeProductSearchBtn');
+            const items = document.querySelectorAll('.home-product-item');
+            const noResult = document.getElementById('homeNoResult');
+            const productsSection = document.getElementById('products');
+
+            if (!input || !btn || items.length === 0) return;
+
+            function normalize(str) {
+                return (str || '')
+                    .toString()
+                    .trim()
+                    .toLowerCase()
+                    // bỏ dấu tiếng Việt để tìm "cay" ra "cây"
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            }
+
+            function applyFilter(scrollToProducts) {
+                const q = normalize(input.value);
+                let visibleCount = 0;
+
+                items.forEach(el => {
+                    const id = normalize(el.dataset.id);
+                    const name = normalize(el.dataset.name);
+                    const slug = normalize(el.dataset.slug);
+
+                    const match = !q || id.includes(q) || name.includes(q) || slug.includes(q);
+
+                    el.classList.toggle('d-none', !match);
+                    if (match) visibleCount++;
+                });
+
+                if (noResult) noResult.classList.toggle('d-none', visibleCount !== 0);
+
+                if (scrollToProducts && productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            // Realtime filter khi gõ
+            input.addEventListener('input', () => applyFilter(false));
+
+            // Click nút search: lọc + cuộn xuống khu vực sản phẩm
+            btn.addEventListener('click', () => applyFilter(true));
+
+            // Enter để search (đỡ phải bấm nút)
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilter(true);
                 }
             });
         });

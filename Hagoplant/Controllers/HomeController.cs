@@ -1,4 +1,5 @@
 ﻿using Hagoplant.DBcontext;
+using Hagoplant.Models;
 using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,5 +45,27 @@ namespace Hagoplant.Controllers
 
         public IActionResult About() => View();
         public IActionResult Contact() => View();
+        [HttpGet("/Blog")]
+        [HttpGet("/Home/Blog")]
+        public async Task<IActionResult> Blog(bool all = false)
+        {
+            var q = _db.BlogPosts.AsNoTracking();
+
+            if (!all)
+            {
+                // Chỉ lấy bài published (không phân biệt hoa/thường)
+                q = q.Where(x => x.Status != null && EF.Functions.ILike(x.Status, BlogPostStatuses.Published));
+            }
+
+            var posts = await q
+                .OrderByDescending(x => x.PublishedAt ?? x.CreatedAt)
+                .ToListAsync();
+
+            Console.WriteLine($"[Home/Blog] all={all}, count={posts.Count}");
+
+            return View(new HomeIndexVm { BlogPosts = posts });
+        }
+
+
     }
 }
