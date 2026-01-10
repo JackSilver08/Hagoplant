@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Hagoplant.DBcontext;
+using Hagoplant.Models;
+using Hagoplant.Services;
+using Hagoplant.ViewModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Hagoplant.DBcontext;
-using Hagoplant.Models;
-using Hagoplant.Services;
 
 
 namespace Hagoplant.Controllers
@@ -130,6 +132,113 @@ namespace Hagoplant.Controllers
                     IsPersistent = rememberMe,
                     ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddHours(8)
                 });
+        }
+
+        // ==========================================================
+        // NEW: PROFILE MODAL (GET partial) + UPDATE PROFILE (POST)
+        // ==========================================================
+
+        private Guid? GetCurrentUserId()
+        {
+            var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(raw, out var id) ? id : null;
+        }
+
+        // GET: /Account/ProfileModal  (load vào modal)
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ProfileModal()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var u = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId.Value);
+            if (u == null) return NotFound();
+
+            var vm = new ProfileUpdateVm
+            {
+                Email = u.Email,
+                FullName = u.FullName,
+                Phone = u.Phone,
+                IsActive = u.IsActive,
+                CreatedAtText = u.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            };
+
+            return PartialView("~/Views/Home/_ProfileModalBody.cshtml", vm);
+        }
+
+        // POST: /Account/UpdateProfile
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ProfileUpdateVm vm)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            // Email/CreatedAt/IsActive không nhận từ client để update
+            ModelState.Remove(nameof(ProfileUpdateVm.Email));
+            ModelState.Remove(nameof(ProfileUpdateVm.CreatedAtText));
+            ModelState.Remove(nameof(ProfileUpdateVm.IsActive));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    ok = false,
+                    message = "Dữ liệu không hợp lệ.",
+                    errors = ModelState
+                        .Where(kv => kv.Value?.Errors.Count > 0)
+                        .ToDictionary(
+                            kv => kv.Key,
+                            kv => kv.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                        )
+                });
+            }
+
+            var u = await _db.Users.FirstOrDefaultAsync(x => x.Id == userId.Value);
+            if (u == null) return NotFound();
+
+            if (!u.IsActive)
+                return Forbid();
+
+            u.FullName = string.IsNullOrWhiteSpace(vm.FullName) ? null : vm.FullName.Trim();
+            u.Phone = string.IsNullOrWhiteSpace(vm.Phone) ? null : vm.Phone.Trim();
+
+            await _db.SaveChangesAsync();
+
+            // Cập nhật lại cookie claims để header đổi ngay (User.Identity.Name)
+            await RefreshSignInAsync(u);
+
+            return Json(new
+            {
+                ok = true,
+                message = "Cập nhật thông tin thành công.",
+                fullName = u.FullName ?? "",
+                phone = u.Phone ?? ""
+            });
+        }
+
+        private async Task RefreshSignInAsync(User user)
+        {
+            // Lấy properties hiện tại (IsPersistent/ExpiresUtc) để giữ nguyên rememberMe
+            var authResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var props = authResult?.Properties ?? new AuthenticationProperties();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                props);
         }
     }
 }

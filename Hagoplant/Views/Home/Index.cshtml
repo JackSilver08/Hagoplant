@@ -401,7 +401,131 @@
             height: 80px;
         }
 
+        /* =========================
+           HAGO PROFILE MODAL (COMPACT + GRADIENT)
+           Chỉ ảnh hưởng #profileModal
+        ========================= */
 
+        #profileModal .modal-backdrop.show {
+            opacity: .55;
+        }
+
+        /* Thu nhỏ chiều ngang & giới hạn chiều cao */
+        #profileModal .hago-profile-modal {
+            max-width: 360px; /* chỉnh 640/700/760 tùy ý */
+            width: calc(100% - 2rem);
+        }
+
+        #profileModal .modal-content {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            background: linear-gradient(145deg, #ffffff 0%, #f6fbf7 55%, #ffffff 100%);
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.20);
+            position: relative;
+        }
+
+            /* Nền nhẹ nhàng tạo chiều sâu */
+            #profileModal .modal-content::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(circle at 18% 15%, rgba(87,154,98,.16) 0%, transparent 42%), radial-gradient(circle at 82% 70%, rgba(212,175,55,.12) 0%, transparent 45%);
+                pointer-events: none;
+            }
+
+        #profileModal .modal-header {
+            position: relative;
+            z-index: 1;
+            border-bottom: 0;
+            padding: 14px 18px;
+            background: linear-gradient(90deg, #579a62 0%, #67b173 50%, #579a62 100%);
+            color: #fff;
+        }
+
+        #profileModal .modal-title {
+            font-weight: 700;
+            letter-spacing: .2px;
+            display: flex;
+            align-items: center;
+        }
+
+        #profileModal .btn-close {
+            filter: invert(1) grayscale(100%);
+            opacity: .9;
+        }
+
+            #profileModal .btn-close:hover {
+                opacity: 1;
+            }
+
+        /* Body gọn hơn, cuộn khi dài */
+        #profileModal .modal-body {
+            position: relative;
+            z-index: 1;
+            padding: 16px 18px;
+            max-height: 70vh; /* quan trọng: modal không cao quá */
+            overflow-y: auto;
+        }
+
+        /* Loading trung tâm, gọn */
+        #profileModal .hago-profile-loading {
+            min-height: 220px; /* thay vì 400px */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tinh chỉnh cho nội dung partial sau khi load vào */
+        #profileModal .modal-body .form-label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: .35rem;
+        }
+
+        #profileModal .modal-body .form-control,
+        #profileModal .modal-body .form-select {
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, .10);
+            padding: .55rem .9rem;
+            background: rgba(255,255,255,.95);
+        }
+
+            #profileModal .modal-body .form-control:focus,
+            #profileModal .modal-body .form-select:focus {
+                border-color: rgba(87,154,98,.55);
+                box-shadow: 0 0 0 .25rem rgba(87,154,98,.18);
+            }
+
+        /* Nút trong partial (nếu dùng btn-primary/btn-secondary) */
+        #profileModal .modal-body .btn {
+            border-radius: 12px;
+            padding: .55rem 1rem;
+        }
+
+        #profileModal .modal-body .btn-primary {
+            border: none;
+            background: linear-gradient(90deg, #579a62 0%, #67b173 100%);
+        }
+
+            #profileModal .modal-body .btn-primary:hover {
+                background: linear-gradient(90deg, #478a52 0%, #579a62 100%);
+            }
+
+        /* Mobile gọn hơn nữa */
+        @@media (max-width: 768px) {
+            #profileModal .hago-profile-modal {
+                max-width: 96vw;
+                width: 96vw;
+                margin: .5rem auto;
+            }
+
+            #profileModal .modal-body {
+                padding: 14px 14px;
+                max-height: 75vh;
+            }
+        }
 
     </style>
 </head>
@@ -495,7 +619,9 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="/Account/Profile">
+                                        <a class="dropdown-item" href="#"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#profileModal">
                                             <i class="fas fa-id-card me-2"></i> Tài khoản
                                         </a>
                                     </li>
@@ -828,6 +954,28 @@
             </div>
         </div>
     </section>
+    <!-- PROFILE MODAL -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+        <!-- Bỏ modal-lg để không quá rộng; thêm scrollable để nội dung dài thì cuộn -->
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable hago-profile-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title m-0">
+                        <i class="fas fa-id-card me-2"></i>Thông tin tài khoản
+                    </h5>
+                
+                </div>
+
+                <div class="modal-body" id="profileModalBody">
+                    <div class="hago-profile-loading">
+                        <div class="spinner-border" role="status" aria-label="Loading"></div>
+                        <div class="mt-3 text-muted">Đang tải...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Thêm phần Footer này trước thẻ đóng </body> -->
     <footer class="bg-dark text-white pt-5 pb-4">
@@ -1209,6 +1357,107 @@
                     applyFilter(true);
                 }
             });
+        });
+                document.addEventListener('DOMContentLoaded', () => {
+            const modalEl = document.getElementById('profileModal');
+            const bodyEl = document.getElementById('profileModalBody');
+            if (!modalEl || !bodyEl) return;
+
+            // Khi modal mở: gọi server lấy partial view
+            modalEl.addEventListener('show.bs.modal', async () => {
+                bodyEl.innerHTML = '<div class="py-5 text-center text-muted">Đang tải...</div>';
+
+                try {
+                    const res = await fetch('/Account/ProfileModal', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!res.ok) {
+                        bodyEl.innerHTML = `<div class="alert alert-danger mb-0">
+                            Không tải được thông tin tài khoản. (HTTP ${res.status})
+                        </div>`;
+                        return;
+                    }
+
+                    const html = await res.text();
+                    bodyEl.innerHTML = html;
+
+                    // Sau khi nhét HTML vào modal, mới wire submit form
+                    wireProfileForm();
+                } catch (err) {
+                    console.error('ProfileModal fetch error:', err);
+                    bodyEl.innerHTML = `<div class="alert alert-danger mb-0">
+                        Lỗi kết nối khi tải thông tin tài khoản.
+                    </div>`;
+                }
+            });
+
+            function wireProfileForm() {
+                const form = document.getElementById('profileForm');
+                if (!form) return;
+
+                const alertEl = form.querySelector('#profileFormAlert');
+
+                function showAlert(ok, msg) {
+                    if (!alertEl) return;
+                    alertEl.classList.remove('d-none', 'alert-success', 'alert-danger');
+                    alertEl.classList.add(ok ? 'alert-success' : 'alert-danger');
+                    alertEl.textContent = msg || (ok ? 'Thành công' : 'Có lỗi xảy ra');
+                }
+
+                function clearErrors() {
+                    form.querySelectorAll('[data-error-for]').forEach(el => el.textContent = '');
+                    if (alertEl) {
+                        alertEl.classList.add('d-none');
+                        alertEl.textContent = '';
+                    }
+                }
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    clearErrors();
+
+                    try {
+                        const fd = new FormData(form);
+                        const res = await fetch(form.action, {
+                            method: 'POST',
+                            body: fd,
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            showAlert(true, data.message || 'Cập nhật thành công.');
+
+                            // cập nhật tên trên header ngay (nếu muốn)
+                            if (data.fullName) {
+                                const userDropdown = document.getElementById('userDropdown');
+                                if (userDropdown) {
+                                    userDropdown.innerHTML = `<i class="fas fa-user me-1"></i> ${data.fullName}`;
+                                }
+                            }
+
+                            return;
+                        }
+
+                        // lỗi validation: backend trả BadRequest JSON
+                        let errJson = null;
+                        try { errJson = await res.json(); } catch { }
+
+                        showAlert(false, errJson?.message || `Cập nhật thất bại (HTTP ${res.status}).`);
+
+                        if (errJson?.errors) {
+                            Object.keys(errJson.errors).forEach(key => {
+                                const el = form.querySelector(`[data-error-for="${key}"]`);
+                                if (el) el.textContent = errJson.errors[key][0] || '';
+                            });
+                        }
+                    } catch (err) {
+                        console.error('UpdateProfile error:', err);
+                        showAlert(false, 'Lỗi kết nối khi cập nhật.');
+                    }
+                });
+            }
         });
     </script>
 </body>

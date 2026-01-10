@@ -1,0 +1,39 @@
+﻿@model Hagoplant.ViewModels.ProfileUpdateVm
+
+<form id="profileForm" method="post" action="/Account/UpdateProfile">
+    @Html.AntiForgeryToken()
+
+    <div id="profileFormAlert" class="alert d-none" role="alert"></div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input class="form-control" value="@Model.Email" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Họ và tên</label>
+        <input name="FullName" class="form-control" value="@Model.FullName" />
+        <div class="text-danger small mt-1" data-error-for="FullName"></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số điện thoại</label>
+        <input name="Phone" class="form-control" value="@Model.Phone" />
+        <div class="text-danger small mt-1" data-error-for="Phone"></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Trạng thái</label>
+        <input class="form-control" value="@(Model.IsActive ? "Đang hoạt động" : "Đã khóa")" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ngày tạo</label>
+        <input class="form-control" value="@Model.CreatedAtText" readonly />
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="submit" class="btn btn-primary-custom">Lưu</button>
+    </div>
+</form>

@@ -1,6 +1,5 @@
 ﻿@model Hagoplant.ViewModels.AdminDashboardVm
 @using System.Linq
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -281,43 +280,88 @@
                         </div>
                     </section>
 
-                    <!-- Quản lý Người dùng -->
                     <section id="users" class="section-content d-none">
+                        @using System.Security.Claims
+                        @{
+                            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                            Guid.TryParse(currentUserIdStr, out var currentUserId);
+
+                            var users = Model?.Users;
+                        }
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="text-primary-custom mb-0">Quản lý người dùng</h2>
-                            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                                <i class="fas fa-user-plus me-2"></i>Thêm người dùng
-                            </button>
+                            <!-- BỎ nút Thêm người dùng -->
                         </div>
 
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách người dùng</h5>
-                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo tên, email...">
+                                <input id="userSearch" type="text" class="form-control table-search" placeholder="Tìm kiếm theo tên, email...">
                             </div>
+
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>ID</th>
+                                                <th style="width:90px;">ID</th>
                                                 <th>Họ tên</th>
                                                 <th>Email</th>
                                                 <th>Số điện thoại</th>
-                                                <th>Ngày đăng ký</th>
-                                                <th>Thao tác</th>
+                                                <th style="min-width:160px;">Ngày đăng ký</th>
+                                                <th style="min-width:110px;">Thao tác</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="6">
-                                                    <div class="empty-state py-5">
-                                                        <i class="fas fa-users"></i>
-                                                        <p>Chưa có người dùng nào</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+
+                                        <tbody id="usersTbody">
+                                            @if (users == null || users.Count == 0)
+                                            {
+                                                <tr>
+                                                    <td colspan="6">
+                                                        <div class="empty-state py-5">
+                                                            <i class="fas fa-users"></i>
+                                                            <p class="mb-0">Chưa có người dùng nào</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var u in users)
+                                                {
+                                                    var isSelf = (currentUserId != Guid.Empty && u.Id == currentUserId);
+
+                                                    <tr class="user-row"
+                                                        data-id="@u.Id"
+                                                        data-name="@(u.FullName ?? "")"
+                                                        data-email="@(u.Email ?? "")">
+                                                        <td class="text-muted small">@u.Id</td>
+                                                        <td class="fw-semibold">@(string.IsNullOrWhiteSpace(u.FullName) ? "-" : u.FullName)</td>
+                                                        <td>@(string.IsNullOrWhiteSpace(u.Email) ? "-" : u.Email)</td>
+                                                        <td>@(string.IsNullOrWhiteSpace(u.Phone) ? "-" : u.Phone)</td>
+                                                        <td class="text-muted">
+                                                            @u.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                                        </td>
+                                                        <td>
+                                                            <form method="post"
+                                                                  action="/Admin/DeleteUser"
+                                                                  class="d-inline"
+                                                                  onsubmit="return confirm('Xóa người dùng này? Hành động có thể không hoàn tác.');">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="id" value="@u.Id" />
+                                                                <button type="submit"
+                                                                        class="btn btn-sm btn-outline-danger"
+                                                                        @(isSelf ? "disabled" : "")>
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                            }
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -1645,6 +1689,25 @@
 
             editBlogForm.submit();
           });
+                  // ===== User: search filter =====
+        const userSearch = document.getElementById("userSearch");
+        if (userSearch) {
+          const normalize = (s) => (s || "").toString().trim().toLowerCase();
+
+          function filterUsers() {
+            const q = normalize(userSearch.value);
+            document.querySelectorAll("tr.user-row").forEach(row => {
+              const id = normalize(row.dataset.id);
+              const name = normalize(row.dataset.name);
+              const email = normalize(row.dataset.email);
+              const match = q === "" || id.includes(q) || name.includes(q) || email.includes(q);
+              row.classList.toggle("d-none", !match);
+            });
+          }
+
+          userSearch.addEventListener("input", filterUsers);
+        }
+
         }
 
         })();

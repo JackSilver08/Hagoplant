@@ -4,6 +4,7 @@ using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -30,6 +31,11 @@ namespace Hagoplant.Controllers
 
                 BlogPosts = await _db.BlogPosts.AsNoTracking()
                     .OrderByDescending(b => b.CreatedAt)
+                    .ToListAsync(),
+
+                  // THÊM KHỐI NÀY
+                Users = await _db.Users.AsNoTracking()
+                    .OrderByDescending(u => u.CreatedAt)   // nếu User không có CreatedAt thì đổi field khác
                     .ToListAsync()
             };
 
@@ -385,6 +391,42 @@ namespace Hagoplant.Controllers
             var raw = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             return Guid.TryParse(raw, out var g) ? g : null;
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            // Chặn tự xóa chính mình
+            var currentIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.TryParse(currentIdStr, out var currentId) && currentId == id)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể xóa tài khoản đang đăng nhập.";
+                return RedirectToAction(nameof(Index));
+            }
 
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Người dùng không tồn tại.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _db.Users.Remove(user);
+
+            try
+            {
+                await _db.SaveChangesAsync();
+                TempData["Toast.Ok"] = "1";
+                TempData["Toast.Message"] = "Đã xóa người dùng.";
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể xóa do có dữ liệu liên quan (FK). Nên dùng soft delete hoặc khóa tài khoản.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

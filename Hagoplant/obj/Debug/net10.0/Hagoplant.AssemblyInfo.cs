@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Hagoplant")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a6ace58e679d431a03b42297e8c26b45e140872d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03232e93ee759f9d876b173a5cef323113e7dc8f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Hagoplant")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Hagoplant")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
