@@ -31,5 +31,13 @@ namespace Hagoplant.Models
         // timestamptz -> DateTimeOffset để tránh lỗi Kind=Unspecified
         [Column("created_at")]
         public DateTimeOffset CreatedAt { get; set; }
+
+        // Navigation
+        public ICollection<Cart> Carts { get; set; } = new List<Cart>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<BlogPost> BlogPostsAuthored { get; set; } = new List<BlogPost>();
+
+        // Orders confirmed by this user (confirmed_by_user_id)
+        public ICollection<Order> OrdersConfirmed { get; set; } = new List<Order>();
     }
 }

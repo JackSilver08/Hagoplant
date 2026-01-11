@@ -1,5 +1,6 @@
 ﻿using Hagoplant.DBcontext;
 using Hagoplant.Models;
+using Hagoplant.Models.ViewModels;
 using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,218 @@ namespace Hagoplant.Controllers
             Console.WriteLine($"[Home/Blog] all={all}, count={posts.Count}");
 
             return View(new HomeIndexVm { BlogPosts = posts });
+        }
+
+        // =============================
+        // HIỂN THỊ GIỎ HÀNG
+        // =============================
+        [HttpGet]
+        public async Task<IActionResult> Cart()
+        {
+            var vm = await BuildCartVmAsync();
+            return View(vm);
+        }
+
+        // =============================
+        // THÊM SẢN PHẨM VÀO GIỎ
+        // =============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add(Guid productId, int quantity = 1)
+        {
+            if (quantity < 1) quantity = 1;
+
+            var cartId = GetCartId();
+
+            // đảm bảo có cart
+            var cartExists = await _db.Carts.AnyAsync(c => c.Id == cartId);
+            if (!cartExists)
+            {
+                _db.Carts.Add(new Cart
+                {
+                    Id = cartId,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                });
+                await _db.SaveChangesAsync();
+            }
+
+            var item = await _db.CartItems
+                .FirstOrDefaultAsync(x => x.CartId == cartId && x.ProductId == productId);
+
+            if (item != null)
+            {
+                item.Quantity += quantity;
+                item.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+            else
+            {
+                var product = await _db.Products.AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.Id == productId);
+
+                if (product == null) return NotFound();
+
+                _db.CartItems.Add(new CartItem
+                {
+                    Id = Guid.NewGuid(),
+                    CartId = cartId,
+                    ProductId = productId,
+                    Quantity = quantity,
+                    UnitPriceSnapshot = product.SalePrice ?? product.Price,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                });
+            }
+
+            await _db.SaveChangesAsync();
+
+            // ✅ Nếu là AJAX thì trả JSON để JS đọc res.json()
+            var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            if (isAjax)
+            {
+                // Count theo tổng quantity (đúng nghĩa badge)
+                var count = await _db.CartItems
+                    .Where(x => x.CartId == cartId)
+                    .SumAsync(x => (int?)x.Quantity) ?? 0;
+
+                return Json(new { ok = true, count });
+            }
+
+            // ✅ Submit bình thường thì redirect như cũ
+            return RedirectToAction(nameof(Cart));
+        }
+
+
+        // =============================
+        // CẬP NHẬT SỐ LƯỢNG
+        // =============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateQuantity(Guid productId, int quantity)
+        {
+            if (quantity < 1) quantity = 1;
+
+            var cartId = GetCartId();
+
+            var item = await _db.CartItems
+                .FirstOrDefaultAsync(x => x.CartId == cartId && x.ProductId == productId);
+
+            if (item == null) return NotFound();
+
+            item.Quantity = quantity;
+            item.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Cart));
+        }
+
+
+        // =============================
+        // XÓA 1 SẢN PHẨM
+        // =============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(Guid productId)
+        {
+            var cartId = GetCartId();
+            var item = await _db.CartItems
+                .FirstOrDefaultAsync(x => x.CartId == cartId && x.ProductId == productId);
+
+            if (item != null)
+            {
+                _db.CartItems.Remove(item);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =============================
+        // XÓA TOÀN BỘ GIỎ HÀNG
+        // =============================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Clear()
+        {
+            var cartId = GetCartId();
+            var items = await _db.CartItems.Where(x => x.CartId == cartId).ToListAsync();
+
+            if (items.Any())
+            {
+                _db.CartItems.RemoveRange(items);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =============================
+        // TIẾN HÀNH THANH TOÁN (GIẢ LẬP)
+        // =============================
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
+        {
+            var vm = await BuildCartVmAsync();
+            if (vm.IsEmpty)
+            {
+                TempData["Toast.Message"] = "Giỏ hàng trống, vui lòng chọn sản phẩm trước khi thanh toán.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Ở đây bạn có thể điều hướng tới trang thanh toán thật
+            return View(vm);
+        }
+
+        // =============================
+        // HÀM PHỤ TRỢ
+        // =============================
+        private Guid GetCartId()
+        {
+            const string key = "CartId";
+
+            var existingStr = HttpContext.Session.GetString(key);
+            if (Guid.TryParse(existingStr, out var existing))
+                return existing;
+
+            var newId = Guid.NewGuid();
+            HttpContext.Session.SetString(key, newId.ToString());
+            return newId;
+        }
+
+
+        private async Task<CartVm> BuildCartVmAsync()
+        {
+            var cartId = GetCartId();
+
+            var items = await _db.CartItems
+                .AsNoTracking()
+                .Where(ci => ci.CartId == cartId)
+                .Include(ci => ci.Product)
+                .Select(ci => new CartItemVm
+                {
+                    CartItemId = ci.Id,
+                    CartId = ci.CartId,
+                    ProductId = ci.ProductId,
+
+                    Name = ci.Product!.Name,
+                    Slug = ci.Product!.Slug,
+                    ImageUrl = ci.Product!.ImageUrl,
+
+                    Quantity = ci.Quantity,
+                    UnitPriceSnapshot = ci.UnitPriceSnapshot,
+
+                    CurrentPrice = ci.Product!.Price,
+                    CurrentSalePrice = ci.Product!.SalePrice,
+                    IsActive = ci.Product!.IsActive
+                })
+                .ToListAsync();
+
+            return new CartVm
+            {
+                CartId = cartId,
+                Items = items,
+                DiscountAmount = 0
+            };
         }
 
 

@@ -1,0 +1,1082 @@
+﻿@model Hagoplant.Models.ViewModels.CartVm
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+   
+}
+
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Google Fonts: Francois One -->
+<link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+<!-- EmailJS CDN phiên bản mới nhất (v4) -->
+<script src="https://cdn.jsdelivr.net/npm/@("@")emailjs/browser@4/dist/email.min.js"></script>
+<style>
+    body {
+        font-family: 'Francois One', sans-serif;
+        background-color: #f8f5f0;
+        color: #333;
+    }
+    /* Thêm các style này vào phần CSS hiện có */
+
+    /* Header styles */
+    header {
+        z-index: 1030;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(87, 154, 98, 0.1);
+            color: #579a62 !important;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #579a62 !important;
+            font-weight: bold;
+        }
+
+    /* Search bar styling */
+    .input-group .form-control {
+        border: 2px solid #e0e0e0;
+        border-right: none;
+        border-radius: 50px 0 0 50px;
+        padding-left: 20px;
+    }
+
+    .input-group .btn {
+        border-radius: 0 50px 50px 0;
+        border: 2px solid #579a62;
+    }
+
+    .input-group .form-control:focus {
+        border-color: #579a62;
+        box-shadow: none;
+    }
+
+    /* Cart styling */
+    #cart-btn {
+        position: relative;
+        padding: 0.5rem 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 991px) {
+        .navbar-collapse {
+            padding: 1rem 0;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .navbar-nav .nav-item {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    @@media (min-width: 992px) {
+        .navbar-nav .nav-item:not(:last-child) {
+            margin-right: 0.5rem;
+        }
+    }
+
+   
+
+    .cart-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #d4af37;
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center; /* căn giữa theo chiều dọc */
+        justify-content: center; /* căn giữa theo chiều ngang */
+
+        font-size: 12px;
+        line-height: 1; /* tránh bị lệch chữ */
+    }
+
+   
+    /* Register modal - otp */
+    #registerAlert {
+        border-radius: 10px;
+        border: 1px solid rgba(212, 175, 55, 0.5);
+        background: rgba(248, 245, 240, 0.8);
+        color: #333;
+    }
+
+    #registerOtp {
+        letter-spacing: 6px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    #btnRegisterSubmit:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    /* Footer */
+    /* Footer styles */
+    footer {
+        background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+    }
+
+        footer .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+            footer .social-icon.facebook {
+                background-color: #3b5998;
+            }
+
+            footer .social-icon.zalo {
+                background-color: #0068ff;
+            }
+
+            footer .social-icon.shopee {
+                background-color: #ee4d2d;
+            }
+
+            footer .social-icon:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+        footer a.text-light:hover {
+            color: #579a62 !important;
+            padding-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+    /* Responsive footer */
+    @@media (max-width: 768px) {
+        footer .d-flex.align-items-center {
+            flex-direction: column;
+            text-align: center;
+        }
+
+            footer .d-flex.align-items-center .me-3 {
+                margin-right: 0 !important;
+                margin-bottom: 1rem;
+            }
+    }
+
+    .imglogo {
+        width: 50px;
+        height: 50px;
+    }
+
+
+    .footerlogo {
+        width: 80px;
+        height: 80px;
+    }
+
+    /* =========================
+               HAGO PROFILE MODAL (COMPACT + GRADIENT)
+               Chỉ ảnh hưởng #profileModal
+            ========================= */
+
+    #profileModal .modal-backdrop.show {
+        opacity: .55;
+    }
+
+    /* Thu nhỏ chiều ngang & giới hạn chiều cao */
+    #profileModal .hago-profile-modal {
+        max-width: 360px; /* chỉnh 640/700/760 tùy ý */
+        width: calc(100% - 2rem);
+    }
+
+    #profileModal .modal-content {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(145deg, #ffffff 0%, #f6fbf7 55%, #ffffff 100%);
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.20);
+        position: relative;
+    }
+
+        /* Nền nhẹ nhàng tạo chiều sâu */
+        #profileModal .modal-content::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 18% 15%, rgba(87,154,98,.16) 0%, transparent 42%), radial-gradient(circle at 82% 70%, rgba(212,175,55,.12) 0%, transparent 45%);
+            pointer-events: none;
+        }
+
+    #profileModal .modal-header {
+        position: relative;
+        z-index: 1;
+        border-bottom: 0;
+        padding: 14px 18px;
+        background: linear-gradient(90deg, #579a62 0%, #67b173 50%, #579a62 100%);
+        color: #fff;
+    }
+
+    #profileModal .modal-title {
+        font-weight: 700;
+        letter-spacing: .2px;
+        display: flex;
+        align-items: center;
+    }
+
+    #profileModal .btn-close {
+        filter: invert(1) grayscale(100%);
+        opacity: .9;
+    }
+
+        #profileModal .btn-close:hover {
+            opacity: 1;
+        }
+
+    /* Body gọn hơn, cuộn khi dài */
+    #profileModal .modal-body {
+        position: relative;
+        z-index: 1;
+        padding: 16px 18px;
+        max-height: 70vh; /* quan trọng: modal không cao quá */
+        overflow-y: auto;
+    }
+
+    /* Loading trung tâm, gọn */
+    #profileModal .hago-profile-loading {
+        min-height: 220px; /* thay vì 400px */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Tinh chỉnh cho nội dung partial sau khi load vào */
+    #profileModal .modal-body .form-label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: .35rem;
+    }
+
+    #profileModal .modal-body .form-control,
+    #profileModal .modal-body .form-select {
+        border-radius: 12px;
+        border: 1px solid rgba(15, 23, 42, .10);
+        padding: .55rem .9rem;
+        background: rgba(255,255,255,.95);
+    }
+
+        #profileModal .modal-body .form-control:focus,
+        #profileModal .modal-body .form-select:focus {
+            border-color: rgba(87,154,98,.55);
+            box-shadow: 0 0 0 .25rem rgba(87,154,98,.18);
+        }
+
+    /* Nút trong partial (nếu dùng btn-primary/btn-secondary) */
+    #profileModal .modal-body .btn {
+        border-radius: 12px;
+        padding: .55rem 1rem;
+    }
+
+    #profileModal .modal-body .btn-primary {
+        border: none;
+        background: linear-gradient(90deg, #579a62 0%, #67b173 100%);
+    }
+
+        #profileModal .modal-body .btn-primary:hover {
+            background: linear-gradient(90deg, #478a52 0%, #579a62 100%);
+        }
+
+    /* Mobile gọn hơn nữa */
+    @@media (max-width: 768px) {
+        #profileModal .hago-profile-modal {
+            max-width: 96vw;
+            width: 96vw;
+            margin: .5rem auto;
+        }
+
+        #profileModal .modal-body {
+            padding: 14px 14px;
+            max-height: 75vh;
+        }
+    }
+
+    /* Nhún icon giỏ hàng sau khi tăng */
+    #cart-btn.cart-bump {
+        animation: cartBump .35s ease;
+    }
+
+    @@keyframes cartBump {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.12);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+    /* ====== CART PAGE STYLES ====== */
+    .cart-wrap {
+        padding: 2rem 0 4rem;
+        min-height: 60vh;
+        background-color: #f8f5f0;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #d4af37;
+        max-width: 500px;
+        margin: 2rem auto;
+        box-shadow: 0 10px 30px rgba(87, 154, 98, 0.1);
+    }
+
+        .empty-state .fa-shopping-cart {
+            font-size: 44px;
+            margin-bottom: 1.5rem;
+            color: #579a62;
+        }
+
+        .empty-state h5 {
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state .muted {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+    /* Cart cards */
+    .cart-card, .summary-card {
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #d4af37;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(87, 154, 98, 0.12);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Cart table */
+    .cart-table {
+        margin: 0;
+    }
+
+        .cart-table thead th {
+            background: linear-gradient(90deg, #579a62 0%, #67b173 100%);
+            color: white;
+            border: none;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-table tbody tr {
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+            .cart-table tbody tr:hover {
+                background-color: rgba(87, 154, 98, 0.03);
+            }
+
+        .cart-table td {
+            padding: 1.25rem;
+            vertical-align: middle;
+        }
+
+    /* Product item */
+    .cart-thumb {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    /* Quantity controls */
+    .qty-input {
+        width: 70px;
+        text-align: center;
+        border-color: #579a62;
+        font-weight: 600;
+    }
+
+        .qty-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(87, 154, 98, 0.25);
+            border-color: #579a62;
+        }
+
+    .qty-btn {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-color: #dee2e6;
+        color: #495057;
+    }
+
+        .qty-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #579a62;
+            color: #579a62;
+        }
+
+    /* Price styling */
+    .price {
+        font-weight: 700;
+        color: #579a62;
+        font-size: 1.1rem;
+    }
+
+    .muted {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Summary card */
+    .summary-card {
+        padding: 1.5rem;
+        position: sticky;
+        top: 1rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(212, 175, 55, 0.3);
+    }
+
+        .summary-row:last-of-type {
+            border-bottom: none;
+            border-top: 2px solid #d4af37;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .summary-row .fw-bold {
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+    /* Buttons */
+    .btn-primary-custom {
+        background-color: #579a62;
+        border-color: #579a62;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary-custom:hover {
+            background-color: #478152;
+            border-color: #478152;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(87, 154, 98, 0.3);
+        }
+
+    .btn-outline-primary-custom {
+        background-color: transparent;
+        border-color: #579a62;
+        color: #579a62;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-primary-custom:hover {
+            background-color: rgba(87, 154, 98, 0.1);
+            transform: translateY(-2px);
+        }
+
+    .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+    /* Badge */
+    .badge.bg-primary-custom {
+        background-color: #579a62 !important;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+    }
+
+    /* Text colors */
+    .text-primary-custom {
+        color: #579a62 !important;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .cart-table thead {
+            display: none;
+        }
+
+        .cart-table tr {
+            display: block;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(212, 175, 55, 0.3) !important;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .cart-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .cart-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #579a62;
+                min-width: 120px;
+            }
+
+            .cart-table td:last-child {
+                border-bottom: none;
+            }
+
+        .d-inline-flex.gap-2 {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .summary-card {
+            position: static;
+        }
+    }
+
+    /* Table cell labels for mobile */
+    @@media (max-width: 768px) {
+        .cart-table td:nth-child(1) {
+            data-label: "Sản phẩm";
+        }
+
+        .cart-table td:nth-child(2) {
+            data-label: "Đơn giá";
+        }
+
+        .cart-table td:nth-child(3) {
+            data-label: "Số lượng";
+        }
+
+        .cart-table td:nth-child(4) {
+            data-label: "Thành tiền";
+        }
+
+        .cart-table td:nth-child(5) {
+            data-label: "Thao tác";
+        }
+    }
+
+    /* Loading state for cart updates */
+    .loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+        .loading:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid rgba(87, 154, 98, 0.3);
+            border-top-color: #579a62;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Animation for cart updates */
+    @@keyframes highlightUpdate {
+        0% {
+            background-color: rgba(87, 154, 98, 0.3);
+        }
+
+        100% {
+            background-color: transparent;
+        }
+    }
+
+    .updated {
+        animation: highlightUpdate 1s ease;
+    }
+</style>
+
+<!-- Thêm phần Header này ngay sau thẻ <body> -->
+<header class="sticky-top bg-white shadow-sm vintage-border">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <div class="me-2">
+                    <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                </div>
+            </a>
+
+            <!-- Toggle button cho mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menu và thanh tìm kiếm -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- Thanh tìm kiếm -->
+                <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                    <div class="input-group">
+                        <input id="homeProductSearch"
+                               type="search"
+                               class="form-control"
+                               placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                               aria-label="Tìm kiếm"
+                               autocomplete="off" />
+                        <button id="homeProductSearchBtn" class="btn btn-primary-custom" type="button" aria-label="Tìm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Menu điều hướng -->
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li>
+                        <a class="nav-link text-dark fw-medium" href="/Home/About">
+                            <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="#products">
+                            <i class="fas fa-tree me-1"></i> Sản phẩm
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="/Home/Blog">
+                            <i class="fas fa-blog me-1"></i> Blog
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="/Home/contact ">
+                            <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                        </a>
+                    </li>
+
+                    <!-- Giỏ hàng -->
+                    <li class="nav-item position-relative mx-2">
+                        <a class="nav-link text-dark fw-medium" href="@Url.Action("Cart", "Home")" id="cart-btn">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge">0</span>
+                        </a>
+                    </li>
+
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <!-- Đã đăng nhập: hiển thị tên + menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-medium"
+                               href="#"
+                               id="userDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="/Order/History">
+                                        <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#profileModal">
+                                        <i class="fas fa-id-card me-2"></i> Tài khoản
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+                                    <form method="post" action="/Account/Logout" class="px-3">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Chưa đăng nhập: hiển thị Tài khoản + login/register -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-medium"
+                               href="#"
+                               id="userDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="fas fa-user me-1"></i> Tài khoản
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                        <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                        <i class="fas fa-user-plus me-2"></i> Đăng ký
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="cart-wrap">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h2 class="mb-1 text-primary-custom">Giỏ hàng</h2>
+                <div class="muted small">Kiểm tra sản phẩm trước khi thanh toán</div>
+            </div>
+        </div>
+
+        @if (Model == null || Model.Items == null || !Model.Items.Any())
+        {
+            <div class="empty-state">
+                <div class="mb-2">
+                    <i class="fas fa-shopping-cart text-primary-custom" style="font-size:44px;"></i>
+                </div>
+                <h5 class="mb-2">Giỏ hàng đang trống</h5>
+                <div class="muted mb-3">Hãy thêm sản phẩm vào giỏ để tiếp tục.</div>
+                <a class="btn btn-primary-custom" href="@Url.Action("Index", "Home")">
+                    <i class="fas fa-tree me-2"></i>Xem sản phẩm
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="cart-card">
+                        <div class="table-responsive">
+                            <table class="table cart-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width:340px;">Sản phẩm</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-center" style="width:180px;">Số lượng</th>
+                                        <th class="text-end">Thành tiền</th>
+                                        <th class="text-end" style="width:90px;">Xóa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        var unitPrice = item.UnitPrice;
+                                        var lineTotal = unitPrice * item.Quantity;
+
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex gap-3 align-items-center">
+                                                    <img class="cart-thumb"
+                                                         src="@(string.IsNullOrWhiteSpace(item.ImageUrl) ? "https://via.placeholder.com/300x300?text=Hago+Tree" : item.ImageUrl)"
+                                                         alt="@item.Name" />
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold">@item.Name</div>
+                                                        @if (!string.IsNullOrWhiteSpace(item.Slug))
+                                                        {
+                                                            <a class="small text-decoration-none text-primary-custom"
+                                                               href="@Url.Action("Detail", "Product", new { slug = item.Slug })">
+                                                                Xem chi tiết
+                                                            </a>
+                                                        }
+                                                        <div class="muted small mt-1">Mã SP: @item.ProductId</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <div class="price">@string.Format("{0:N0}₫", unitPrice)</div>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <form method="post" action="@Url.Action("UpdateQuantity", "Home")" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="productId" value="@item.ProductId" />
+
+                                                    <div class="d-inline-flex align-items-center gap-2">
+                                                        <button type="button"
+                                                                class="btn btn-outline-secondary qty-btn"
+                                                                data-qty-minus>
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+
+                                                        <input type="number"
+                                                               name="quantity"
+                                                               class="form-control qty-input"
+                                                               min="1"
+                                                               max="999"
+                                                               value="@item.Quantity"
+                                                               data-qty-input />
+
+                                                        <button type="button"
+                                                                class="btn btn-outline-secondary qty-btn"
+                                                                data-qty-plus>
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+
+                                                        <button type="submit" class="btn btn-primary-custom">
+                                                            Cập nhật
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <div class="price">@string.Format("{0:N0}₫", lineTotal)</div>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <form method="post" action="@Url.Action("Remove", "Home")" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                                    <button type="submit" class="btn btn-outline-danger" title="Xóa">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                            <div class="muted small">
+                                Gợi ý: cập nhật số lượng trước khi thanh toán.
+                            </div>
+                            <form method="post" action="@Url.Action("Clear", "Home")">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-broom me-2"></i>Xóa toàn bộ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="summary-card">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+                            <span class="badge bg-primary-custom">@Model.Items.Count() SP</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <div class="muted">Tạm tính</div>
+                            <div class="fw-bold">@string.Format("{0:N0}₫", Model.Subtotal)</div>
+                        </div>
+
+                        <div class="summary-row">
+                            <div class="muted">Phí vận chuyển</div>
+                            <div class="muted">Tính khi thanh toán</div>
+                        </div>
+
+                        <div class="summary-row">
+                            <div class="fw-bold">Tổng cộng</div>
+                            <div class="price">@string.Format("{0:N0}₫", Model.Subtotal)</div>
+                        </div>
+
+                        <div class="mt-3 d-grid gap-2">
+                            <a class="btn btn-primary-custom btn-lg" href="@Url.Action("Checkout", "Home")">
+                                <i class="fas fa-credit-card me-2"></i>Tiến hành thanh toán
+                            </a>
+                            <a class="btn btn-outline-primary-custom" href="@Url.Action("Index", "Home")">
+                                <i class="fas fa-store me-2"></i>Tiếp tục mua sắm
+                            </a>
+                        </div>
+
+                        <div class="mt-3 muted small">
+                            Lưu ý: Tổng tiền chưa bao gồm phí vận chuyển (nếu có) và khuyến mãi (nếu áp dụng).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- Thêm phần Footer này trước thẻ đóng </body> -->
+<footer class="bg-dark text-white pt-5 pb-4">
+    <div class="container">
+        <div class="row">
+            <!-- Cột 1: Logo và mô tả -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="me-3">
+                        <img class="footerlogo" src="~/images/HagoGreen.png" />
+                    </div>
+                    <div>
+                        <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                        <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                </div>
+            </div>
+
+            <!-- Cột 2: Liên hệ -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                <ul class="list-unstyled text-light">
+                    <li class="mb-3 d-flex align-items-start">
+                        <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                        <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                        <span class="small">HagoTree@gmail.com</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-phone me-3 text-primary-custom"></i>
+                        <span class="small">0947192590</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Cột 3: Theo dõi và liên kết -->
+            <div class="col-lg-4 col-md-12 mb-4">
+                <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                <div class="d-flex mb-4">
+                    <a href="#" class="social-icon me-3 facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon me-3 zalo">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="social-icon shopee">
+                        <i class="fas fa-store"></i>
+                    </a>
+                </div>
+
+                <!-- Liên kết nhanh -->
+                <div class="row">
+                    <div class="col-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
+                            <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
+                            <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
+                            <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
+                            <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
+    // Tăng/giảm số lượng trong từng row (không tự submit; bạn bấm "Cập nhật")
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form').forEach(form => {
+            const input = form.querySelector('[data-qty-input]');
+            const minus = form.querySelector('[data-qty-minus]');
+            const plus = form.querySelector('[data-qty-plus]');
+            if (!input || !minus || !plus) return;
+
+            const clamp = (v) => {
+                let n = parseInt(v, 10);
+                if (Number.isNaN(n)) n = 1;
+                n = Math.max(1, Math.min(999, n));
+                return n;
+            };
+
+            minus.addEventListener('click', () => {
+                input.value = clamp(parseInt(input.value || '1', 10) - 1);
+            });
+
+            plus.addEventListener('click', () => {
+                input.value = clamp(parseInt(input.value || '1', 10) + 1);
+            });
+
+            input.addEventListener('blur', () => {
+                input.value = clamp(input.value);
+            });
+        });
+    });
+</script>

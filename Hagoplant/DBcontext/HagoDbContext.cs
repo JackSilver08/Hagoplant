@@ -11,11 +11,18 @@ namespace Hagoplant.DBcontext
         }
 
         // =========================
-        // DB SETS
+        // DB SETS (BẢNG TRONG SCHEMA "hago")
         // =========================
         public DbSet<User> Users => Set<User>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+        public DbSet<Cart> Carts => Set<Cart>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<Voucher> Vouchers => Set<Voucher>();
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // =========================
@@ -29,6 +36,23 @@ namespace Hagoplant.DBcontext
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Product>().ToTable("products");
             modelBuilder.Entity<BlogPost>().ToTable("blog_posts");
+            modelBuilder.Entity<Cart>().ToTable("carts");
+            modelBuilder.Entity<CartItem>().ToTable("cart_items");
+            modelBuilder.Entity<Order>().ToTable("orders");
+            modelBuilder.Entity<Payment>().ToTable("payments");
+            modelBuilder.Entity<Voucher>().ToTable("vouchers");
+
+            // =========================
+            // USER CONFIG
+            // =========================
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Email).HasColumnType("citext");
+                entity.Property(u => u.FullName).HasColumnType("text");
+                entity.Property(u => u.IsActive).HasDefaultValue(true);
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("now()");
+            });
 
             // =========================
             // PRODUCT CONFIG
@@ -36,15 +60,15 @@ namespace Hagoplant.DBcontext
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(p => p.Id);
+                entity.Property(p => p.Name).HasColumnType("text").IsRequired();
+                entity.Property(p => p.Slug).HasColumnType("text").IsRequired();
+                entity.Property(p => p.ImageUrl).HasColumnType("text");
+                entity.Property(p => p.Description).HasColumnType("text");
 
-                entity.Property(p => p.Price)
-                      .HasColumnType("numeric(12,2)");
-
-                entity.Property(p => p.SalePrice)
-                      .HasColumnType("numeric(12,2)");
-
-                entity.Property(p => p.CreatedAt)
-                      .HasDefaultValueSql("NOW()");
+                entity.Property(p => p.Price).HasColumnType("numeric(12,2)");
+                entity.Property(p => p.SalePrice).HasColumnType("numeric(12,2)");
+                entity.Property(p => p.IsActive).HasDefaultValue(true);
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("now()");
             });
 
             // =========================
@@ -54,41 +78,102 @@ namespace Hagoplant.DBcontext
             {
                 entity.HasKey(x => x.Id);
 
-                // uuid default: gen_random_uuid()
                 entity.Property(x => x.Id)
                       .HasDefaultValueSql("gen_random_uuid()");
 
-                // text columns (không bắt buộc set TypeName nếu bạn đã dùng [Column(TypeName="text")] trong Model)
                 entity.Property(x => x.Title).HasColumnType("text").IsRequired();
                 entity.Property(x => x.Slug).HasColumnType("text").IsRequired();
-                entity.Property(x => x.Excerpt).HasColumnType("text");
                 entity.Property(x => x.ContentHtml).HasColumnType("text").IsRequired();
+                entity.Property(x => x.Excerpt).HasColumnType("text");
                 entity.Property(x => x.CoverImageUrl).HasColumnType("text");
-                entity.Property(x => x.Status).HasColumnType("text").IsRequired();
+                entity.Property(x => x.Status).HasColumnType("text").HasDefaultValue("draft");
 
-                // timestamptz defaults
-                entity.Property(x => x.CreatedAt)
-                      .HasDefaultValueSql("now()")
-                      .IsRequired();
+                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+                entity.Property(x => x.UpdatedAt).HasDefaultValueSql("now()");
 
-                entity.Property(x => x.UpdatedAt)
-                      .HasDefaultValueSql("now()")
-                      .IsRequired();
-
-                // Default status (nếu DB đã set default thì có thể bỏ)
-                entity.Property(x => x.Status)
-                      .HasDefaultValue("draft");
-
-                // Indexes
                 entity.HasIndex(x => x.Slug).IsUnique();
-                entity.HasIndex(x => new { x.Status, x.PublishedAt });
+            });
+            // =========================
+            // CART CONFIG
+            // =========================
+            modelBuilder.Entity<Cart>(entity =>
+            {
+                entity.HasKey(c => c.Id);
 
-                // FK (tuỳ bạn có muốn cấu hình luôn không)
-                // Nếu bảng users có PK là Guid và bạn muốn ràng buộc:
-                // entity.HasOne<User>()
-                //       .WithMany()
-                //       .HasForeignKey(x => x.AuthorUserId)
-                //       .OnDelete(DeleteBehavior.SetNull);
+                entity.Property(c => c.CreatedAt).HasDefaultValueSql("now()");
+                entity.Property(c => c.UpdatedAt).HasDefaultValueSql("now()");
+
+                entity.HasMany(c => c.Items)
+                      .WithOne(ci => ci.Cart)
+                      .HasForeignKey(ci => ci.CartId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
+            // =========================
+            // CART ITEM CONFIG
+            // =========================
+            modelBuilder.Entity<CartItem>(entity =>
+            {
+                entity.HasKey(ci => ci.Id);
+
+                entity.Property(ci => ci.UnitPriceSnapshot).HasColumnType("numeric(12,2)");
+                entity.Property(ci => ci.Quantity).HasDefaultValue(1);
+                entity.Property(ci => ci.CreatedAt).HasDefaultValueSql("now()");
+                entity.Property(ci => ci.UpdatedAt).HasDefaultValueSql("now()");
+
+                entity.HasOne(ci => ci.Product)
+                      .WithMany(p => p.CartItems)
+                      .HasForeignKey(ci => ci.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            // =========================
+            // ORDER CONFIG  (FIX LỖI ConfirmedByUser)
+            // =========================
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasKey(o => o.Id);
+
+                // 2 FK tới users -> phải cấu hình tường minh
+                entity.HasOne(o => o.User)
+                      .WithMany()
+                      .HasForeignKey(o => o.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(o => o.ConfirmedByUser)
+                      .WithMany()
+                      .HasForeignKey(o => o.ConfirmedByUserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(o => o.Voucher)
+                      .WithMany()
+                      .HasForeignKey(o => o.VoucherId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.Property(o => o.CreatedAt)
+                      .HasDefaultValueSql("now()");
+            });
+
+
+            // =========================
+            // PAYMENT CONFIG
+            // =========================
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Provider).HasColumnType("text");
+                entity.Property(p => p.Method).HasColumnType("text");
+                entity.Property(p => p.Amount).HasColumnType("numeric(12,2)");
+                entity.Property(p => p.Status).HasColumnType("text");
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("now()");
+
+                entity.HasOne(p => p.Order)
+                      .WithMany(o => o.Payments)
+                      .HasForeignKey(p => p.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             base.OnModelCreating(modelBuilder);

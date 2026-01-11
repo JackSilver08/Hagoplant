@@ -527,6 +527,23 @@
             }
         }
 
+        /* Nhún icon giỏ hàng sau khi tăng */
+        #cart-btn.cart-bump {
+            animation: cartBump .35s ease;
+        }
+        @@keyframes cartBump {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -593,7 +610,7 @@
 
                         <!-- Giỏ hàng -->
                         <li class="nav-item position-relative mx-2">
-                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                            <a class="nav-link text-dark fw-medium" href="@Url.Action("Cart", "Home")" id="cart-btn">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span class="cart-badge">0</span>
                             </a>
@@ -933,13 +950,17 @@
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
 
-                                            <!-- Nút thêm giỏ (chỉ icon) -->
-                                            <button type="button"
-                                                    class="btn btn-primary-custom btn-sm add-to-cart"
-                                                    title="Thêm vào giỏ"
-                                                    data-product-id="@p.Id">
-                                                <i class="fas fa-cart-plus"></i>
-                                            </button>
+                                            <form class="d-inline add-cart-form" method="post" action="@Url.Action("Add", "Home")">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="productId" value="@p.Id" />
+                                                <input type="hidden" name="quantity" value="1" />
+
+                                                <button type="submit"
+                                                        class="btn btn-primary-custom btn-sm add-to-cart"
+                                                        title="Thêm vào giỏ">
+                                                    <i class="fas fa-cart-plus"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
 
@@ -1111,14 +1132,145 @@
             });
         });
 
-        // Add to cart simple
-        let cartCount = 3;
-        document.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.addEventListener('click', () => {
-                cartCount++;
-                document.querySelector('.cart-badge').textContent = cartCount;
-                alert('Đã thêm sản phẩm vào giỏ hàng!');
+        // =========================
+        // CART: Fly-to-cart animation + tăng badge sau khi bay xong
+        // =========================
+            document.addEventListener('DOMContentLoaded', () => {
+        const cartBtn = document.getElementById('cart-btn');
+        const badgeEl = document.querySelector('.cart-badge');
+        if (!cartBtn || !badgeEl) return;
+
+        let cartCount = parseInt((badgeEl.textContent || '0').trim(), 10);
+        if (Number.isNaN(cartCount) || cartCount < 0) cartCount = 0;
+        badgeEl.textContent = cartCount;
+
+        function setCartCount(n) {
+          cartCount = n;
+          badgeEl.textContent = cartCount;
+        }
+
+        function bumpCart() {
+          cartBtn.classList.add('cart-bump');
+          setTimeout(() => cartBtn.classList.remove('cart-bump'), 350);
+        }
+
+          function flyToCart(clickedBtn) {
+          return new Promise((resolve) => {
+            // Nếu user bật reduced motion → bỏ animation
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              resolve();
+              return;
+            }
+
+            const card = clickedBtn.closest('.product-card') || clickedBtn.closest('.home-product-item');
+            const img = card ? card.querySelector('img') : null;
+            if (!img) { resolve(); return; }
+
+            // Target bay vào icon (nếu có), fallback về cả nút giỏ
+            const cartTarget = cartBtn.querySelector('i') || cartBtn;
+
+            const imgRect = img.getBoundingClientRect();
+            const cartRect = cartTarget.getBoundingClientRect();
+
+            // Nếu rect lỗi (hiếm) → resolve
+            if (imgRect.width === 0 || imgRect.height === 0) { resolve(); return; }
+
+            const clone = img.cloneNode(true);
+            clone.style.position = 'fixed';
+            clone.style.left = imgRect.left + 'px';
+            clone.style.top = imgRect.top + 'px';
+            clone.style.width = imgRect.width + 'px';
+            clone.style.height = imgRect.height + 'px';
+            clone.style.objectFit = 'cover';
+            clone.style.borderRadius = '12px';
+            clone.style.display = 'block';
+            clone.style.zIndex = '5000';
+            clone.style.pointerEvents = 'none';
+            clone.style.opacity = '1';
+            clone.style.transform = 'translate3d(0,0,0) scale(1)';
+            clone.style.willChange = 'transform, opacity';
+            clone.style.boxShadow = '0 18px 40px rgba(0,0,0,.18)';
+
+            document.body.appendChild(clone);
+
+            // FORCE REFLOW: cực quan trọng để đảm bảo transition “ăn”
+            // (nếu không, nhiều browser sẽ gộp thay đổi và bạn không thấy animation)
+            void clone.getBoundingClientRect();
+
+            const startX = imgRect.left + imgRect.width / 2;
+            const startY = imgRect.top + imgRect.height / 2;
+            const endX = cartRect.left + cartRect.width / 2;
+            const endY = cartRect.top + cartRect.height / 2;
+
+            const dx = endX - startX;
+            const dy = endY - startY;
+
+            // Transition sau khi đã reflow
+            clone.style.transition = 'transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease';
+
+            requestAnimationFrame(() => {
+              clone.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(0.12)`;
+              clone.style.opacity = '0.2';
             });
+
+            const done = () => {
+              clone.remove();
+              resolve();
+            };
+
+            clone.addEventListener('transitionend', done, { once: true });
+            setTimeout(done, 900); // fallback
+          });
+        }
+
+
+          // Bind nút add-to-cart
+                 document.querySelectorAll('.add-cart-form').forEach((form) => {
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+
+              const btn = form.querySelector('button[type="submit"]');
+              if (!btn) return;
+
+              if (btn.dataset.busy === '1') return;
+              btn.dataset.busy = '1';
+              btn.disabled = true;
+
+              try {
+                // 1) Bay vào giỏ
+                await flyToCart(btn);
+
+                // 2) POST thật lên server để lưu giỏ hàng
+                const fd = new FormData(form);
+
+                const res = await fetch(form.action, {
+                  method: 'POST',
+                  headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                  },
+                  body: new URLSearchParams(fd),
+                  credentials: 'same-origin'
+                });
+
+                if (!res.ok) {
+                  // fallback: submit kiểu truyền thống (nếu cần)
+                  form.submit();
+                  return;
+                }
+
+                const data = await res.json();
+
+                // 3) Cập nhật badge theo số lượng thật từ DB
+                if (data && data.ok === true) {
+                  setCartCount(data.count ?? (cartCount + 1));
+                  bumpCart();
+                }
+              } finally {
+                btn.dataset.busy = '0';
+                btn.disabled = false;
+              }
+            });
+          });
         });
 
         // Slider Hero Section
@@ -1419,11 +1571,36 @@
 
                     try {
                         const fd = new FormData(form);
-                        const res = await fetch(form.action, {
-                            method: 'POST',
-                            body: fd,
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                        });
+                               const res = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          body: new URLSearchParams(new FormData(form)),
+          credentials: 'same-origin'
+        });
+
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+
+        if (!res.ok) {
+          // nếu lỗi thì fallback submit truyền thống để xem lỗi server rõ hơn  
+          form.submit();
+          return;
+        }
+
+        if (!ct.includes('application/json')) {
+          // server trả HTML (thường do redirect) -> fallback
+          form.submit();
+          return;
+        }
+
+        const data = await res.json();
+        if (data?.ok) {
+          setCartCount(data.count ?? (cartCount + 1));
+          bumpCart();
+        }
+
 
                         if (res.ok) {
                             const data = await res.json();

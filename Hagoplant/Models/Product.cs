@@ -39,6 +39,9 @@ namespace Hagoplant.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        // Navigation
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }
 
