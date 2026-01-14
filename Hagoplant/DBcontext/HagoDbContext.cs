@@ -35,7 +35,7 @@ namespace Hagoplant.DBcontext
             // =========================
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Product>().ToTable("products");
-            modelBuilder.Entity<BlogPost>().ToTable("blog_posts");
+           
             modelBuilder.Entity<Cart>().ToTable("carts");
             modelBuilder.Entity<CartItem>().ToTable("cart_items");
             modelBuilder.Entity<Order>().ToTable("orders");
@@ -72,27 +72,44 @@ namespace Hagoplant.DBcontext
             });
 
             // =========================
-            // BLOG POST CONFIG
+            // BLOG POST CONFIG (FIX SHADOW UserId*)
             // =========================
             modelBuilder.Entity<BlogPost>(entity =>
             {
+                entity.ToTable("blog_posts", "hago");
+
                 entity.HasKey(x => x.Id);
 
-                entity.Property(x => x.Id)
-                      .HasDefaultValueSql("gen_random_uuid()");
+                // --- Column mapping: explicit để EF không suy luận linh tinh ---
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.Title).HasColumnName("title").HasColumnType("text").IsRequired();
+                entity.Property(x => x.Slug).HasColumnName("slug").HasColumnType("text").IsRequired();
+                entity.Property(x => x.Excerpt).HasColumnName("excerpt").HasColumnType("text");
+                entity.Property(x => x.ContentHtml).HasColumnName("content_html").HasColumnType("text").IsRequired();
+                entity.Property(x => x.CoverImageUrl).HasColumnName("cover_image_url").HasColumnType("text");
 
-                entity.Property(x => x.Title).HasColumnType("text").IsRequired();
-                entity.Property(x => x.Slug).HasColumnType("text").IsRequired();
-                entity.Property(x => x.ContentHtml).HasColumnType("text").IsRequired();
-                entity.Property(x => x.Excerpt).HasColumnType("text");
-                entity.Property(x => x.CoverImageUrl).HasColumnType("text");
-                entity.Property(x => x.Status).HasColumnType("text").HasDefaultValue("draft");
+                entity.Property(x => x.AuthorUserId).HasColumnName("author_user_id"); // nullable Guid?
+                entity.Property(x => x.Status).HasColumnName("status").HasColumnType("text").IsRequired();
+                entity.Property(x => x.PublishedAt).HasColumnName("published_at");
+                entity.Property(x => x.ViewCount).HasColumnName("view_count");
 
-                entity.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
-                entity.Property(x => x.UpdatedAt).HasDefaultValueSql("now()");
+                entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+                entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 
                 entity.HasIndex(x => x.Slug).IsUnique();
+
+                // --- Relationship: chỉ 1 cái duy nhất, đúng FK ---
+                entity.HasOne(x => x.AuthorUser)
+                      .WithMany(u => u.BlogPosts)
+                      .HasForeignKey(x => x.AuthorUserId)
+                      .HasConstraintName("fk_blog_posts_author_user_id") // optional, giúp debug
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // --- Optional: nếu bạn không muốn EF lazy-load/proxy sinh thêm gì đó ---
+                // entity.Navigation(x => x.AuthorUser).AutoInclude(false);
             });
+
+
             // =========================
             // CART CONFIG
             // =========================

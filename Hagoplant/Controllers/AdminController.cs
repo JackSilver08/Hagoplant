@@ -23,24 +23,56 @@ namespace Hagoplant.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            Console.WriteLine("A: load products");
+            var products = await _db.Products.AsNoTracking()
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            Console.WriteLine("B: load blogposts");
+            var blogPosts = await _db.BlogPosts.AsNoTracking()
+       .OrderByDescending(b => b.CreatedAt)
+       .Select(b => new BlogPost
+       {
+           Id = b.Id,
+           Title = b.Title,
+           Slug = b.Slug,
+           Excerpt = b.Excerpt,
+           ContentHtml = b.ContentHtml,
+           CoverImageUrl = b.CoverImageUrl,
+           AuthorUserId = b.AuthorUserId,
+           Status = b.Status,
+           PublishedAt = b.PublishedAt,
+           CreatedAt = b.CreatedAt,
+           UpdatedAt = b.UpdatedAt,
+           ViewCount = b.ViewCount
+       })
+       .ToListAsync();
+
+
+
+            Console.WriteLine("C: load users");
+            var users = await _db.Users
+                .AsNoTracking()
+                .OrderByDescending(u => u.CreatedAt)
+                .Select(u => new User
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    Phone = u.Phone,
+                    IsActive = u.IsActive,
+                    CreatedAt = u.CreatedAt
+                })
+                .ToListAsync();
+
+
             var vm = new AdminDashboardVm
             {
-                Products = await _db.Products.AsNoTracking()
-                    .OrderByDescending(p => p.CreatedAt)
-                    .ToListAsync(),
-
-                BlogPosts = await _db.BlogPosts.AsNoTracking()
-                    .OrderByDescending(b => b.CreatedAt)
-                    .ToListAsync(),
-
-                  // THÊM KHỐI NÀY
-                Users = await _db.Users.AsNoTracking()
-                    .OrderByDescending(u => u.CreatedAt)   // nếu User không có CreatedAt thì đổi field khác
-                    .ToListAsync()
+                Products = products,
+                BlogPosts = blogPosts,
+                Users = users
             };
 
-
-            Console.WriteLine($"[Admin/Index] Products={vm.Products.Count}, BlogPosts={vm.BlogPosts.Count}");
             return View(vm);
         }
 
@@ -212,8 +244,22 @@ namespace Hagoplant.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBlogPost(
-            [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status,PublishedAt")] BlogPost input)
+        [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status,PublishedAt")] BlogPost input)
         {
+            // Chuẩn hoá input sớm để validation dùng đúng
+            input.Title = (input.Title ?? "").Trim();
+            input.Slug = (input.Slug ?? "").Trim();
+            input.Excerpt = string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim();
+            input.ContentHtml = (input.ContentHtml ?? "").Trim();
+            input.CoverImageUrl = string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim();
+
+            // Nếu chưa có slug thì tự tạo từ title
+            if (string.IsNullOrWhiteSpace(input.Slug) && !string.IsNullOrWhiteSpace(input.Title))
+                input.Slug = Slugify(input.Title);
+
+            // status chuẩn hoá
+            input.Status = NormalizeStatus(input.Status);
+
             await ValidateBlogPostAsync(input, currentId: null);
 
             if (!ModelState.IsValid)
@@ -225,31 +271,28 @@ namespace Hagoplant.Controllers
 
             var now = DateTimeOffset.UtcNow;
 
-            var status = NormalizeStatus(input.Status);
+            // PublishedAt theo rule:
+            // - published: nếu không truyền thì set now
+            // - draft/archived: null
+            DateTimeOffset? publishedAt =
+                input.Status == BlogPostStatuses.Published
+                    ? (input.PublishedAt ?? now)
+                    : null;
 
             var entity = new BlogPost
             {
                 Id = Guid.NewGuid(),
-                Title = input.Title.Trim(),
-                Slug = input.Slug.Trim(),
-                Excerpt = string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim(),
-                ContentHtml = input.ContentHtml.Trim(),
-                CoverImageUrl = string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim(),
-                Status = status,
-
-                // published_at:
-                // - Nếu published thì set now (hoặc dùng input.PublishedAt nếu bạn muốn truyền từ client)
-                // - Nếu draft/archived thì để null
-                PublishedAt = status == "published" ? (input.PublishedAt ?? now) : null,
-
+                Title = input.Title,
+                Slug = input.Slug,
+                Excerpt = input.Excerpt,
+                ContentHtml = input.ContentHtml,
+                CoverImageUrl = input.CoverImageUrl,
+                Status = input.Status,
+                PublishedAt = publishedAt,
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                AuthorUserId = TryGetCurrentUserId() // null nếu chưa login/claim không phải Guid
             };
-
-            // (Tuỳ chọn) gán author_user_id nếu bạn có userId dạng Guid trong claims NameIdentifier
-            var authorId = TryGetCurrentUserId();
-            if (authorId.HasValue)
-                entity.AuthorUserId = authorId.Value;
 
             _db.BlogPosts.Add(entity);
             await _db.SaveChangesAsync();
@@ -259,21 +302,13 @@ namespace Hagoplant.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // SỬA BLOG
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBlogPost(
             Guid id,
             [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status")] BlogPost input)
         {
-            var entity = await _db.BlogPosts.FirstOrDefaultAsync(x => x.Id == id);
-            if (entity == null)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Không tìm thấy bài viết.";
-                return RedirectToAction(nameof(Index));
-            }
-
             await ValidateBlogPostAsync(input, currentId: id);
 
             if (!ModelState.IsValid)
@@ -286,58 +321,68 @@ namespace Hagoplant.Controllers
             var now = DateTimeOffset.UtcNow;
             var newStatus = NormalizeStatus(input.Status);
 
-            entity.Title = input.Title.Trim();
-            entity.Slug = input.Slug.Trim();
-            entity.Excerpt = string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim();
-            entity.ContentHtml = input.ContentHtml.Trim();
+            // 1) Update các field cơ bản trước
+            var rows = await _db.BlogPosts
+                .Where(b => b.Id == id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(b => b.Title, (input.Title ?? "").Trim())
+                    .SetProperty(b => b.Slug, (input.Slug ?? "").Trim())
+                    .SetProperty(b => b.Excerpt, string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim())
+                    .SetProperty(b => b.ContentHtml, (input.ContentHtml ?? "").Trim())
+                    .SetProperty(b => b.CoverImageUrl, string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim())
+                    .SetProperty(b => b.Status, newStatus)
+                    .SetProperty(b => b.UpdatedAt, now)
+                );
 
-            // Cho phép xoá ảnh bìa: nếu input.CoverImageUrl rỗng => set null
-            entity.CoverImageUrl = string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim();
-
-            // Xử lý published_at theo status:
-            // - published: nếu trước đó chưa có PublishedAt thì set now
-            // - draft: set PublishedAt = null
-            // - archived: giữ PublishedAt nếu đã từng publish (không bắt buộc)
-            if (newStatus == "published")
-            {
-                entity.PublishedAt ??= now;
-            }
-            else if (newStatus == "draft")
-            {
-                entity.PublishedAt = null;
-            }
-            // archived => giữ nguyên PublishedAt
-
-            entity.Status = newStatus;
-            entity.UpdatedAt = now;
-
-            await _db.SaveChangesAsync();
-
-            TempData["Toast.Ok"] = "1";
-            TempData["Toast.Message"] = "Đã cập nhật bài viết blog.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        // XÓA BLOG
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteBlogPost(Guid id)
-        {
-            var entity = await _db.BlogPosts.FirstOrDefaultAsync(x => x.Id == id);
-            if (entity == null)
+            if (rows == 0)
             {
                 TempData["Toast.Ok"] = "0";
                 TempData["Toast.Message"] = "Không tìm thấy bài viết.";
                 return RedirectToAction(nameof(Index));
             }
 
-            _db.BlogPosts.Remove(entity);
-            await _db.SaveChangesAsync();
+            // 2) Update PublishedAt theo status (tách ra cho dễ, tránh expression phức tạp)
+            if (newStatus == BlogPostStatuses.Draft)
+            {
+                await _db.BlogPosts
+                    .Where(b => b.Id == id)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(b => b.PublishedAt, (DateTimeOffset?)null)
+                    );
+            }
+            else if (newStatus == BlogPostStatuses.Published)
+            {
+                // Chỉ set now nếu PublishedAt đang null
+                await _db.BlogPosts
+                    .Where(b => b.Id == id && b.PublishedAt == null)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(b => b.PublishedAt, now)
+                    );
+            }
+            // archived: không đụng PublishedAt
 
             TempData["Toast.Ok"] = "1";
-            TempData["Toast.Message"] = "Đã xóa bài viết blog.";
+            TempData["Toast.Message"] = "Đã cập nhật bài viết blog.";
             return RedirectToAction(nameof(Index));
         }
+
+
+
+
+        // XÓA BLOG
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBlogPost(Guid id)
+        {
+            var rows = await _db.BlogPosts
+                .Where(x => x.Id == id)
+                .ExecuteDeleteAsync();
+
+            TempData["Toast.Ok"] = rows > 0 ? "1" : "0";
+            TempData["Toast.Message"] = rows > 0 ? "Đã xóa bài viết blog." : "Không tìm thấy bài viết.";
+            return RedirectToAction(nameof(Index));
+        }
+
 
         // =========================
         // BLOG VALIDATION HELPERS

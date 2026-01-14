@@ -59,8 +59,24 @@ namespace Hagoplant.Controllers
             }
 
             var posts = await q
-                .OrderByDescending(x => x.PublishedAt ?? x.CreatedAt)
-                .ToListAsync();
+     .OrderByDescending(x => x.PublishedAt ?? x.CreatedAt)
+     .Select(x => new BlogPost
+     {
+         Id = x.Id,
+         Title = x.Title,
+         Slug = x.Slug,
+         Excerpt = x.Excerpt,
+         ContentHtml = x.ContentHtml,
+         CoverImageUrl = x.CoverImageUrl,
+         AuthorUserId = x.AuthorUserId,
+         Status = x.Status,
+         PublishedAt = x.PublishedAt,
+         CreatedAt = x.CreatedAt,
+         UpdatedAt = x.UpdatedAt,
+         ViewCount = x.ViewCount
+     })
+     .ToListAsync();
+
 
             Console.WriteLine($"[Home/Blog] all={all}, count={posts.Count}");
 
@@ -247,6 +263,10 @@ namespace Hagoplant.Controllers
         private async Task<CartVm> BuildCartVmAsync()
         {
             var cartId = GetCartId();
+            var et = _db.Model.FindEntityType(typeof(BlogPost))!;
+            Console.WriteLine("BlogPost mapped table: " + et.GetTableName());
+            Console.WriteLine("BlogPost props: " + string.Join(", ", et.GetProperties().Select(p => p.Name)));
+            Console.WriteLine("BlogPost columns: " + string.Join(", ", et.GetProperties().Select(p => p.GetColumnName())));
 
             var items = await _db.CartItems
                 .AsNoTracking()

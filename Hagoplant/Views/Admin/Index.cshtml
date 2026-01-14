@@ -176,6 +176,34 @@
                 font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             }
 
+        /* === PRODUCT MODALS: luôn scroll được, nút luôn hiện === */
+        #addProductModal .modal-dialog,
+        #editProductModal .modal-dialog {
+            max-width: 980px; /* tùy bạn */
+        }
+
+        #addProductModal .modal-content,
+        #editProductModal .modal-content {
+            max-height: 125vh; /* quan trọng: khóa chiều cao */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #addProductModal .modal-body,
+        #editProductModal .modal-body {
+            overflow-y: auto; /* body cuộn */
+            flex: 1 1 auto;
+        }
+
+        #addProductModal .modal-footer,
+        #editProductModal .modal-footer {
+            position: sticky; /* footer luôn hiện */
+            bottom: 0;
+            background: #fff;
+            z-index: 10;
+            border-top: 1px solid #eee;
+        }
+
         /* === BLOG MODALS: giới hạn chiều cao để modal luôn cuộn được === */
         #addBlogModal .modal-dialog,
         #editBlogModal .modal-dialog {
@@ -1688,8 +1716,8 @@
             }
 
             editBlogForm.submit();
-          });
-                  // ===== User: search filter =====
+
+                        // ===== User: search filter =====
         const userSearch = document.getElementById("userSearch");
         if (userSearch) {
           const normalize = (s) => (s || "").toString().trim().toLowerCase();
@@ -1707,9 +1735,10 @@
 
           userSearch.addEventListener("input", filterUsers);
         }
-
+        
+        }); 
+     
         }
-
         })();
     </script>
 
