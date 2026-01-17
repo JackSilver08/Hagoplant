@@ -15,6 +15,8 @@ if (string.IsNullOrWhiteSpace(cs))
 builder.Services.AddDbContext<HagoDbContext>(options => options.UseNpgsql(cs));
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 
 // ✅ Session
 builder.Services.AddDistributedMemoryCache();

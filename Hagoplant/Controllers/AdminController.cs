@@ -1,6 +1,7 @@
 ﻿using Hagoplant.DBcontext;
 using Hagoplant.Models;
 using Hagoplant.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -10,6 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Hagoplant.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly HagoDbContext _db;

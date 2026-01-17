@@ -700,9 +700,12 @@
                 </div>
 
                 <div class="modal-body">
-                    <!-- MVC POST -->
-                    <form method="post" action="/Account/Login">
+                    <form method="post" action="/Account/Login" id="loginForm">
                         @Html.AntiForgeryToken()
+
+                        <!-- Alert riêng cho login -->
+                        <div id="loginAlert" class="alert d-none" role="alert"></div>
+
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <input type="email"
@@ -722,6 +725,32 @@
                                    required />
                         </div>
 
+                        <!-- OTP ADMIN (ẩn mặc định, chỉ hiện khi email là admin) -->
+                        <div id="adminOtpArea" class="d-none">
+                            <div class="mb-2 d-flex gap-2">
+                                <button type="button" class="btn btn-secondary-custom flex-grow-1" id="btnSendAdminOtp">
+                                    Gửi OTP Admin
+                                </button>
+
+                                <button type="button" class="btn btn-outline-secondary" id="btnResendAdminOtp" disabled>
+                                    Gửi lại <span id="adminOtpCountdown" class="ms-1"></span>
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">OTP Admin</label>
+                                <!-- name phải khớp với action param: otp -->
+                                <input type="text"
+                                       class="form-control"
+                                       name="otp"
+                                       id="loginOtp"
+                                       inputmode="numeric"
+                                       maxlength="6"
+                                       placeholder="Nhập 6 số" />
+                                <div class="form-text">OTP có hiệu lực 5 phút.</div>
+                            </div>
+                        </div>
+
                         <div class="mb-3 form-check">
                             <input type="checkbox"
                                    class="form-check-input"
@@ -730,7 +759,7 @@
                                    value="true" />
                             <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
                         </div>
-                        <!-- Quên mật khẩu -->
+
                         <a href="#"
                            class="small text-decoration-none"
                            data-bs-toggle="modal"
@@ -738,10 +767,10 @@
                            data-bs-dismiss="modal">
                             Quên mật khẩu?
                         </a>
+
                         <button type="submit" class="btn btn-primary-custom w-100">Đăng nhập</button>
                     </form>
                 </div>
-         
 
             </div>
         </div>
@@ -1634,9 +1663,156 @@
                         showAlert(false, 'Lỗi kết nối khi cập nhật.');
                     }
                 });
+
+
             }
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ADMIN_EMAIL = 'hagotreevn@gmail.com';
+
+            const modalEl = document.getElementById('loginModal');
+            const form = document.getElementById('loginForm');
+            if (!modalEl || !form) return;
+
+            const emailEl = document.getElementById('loginEmail');
+            const passEl  = document.getElementById('loginPassword');
+
+            const otpArea = document.getElementById('adminOtpArea');
+            const otpEl   = document.getElementById('loginOtp');
+
+            const btnSend   = document.getElementById('btnSendAdminOtp');
+            const btnResend = document.getElementById('btnResendAdminOtp');
+            const countdownEl = document.getElementById('adminOtpCountdown');
+
+            const alertEl = document.getElementById('loginAlert');
+
+            let timer = null;
+            let remaining = 0;
+
+            function normalizeEmail(s) {
+                return (s || '').trim().toLowerCase();
+            }
+
+            function getToken() {
+                return form.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            }
+
+            function showAlert(type, msg) {
+                if (!alertEl) return;
+                alertEl.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning', 'alert-info');
+                alertEl.classList.add('alert-' + type);
+                alertEl.textContent = msg;
+            }
+
+            function clearAlert() {
+                if (!alertEl) return;
+                alertEl.classList.add('d-none');
+                alertEl.textContent = '';
+            }
+
+            function startCountdown(seconds) {
+                remaining = seconds;
+                btnResend.disabled = true;
+                countdownEl.textContent = `(${remaining}s)`;
+
+                if (timer) clearInterval(timer);
+                timer = setInterval(() => {
+                    remaining--;
+                    if (remaining <= 0) {
+                        clearInterval(timer);
+                        timer = null;
+                        countdownEl.textContent = '';
+                        btnResend.disabled = false;
+                    } else {
+                        countdownEl.textContent = `(${remaining}s)`;
+                    }
+                }, 1000);
+            }
+
+            function toggleOtpArea() {
+                const isAdmin = normalizeEmail(emailEl.value) === ADMIN_EMAIL;
+                otpArea.classList.toggle('d-none', !isAdmin);
+                if (!isAdmin) {
+                    otpEl.value = '';
+                    clearAlert();
+                }
+            }
+
+            emailEl.addEventListener('input', toggleOtpArea);
+            modalEl.addEventListener('shown.bs.modal', toggleOtpArea);
+
+            async function sendAdminOtp() {
+                clearAlert();
+
+                const email = normalizeEmail(emailEl.value);
+                const password = passEl.value || '';
+
+                if (email !== ADMIN_EMAIL) {
+                    showAlert('warning', 'Email này không thuộc admin.');
+                    return;
+                }
+                if (!password) {
+                    showAlert('warning', 'Vui lòng nhập mật khẩu trước khi gửi OTP.');
+                    return;
+                }
+
+                const token = getToken();
+
+                btnSend.disabled = true;
+                btnSend.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+
+                try {
+                    const res = await fetch('/Account/SendAdminOtp', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: new URLSearchParams({
+                            email: email,
+                            password: password,
+                            __RequestVerificationToken: token
+                        }),
+                        credentials: 'same-origin'
+                    });
+
+                    const data = await res.json().catch(() => null);
+
+                    if (!res.ok || !data?.ok) {
+                        showAlert('danger', data?.message || `Gửi OTP thất bại (HTTP ${res.status}).`);
+                        return;
+                    }
+
+                    showAlert('info', data.message || 'OTP đã được gửi về email admin. Kiểm tra hộp thư (cả spam).');
+                    startCountdown(30);
+                    otpEl.focus();
+                } catch (e) {
+                    showAlert('danger', 'Lỗi kết nối khi gửi OTP.');
+                } finally {
+                    btnSend.disabled = false;
+                    btnSend.textContent = 'Gửi OTP Admin';
+                }
+            }
+
+            btnSend?.addEventListener('click', sendAdminOtp);
+            btnResend?.addEventListener('click', () => btnSend.click());
+
+            // Chặn submit nếu admin mà OTP chưa đúng định dạng
+            form.addEventListener('submit', function (e) {
+                const email = normalizeEmail(emailEl.value);
+                if (email === ADMIN_EMAIL) {
+                    const otp = (otpEl.value || '').trim();
+                    if (!/^\d{6}$/.test(otp)) {
+                        e.preventDefault();
+                        showAlert('warning', 'Vui lòng nhập OTP admin (6 chữ số) trước khi đăng nhập.');
+                    }
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
 

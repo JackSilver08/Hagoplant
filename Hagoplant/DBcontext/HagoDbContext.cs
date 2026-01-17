@@ -19,6 +19,7 @@ namespace Hagoplant.DBcontext
         public DbSet<Cart> Carts => Set<Cart>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
+
         public DbSet<Payment> Payments => Set<Payment>();
         public DbSet<Voucher> Vouchers => Set<Voucher>();
 
@@ -193,7 +194,7 @@ namespace Hagoplant.DBcontext
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            base.OnModelCreating(modelBuilder);
+        
         }
     }
 }

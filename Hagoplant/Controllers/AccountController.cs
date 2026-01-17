@@ -7,7 +7,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 
 namespace Hagoplant.Controllers
@@ -17,12 +21,38 @@ namespace Hagoplant.Controllers
        
         private readonly AuthService _auth;
         private readonly HagoDbContext _db;
+        private readonly IMemoryCache _cache;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AccountController(AuthService auth, HagoDbContext db)
+        private const string AdminEmail = "hagotreevn@gmail.com";
+        private const string FormspreeEndpoint = "https://formspree.io/f/xkoooyar";
+        private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(5);
+        private const int OtpMaxAttempts = 5;
+        public AccountController(AuthService auth, HagoDbContext db, IMemoryCache cache, IHttpClientFactory httpClientFactory)
         {
             _auth = auth;
             _db = db;
-         
+            _cache = cache;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        private static string NormalizeEmail(string? email)
+           => (email ?? "").Trim().ToLowerInvariant();
+
+        private static string OtpCacheKey(string email) => $"admin-otp:{email}";
+
+        private static string HashOtp(string email, string otp)
+        {
+            // hash theo email để giảm rủi ro reuse
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes($"{email}:{otp}"));
+            return Convert.ToHexString(bytes);
+        }
+
+        private sealed class OtpEntry
+        {
+            public string Hash { get; set; } = "";
+            public int Attempts { get; set; } = 0;
         }
 
         // ====================== REGISTER ======================
@@ -76,28 +106,143 @@ namespace Hagoplant.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
+        // ===================== ADMIN OTP: SEND =====================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password, bool rememberMe)
+        public async Task<IActionResult> SendAdminOtp(string email, string password)
         {
-            var (user, message) = await _auth.ValidateLoginAsync(email, password);
+            var normalizedEmail = NormalizeEmail(email);
 
+            if (normalizedEmail != AdminEmail)
+                return Forbid();
+
+            // Chỉ kiểm tra user tồn tại
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+            if (user == null)
+            {
+                return BadRequest(new { ok = false, message = "Tài khoản admin không tồn tại." });
+            }
+
+
+            // Sinh OTP 6 số
+            var otp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+
+            var entry = new OtpEntry
+            {
+                Hash = HashOtp(normalizedEmail, otp),
+                Attempts = 0
+            };
+
+            _cache.Set(OtpCacheKey(normalizedEmail), entry, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = OtpTtl
+            });
+
+            // Gửi OTP qua Formspree (server -> Formspree)
+            var client = _httpClientFactory.CreateClient();
+
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                // Field "email" và "message" theo đúng form bạn đưa
+                // Lưu ý: Formspree sẽ gửi về email đã cấu hình trong dashboard của form đó
+                ["email"] = AdminEmail,
+                ["message"] = $"[HagoTree Admin OTP] Mã OTP: {otp} (hết hạn sau 5 phút)."
+            });
+
+            var resp = await client.PostAsync(FormspreeEndpoint, content);
+            if (!resp.IsSuccessStatusCode)
+            {
+                _cache.Remove(OtpCacheKey(normalizedEmail));
+                return StatusCode((int)resp.StatusCode, new { ok = false, message = "Gửi OTP thất bại (Formspree)." });
+            }
+
+            return Json(new { ok = true, message = "OTP đã được gửi về email admin. Vui lòng kiểm tra hộp thư (kể cả spam)." });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string email, string password, bool rememberMe, string? otp)
+        {
+            var normalizedEmail = NormalizeEmail(email);
+
+            var (user, message) = await _auth.ValidateLoginAsync(normalizedEmail, password);
             if (user == null)
             {
                 TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = message;
+                TempData["Toast.Message"] = message ?? "Email hoặc mật khẩu không đúng.";
+                TempData["OpenLoginModal"] = "1";
+                TempData["LoginEmail"] = normalizedEmail;
                 return RedirectToAction("Index", "Home");
             }
 
-            await SignInAppAsync(user, rememberMe);
+            // Nếu là admin -> bắt buộc OTP
+            if (normalizedEmail == AdminEmail)
+            {
+                if (string.IsNullOrWhiteSpace(otp))
+                {
+                    TempData["Toast.Ok"] = "0";
+                    TempData["Toast.Message"] = "Vui lòng nhập OTP admin.";
+                    TempData["OpenLoginModal"] = "1";
+                    TempData["LoginEmail"] = normalizedEmail;
+                    return RedirectToAction("Index", "Home");
+                }
+
+                if (!_cache.TryGetValue(OtpCacheKey(normalizedEmail), out OtpEntry? entry) || entry == null)
+                {
+                    TempData["Toast.Ok"] = "0";
+                    TempData["Toast.Message"] = "OTP đã hết hạn hoặc chưa được gửi. Vui lòng bấm “Gửi OTP”.";
+                    TempData["OpenLoginModal"] = "1";
+                    TempData["LoginEmail"] = normalizedEmail;
+                    return RedirectToAction("Index", "Home");
+                }
+
+                entry.Attempts++;
+                if (entry.Attempts > OtpMaxAttempts)
+                {
+                    _cache.Remove(OtpCacheKey(normalizedEmail));
+                    TempData["Toast.Ok"] = "0";
+                    TempData["Toast.Message"] = "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng gửi OTP mới.";
+                    TempData["OpenLoginModal"] = "1";
+                    TempData["LoginEmail"] = normalizedEmail;
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var inputHash = HashOtp(normalizedEmail, otp.Trim());
+                if (!string.Equals(entry.Hash, inputHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    // giữ TTL như cũ
+                    _cache.Set(OtpCacheKey(normalizedEmail), entry, new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = OtpTtl
+                    });
+
+                    TempData["Toast.Ok"] = "0";
+                    TempData["Toast.Message"] = "OTP không đúng.";
+                    TempData["OpenLoginModal"] = "1";
+                    TempData["LoginEmail"] = normalizedEmail;
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // OTP đúng -> consume
+                _cache.Remove(OtpCacheKey(normalizedEmail));
+            }
+
+            var isAdmin = normalizedEmail == AdminEmail;
+
+            await SignInAppAsync(user, rememberMe, isAdmin);
 
             TempData["Toast.Ok"] = "1";
             TempData["Toast.Message"] = "Đăng nhập thành công.";
 
+            if (isAdmin)
+                return RedirectToAction("Index", "Admin");
+
             return RedirectToAction("Index", "Home");
+
         }
 
-      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -112,14 +257,17 @@ namespace Hagoplant.Controllers
         // =========================
         // Helper: Sign-in app cookie
         // =========================
-        private async Task SignInAppAsync(User user, bool rememberMe)
+        private async Task SignInAppAsync(User user, bool rememberMe, bool isAdmin = false)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
-                new Claim(ClaimTypes.Email, user.Email),
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
+        new Claim(ClaimTypes.Email, user.Email),
+    };
+
+            if (isAdmin)
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -133,6 +281,8 @@ namespace Hagoplant.Controllers
                     ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddHours(8)
                 });
         }
+
+
 
         // ==========================================================
         // NEW: PROFILE MODAL (GET partial) + UPDATE PROFILE (POST)
@@ -221,16 +371,22 @@ namespace Hagoplant.Controllers
 
         private async Task RefreshSignInAsync(User user)
         {
-            // Lấy properties hiện tại (IsPersistent/ExpiresUtc) để giữ nguyên rememberMe
-            var authResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var authResult = await HttpContext.AuthenticateAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
             var props = authResult?.Properties ?? new AuthenticationProperties();
 
             var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
+        new Claim(ClaimTypes.Email, user.Email),
+    };
+
+            if (user.Email == AdminEmail)
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.FullName ?? user.Email),
-                new Claim(ClaimTypes.Email, user.Email),
-            };
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -240,5 +396,6 @@ namespace Hagoplant.Controllers
                 principal,
                 props);
         }
+
     }
 }
