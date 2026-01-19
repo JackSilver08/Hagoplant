@@ -1,19 +1,23 @@
 ﻿using Hagoplant.DBcontext;
 using Hagoplant.Models;
 using Hagoplant.Models.ViewModels;
+using Hagoplant.Services;
 using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+
 
 namespace Hagoplant.Controllers
 {
     public class HomeController : Controller
     {
         private readonly HagoDbContext _db;
-
-        public HomeController(HagoDbContext db)
+        private readonly PayOsClient _payOs;
+        public HomeController(HagoDbContext db, PayOsClient payOs)
         {
             _db = db;
+            _payOs = payOs;
         }
 
         [HttpGet]
@@ -232,16 +236,19 @@ namespace Hagoplant.Controllers
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
-            var vm = await BuildCartVmAsync();
-            if (vm.IsEmpty)
-            {
-                TempData["Toast.Message"] = "Giỏ hàng trống, vui lòng chọn sản phẩm trước khi thanh toán.";
-                return RedirectToAction(nameof(Index));
-            }
+            var cart = await BuildCartVmAsync();
+            if (cart.IsEmpty) return RedirectToAction(nameof(Index));
 
-            // Ở đây bạn có thể điều hướng tới trang thanh toán thật
+            var vm = new CheckoutPageVm
+            {
+                Cart = cart,
+                Form = new CheckoutVm()
+            };
+
             return View(vm);
         }
+
+
 
         // =============================
         // HÀM PHỤ TRỢ
@@ -299,6 +306,119 @@ namespace Hagoplant.Controllers
             };
         }
 
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(CheckoutPageVm vm)
+        {
+
+            // cart luôn lấy server-side (an toàn)
+            var cart = await BuildCartVmAsync();
+            if (cart.IsEmpty) return RedirectToAction(nameof(Index));
+
+            var total = cart.Total;
+            var amountVnd = (int)decimal.Round(total, 0, MidpointRounding.AwayFromZero);
+
+            var order = new Order
+            {
+                Id = Guid.NewGuid(),
+                OrderNumber = $"HAGO-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}",
+                CustomerName = vm.Form.CustomerName,
+                Phone = vm.Form.Phone,
+                Email = vm.Form.Email,
+                ShippingAddress = JsonDocument.Parse(JsonSerializer.Serialize(vm.Form.ShippingAddress)),
+                ItemsJson = JsonDocument.Parse(JsonSerializer.Serialize(cart.Items)),
+                Subtotal = cart.Subtotal,
+                DiscountAmount = cart.DiscountAmount,
+                TotalAmount = cart.Total,
+                Status = "PENDING",
+                PaymentMethod = "BANK_QR",
+                PaymentStatus = "UNPAID",
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+            _db.Orders.Add(order);
+
+            var orderCode = int.Parse(DateTime.UtcNow.ToString("HHmmssfff")); // demo
+            var returnUrl = Url.Action("PayReturn", "Payments", new { orderId = order.Id }, Request.Scheme)!;
+            var cancelUrl = Url.Action("PayCancel", "Payments", new { orderId = order.Id }, Request.Scheme)!;
+
+            var pay = await _payOs.CreatePaymentAsync(
+                orderCode: orderCode,
+                amount: amountVnd,
+                description: $"HAGO{orderCode}",
+                cancelUrl: cancelUrl,
+                returnUrl: returnUrl
+            );
+
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                Provider = "payos",
+                Method = "BANK_QR",
+                Amount = amountVnd,
+                Status = "PENDING",
+                TransactionRef = pay.data.paymentLinkId,
+                RawResponse = JsonDocument.Parse(JsonSerializer.Serialize(pay)),
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+            _db.Payments.Add(payment);
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var baseEx = ex.GetBaseException();
+                Console.WriteLine("DbUpdateException base: " + baseEx.Message);
+
+                // Nếu bạn dùng PostgreSQL (Npgsql)
+                if (baseEx is Npgsql.PostgresException pg)
+                {
+                    Console.WriteLine($"PG SqlState: {pg.SqlState}");
+                    Console.WriteLine($"PG Constraint: {pg.ConstraintName}");
+                    Console.WriteLine($"PG Detail: {pg.Detail}");
+                    Console.WriteLine($"PG Table: {pg.TableName}");
+                    Console.WriteLine($"PG Column: {pg.ColumnName}");
+                }
+
+                throw; // để bạn thấy stack trace
+            }
+
+
+            return View("CheckoutPayQr", new CheckoutPayQrVm
+            {
+                OrderId = order.Id,
+                OrderNumber = order.OrderNumber ?? "",
+                Amount = amountVnd,
+                QrPayload = pay.data.qrCode,
+                CheckoutUrl = pay.data.checkoutUrl
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> PaymentStatus(Guid orderId)
+        {
+            // 1) đọc payment mới nhất của order
+            var payment = await _db.Payments
+                .AsNoTracking()
+                .Where(p => p.OrderId == orderId)
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (payment == null)
+                return NotFound(new { ok = false, message = "Payment not found" });
+
+            // 2) trả status hiện tại trong DB
+            // PENDING / PAID / FAILED ... tùy bạn đặt
+            return Json(new
+            {
+                ok = true,
+                paymentStatus = payment.Status,
+                paidAt = payment.PaidAt
+            });
+        }
 
     }
 }

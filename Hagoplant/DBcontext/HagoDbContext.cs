@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Hagoplant.Models;
 
+
 namespace Hagoplant.DBcontext
 {
     public class HagoDbContext : DbContext
@@ -154,20 +155,22 @@ namespace Hagoplant.DBcontext
             {
                 entity.HasKey(o => o.Id);
 
-                // 2 FK tới users -> phải cấu hình tường minh
                 entity.HasOne(o => o.User)
-                      .WithMany()
+                      .WithMany(u => u.Orders)
                       .HasForeignKey(o => o.UserId)
+                      .HasConstraintName("fk_orders_user_id")
                       .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasOne(o => o.ConfirmedByUser)
-                      .WithMany()
+                      .WithMany(u => u.OrdersConfirmed)
                       .HasForeignKey(o => o.ConfirmedByUserId)
+                      .HasConstraintName("fk_orders_confirmed_by_user_id")
                       .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasOne(o => o.Voucher)
-                      .WithMany()
+                      .WithMany(v => v.Orders)
                       .HasForeignKey(o => o.VoucherId)
+                      .HasConstraintName("fk_orders_voucher_id")
                       .OnDelete(DeleteBehavior.SetNull);
 
                 entity.Property(o => o.CreatedAt)

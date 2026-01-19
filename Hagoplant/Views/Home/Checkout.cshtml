@@ -1,0 +1,317 @@
+﻿@model Hagoplant.Models.ViewModels.CheckoutPageVm
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+<style>
+    /* checkout.css */
+:root {
+    --primary-color: #579A62;
+    --primary-dark: #478552;
+    --primary-light: #e9f5eb;
+    --text-color: #333;
+    --light-gray: #f8f9fa;
+    --border-color: #dee2e6;
+    --danger-color: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.py-4 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Header Styles */
+h3.mb-3 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 2rem;
+    margin-bottom: 2rem !important;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary-light);
+    position: relative;
+}
+
+h3.mb-3::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* Form Container */
+form {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 5px 20px rgba(87, 154, 98, 0.1);
+    border: 1px solid var(--primary-light);
+    transition: transform 0.3s ease;
+}
+
+form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(87, 154, 98, 0.15);
+}
+
+/* Form Groups */
+.form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: var(--light-gray);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(87, 154, 98, 0.2);
+    background-color: white;
+}
+
+/* Input Container Styles */
+.col-md-6, .col-12 {
+    margin-bottom: 1.5rem;
+    padding: 0 12px;
+}
+
+/* Responsive Grid */
+@@media (min-width: 768px) {
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -12px;
+    }
+    
+    .col-md-6 {
+        width: 50%;
+    }
+    
+    .col-12 {
+        width: 100%;
+    }
+}
+
+/* Button Styles */
+.btn-success {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-success:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(87, 154, 98, 0.3);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+.btn-success::before {
+    content: '💳';
+    font-size: 1.2rem;
+}
+
+/* Validation Styles */
+.text-danger {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+    font-weight: 500;
+}
+
+.field-validation-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.field-validation-error::before {
+    content: '⚠️';
+    font-size: 0.875rem;
+}
+
+.input-validation-error {
+    border-color: var(--danger-color) !important;
+}
+
+.input-validation-error:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+}
+
+/* Animation for form elements */
+@@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.col-md-6, .col-12 {
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+.col-md-6:nth-child(1) { animation-delay: 0.1s; }
+.col-md-6:nth-child(2) { animation-delay: 0.2s; }
+.col-md-6:nth-child(3) { animation-delay: 0.3s; }
+.col-12 { animation-delay: 0.4s; }
+
+/* Responsive Design */
+@@media (max-width: 767px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .py-4 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    h3.mb-3 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    h3.mb-3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    form {
+        padding: 1.5rem;
+        margin: 0 -15px;
+    }
+    
+    .col-md-6, .col-12 {
+        padding: 0;
+    }
+    
+    .btn-success {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Loading state for button */
+.btn-success.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-success.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success animation */
+@@keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 rgba(87, 154, 98, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(87, 154, 98, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(87, 154, 98, 0); }
+}
+
+.form-submitted {
+    animation: successPulse 1.5s ease;
+}
+
+    </style >
+<div class="container py-4">
+    <h3 class="mb-3">Thông tin thanh toán</h3>
+
+    <form asp-action="Checkout" asp-controller="Home" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="col-md-6">
+            <label asp-for="Form.CustomerName" class="form-label">Họ tên</label>
+            <input asp-for="Form.CustomerName" class="form-control" />
+            <span asp-validation-for="Form.CustomerName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Form.Phone" class="form-label">Số điện thoại</label>
+            <input asp-for="Form.Phone" class="form-control" />
+            <span asp-validation-for="Form.Phone" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Form.Email" class="form-label">Email</label>
+            <input asp-for="Form.Email" class="form-control" />
+            <span asp-validation-for="Form.Email" class="text-danger"></span>
+        </div>
+
+        <div class="col-12">
+            <label asp-for="Form.ShippingAddress.AddressLine" class="form-label">Địa chỉ</label>
+            <input asp-for="Form.ShippingAddress.AddressLine" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Tạo mã QR thanh toán</button>
+    </form>
+
+</div>
+
+            @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

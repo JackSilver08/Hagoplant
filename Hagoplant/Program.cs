@@ -13,7 +13,8 @@ if (string.IsNullOrWhiteSpace(cs))
     throw new InvalidOperationException("Missing connection string 'DefaultConnection'. Check appsettings.json");
 
 builder.Services.AddDbContext<HagoDbContext>(options => options.UseNpgsql(cs));
-
+builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOs"));
+builder.Services.AddHttpClient<PayOsClient>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
