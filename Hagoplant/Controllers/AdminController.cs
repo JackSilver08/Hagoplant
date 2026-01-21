@@ -67,12 +67,16 @@ namespace Hagoplant.Controllers
                 })
                 .ToListAsync();
 
+            var orders = await _db.Orders.AsNoTracking()
+     .OrderByDescending(o => o.CreatedAt)
+     .ToListAsync();
 
             var vm = new AdminDashboardVm
             {
                 Products = products,
                 BlogPosts = blogPosts,
-                Users = users
+                Users = users,
+                Orders = orders
             };
 
             return View(vm);

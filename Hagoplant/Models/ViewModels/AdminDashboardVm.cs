@@ -10,5 +10,6 @@ namespace Hagoplant.ViewModels
 
         // THÊM DÒNG NÀY
         public List<User> Users { get; set; } = new();
+        public List<Order> Orders { get; set; } = new();
     }
 }

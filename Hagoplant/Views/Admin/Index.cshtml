@@ -562,7 +562,12 @@
 
 
                     <!-- Quản lý Đơn hàng -->
+                    <!-- Quản lý Đơn hàng -->
                     <section id="orders" class="section-content d-none">
+                        @{
+                            var orders = Model?.Orders;
+                        }
+
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h2 class="text-primary-custom mb-0">Quản lý đơn hàng</h2>
                             <button class="btn btn-primary-custom" disabled>
@@ -573,31 +578,107 @@
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Danh sách đơn hàng</h5>
-                                <input type="text" class="form-control table-search" placeholder="Tìm kiếm theo mã đơn, khách hàng...">
+
+                                <!-- thêm id để JS filter -->
+                                <input id="orderSearch"
+                                       type="text"
+                                       class="form-control table-search"
+                                       placeholder="Tìm theo mã đơn, khách hàng, SĐT..." />
                             </div>
+
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>Mã đơn</th>
-                                                <th>Khách hàng</th>
-                                                <th>Ngày đặt</th>
-                                                <th>Tổng tiền</th>
-                                                <th>Trạng thái</th>
-                                                <th>Thao tác</th>
+                                                <th style="min-width:170px;">Mã đơn</th>
+                                                <th style="min-width:240px;">Khách hàng</th>
+                                                <th style="min-width:160px;">Ngày đặt</th>
+                                                <th style="min-width:140px;">Tổng tiền</th>
+                                                <th style="min-width:160px;">Trạng thái</th>
+                                                <th style="min-width:120px;">Thao tác</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="6">
-                                                    <div class="empty-state py-5">
-                                                        <i class="fas fa-shopping-cart"></i>
-                                                        <p>Chưa có đơn hàng nào</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+
+                                        <tbody id="ordersTbody">
+                                            @if (orders == null || orders.Count == 0)
+                                            {
+                                                <tr>
+                                                    <td colspan="6">
+                                                        <div class="empty-state py-5">
+                                                            <i class="fas fa-shopping-cart"></i>
+                                                            <p class="mb-0">Chưa có đơn hàng nào</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                foreach (var o in orders)
+                                                {
+                                                    var st = (o.Status ?? "").Trim().ToLowerInvariant();
+                                                    var paySt = (o.PaymentStatus ?? "").Trim().ToLowerInvariant();
+
+                                                    var badgeClass = st switch
+                                                    {
+                                                        "pending" => "bg-warning text-dark",
+                                                        "confirmed" => "bg-primary",
+                                                        "shipping" => "bg-info text-dark",
+                                                        "completed" => "bg-success",
+                                                        "cancelled" => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+
+                                                    var payBadgeClass = paySt switch
+                                                    {
+                                                        "paid" => "bg-success",
+                                                        "unpaid" => "bg-secondary",
+                                                        "failed" => "bg-danger",
+                                                        "refunded" => "bg-warning text-dark",
+                                                        _ => "bg-light text-dark border"
+                                                    };
+
+                                                    <tr class="order-row"
+                                                        data-orderno="@(o.OrderNumber ?? o.Id.ToString())"
+                                                        data-customer="@(o.CustomerName ?? "")"
+                                                        data-phone="@(o.Phone ?? "")">
+                                                        <td class="fw-semibold">@(o.OrderNumber ?? o.Id.ToString())</td>
+
+                                                        <td>
+                                                            <div class="fw-semibold">@(string.IsNullOrWhiteSpace(o.CustomerName) ? "-" : o.CustomerName)</div>
+                                                            <div class="text-muted small">
+                                                                @(string.IsNullOrWhiteSpace(o.Phone) ? "-" : o.Phone)
+                                                                @if (!string.IsNullOrWhiteSpace(o.Email))
+                                                                {
+                                                                    <span class="ms-2">| @o.Email</span>
+                                                                }
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="text-muted">@o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+
+                                                        <td>@string.Format("{0:N0} ₫", o.TotalAmount)</td>
+
+                                                        <td>
+                                                            <span class="badge @badgeClass">@((string.IsNullOrWhiteSpace(o.Status) ? "unknown" : o.Status))</span>
+                                                            @if (!string.IsNullOrWhiteSpace(o.PaymentStatus))
+                                                            {
+                                                                <span class="badge @payBadgeClass ms-1">@o.PaymentStatus</span>
+                                                            }
+                                                        </td>
+
+                                                        <td>
+                                                            <!-- tạm thời chỉ xem chi tiết (bạn tạo action sau) -->
+                                                            <a class="btn btn-sm btn-outline-primary"
+                                                               href="@Url.Action("OrderDetails", "Admin", new { id = o.Id })">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -1747,6 +1828,26 @@
         }
         
         }); 
+                // ===== Order: search filter =====
+        const orderSearch = document.getElementById("orderSearch");
+        if (orderSearch) {
+          const norm = (s) => (s || "").toString().trim().toLowerCase();
+
+          function filterOrders() {
+            const q = norm(orderSearch.value);
+            document.querySelectorAll("tr.order-row").forEach(row => {
+              const no = norm(row.dataset.orderno);
+              const customer = norm(row.dataset.customer);
+              const phone = norm(row.dataset.phone);
+              const match = q === "" || no.includes(q) || customer.includes(q) || phone.includes(q);
+              row.classList.toggle("d-none", !match);
+            });
+          }
+
+          orderSearch.addEventListener("input", filterOrders);
+        }
+
+
      
         }
         })();
