@@ -6,7 +6,7 @@ using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-
+using System.Security.Claims;
 
 namespace Hagoplant.Controllers
 {
@@ -248,7 +248,23 @@ namespace Hagoplant.Controllers
             return View(vm);
         }
 
+        private Guid? GetUserGuid()
+        {
+            var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(raw, out var id) ? id : null;
+        }
 
+        private string? GetUserEmail()
+        {
+            var email =
+                User.FindFirstValue(ClaimTypes.Email)
+                ?? User.FindFirstValue("email")
+                ?? User.FindFirstValue(ClaimTypes.Upn)
+                ?? User.Identity?.Name;
+
+            email = email?.Trim();
+            return string.IsNullOrWhiteSpace(email) ? null : email;
+        }
 
         // =============================
         // HÀM PHỤ TRỢ
@@ -306,27 +322,46 @@ namespace Hagoplant.Controllers
             };
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CheckoutPageVm vm)
         {
-
-            // cart luôn lấy server-side (an toàn)
             var cart = await BuildCartVmAsync();
             if (cart.IsEmpty) return RedirectToAction(nameof(Index));
 
             var total = cart.Total;
             var amountVnd = (int)decimal.Round(total, 0, MidpointRounding.AwayFromZero);
 
+            // ✅ Lấy info từ claims (nếu đã đăng nhập)
+            var claimUserId = GetUserGuid();
+            var claimEmail = GetUserEmail();
+
+            // ✅ Fallback email: claims > form
+            var formEmail = vm.Form?.Email?.Trim();
+            var finalEmail = !string.IsNullOrWhiteSpace(claimEmail) ? claimEmail : formEmail;
+
+            // (khuyến nghị) nếu không có email thì chặn luôn vì History không tra được
+            if (string.IsNullOrWhiteSpace(finalEmail))
+            {
+                ModelState.AddModelError("Form.Email", "Email là bắt buộc để tra cứu lịch sử đơn hàng.");
+                vm.Cart = cart;                 // trả lại cart để View không lỗi
+                return View(vm);                // trả về trang Checkout
+            }
+
             var order = new Order
             {
                 Id = Guid.NewGuid(),
                 OrderNumber = $"HAGO-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}",
+
+                // ✅ QUAN TRỌNG: gắn user
+                UserId = claimUserId,
+
                 CustomerName = vm.Form.CustomerName,
                 Phone = vm.Form.Phone,
-                Email = vm.Form.Email,
+
+                // ✅ QUAN TRỌNG: email phải lấy finalEmail
+                Email = finalEmail,
+
                 ShippingAddress = JsonDocument.Parse(JsonSerializer.Serialize(vm.Form.ShippingAddress)),
                 ItemsJson = JsonDocument.Parse(JsonSerializer.Serialize(cart.Items)),
                 Subtotal = cart.Subtotal,
@@ -337,9 +372,10 @@ namespace Hagoplant.Controllers
                 PaymentStatus = "UNPAID",
                 CreatedAt = DateTimeOffset.UtcNow
             };
+
             _db.Orders.Add(order);
 
-            var orderCode = int.Parse(DateTime.UtcNow.ToString("HHmmssfff")); // demo
+            var orderCode = int.Parse(DateTime.UtcNow.ToString("HHmmssfff"));
             var returnUrl = Url.Action("PayReturn", "Payments", new { orderId = order.Id }, Request.Scheme)!;
             var cancelUrl = Url.Action("PayCancel", "Payments", new { orderId = order.Id }, Request.Scheme)!;
 
@@ -365,28 +401,7 @@ namespace Hagoplant.Controllers
             };
             _db.Payments.Add(payment);
 
-            try
-            {
-                await _db.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                var baseEx = ex.GetBaseException();
-                Console.WriteLine("DbUpdateException base: " + baseEx.Message);
-
-                // Nếu bạn dùng PostgreSQL (Npgsql)
-                if (baseEx is Npgsql.PostgresException pg)
-                {
-                    Console.WriteLine($"PG SqlState: {pg.SqlState}");
-                    Console.WriteLine($"PG Constraint: {pg.ConstraintName}");
-                    Console.WriteLine($"PG Detail: {pg.Detail}");
-                    Console.WriteLine($"PG Table: {pg.TableName}");
-                    Console.WriteLine($"PG Column: {pg.ColumnName}");
-                }
-
-                throw; // để bạn thấy stack trace
-            }
-
+            await _db.SaveChangesAsync();
 
             return View("CheckoutPayQr", new CheckoutPayQrVm
             {
@@ -397,6 +412,7 @@ namespace Hagoplant.Controllers
                 CheckoutUrl = pay.data.checkoutUrl
             });
         }
+
         [HttpGet]
         public async Task<IActionResult> PaymentStatus(Guid orderId)
         {

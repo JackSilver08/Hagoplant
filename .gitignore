@@ -12,3 +12,29 @@
 # Rider / VS Code
 .idea/
 .vscode/
+
+# Secrets (QUAN TRỌNG: không commit secrets)
+appsettings.Production.json
+appsettings.Staging.json
+**/secrets.json
+**/*.pfx
+**/*.p12
+
+# Logs (không commit logs)
+**/logs/
+*.log
+
+# User Secrets (tự sinh bởi dotnet user-secrets)
+# Đây là nơi lưu secrets development an toàn
+# %APPDATA%\Microsoft\UserSecrets\
+
+# Node
+node_modules/
+npm-debug.log
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

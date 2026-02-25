@@ -1,0 +1,235 @@
+@model Hagoplant.ViewModels.AdminOrderListVm
+@using Hagoplant.Models
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Đơn Hàng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary-custom mb-0"><i class="fas fa-shopping-cart me-2"></i>Quản lý Đơn Hàng</h2>
+</div>
+
+<!-- Bộ lọc tìm kiếm -->
+<div class="admin-card mb-4" style="border:none; box-shadow:0 3px 10px rgba(0,0,0,0.05);">
+    <div class="card-body">
+        <form method="get" action="/Admin/Orders" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label text-muted small mb-1">Tìm theo Mã đơn, Email, Tên</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" value="@Model.SearchQuery" placeholder="Ví dụ: #ORD-1234...">
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label text-muted small mb-1">Trạng thái (Status)</label>
+                <select name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    @foreach (var s in OrderStatuses.AllStatuses)
+                    {
+                        if(Model.StatusFilter == s){
+                            <option value="@s" selected>@OrderStatuses.GetDisplayName(s)</option>
+                        } else {
+                            <option value="@s">@OrderStatuses.GetDisplayName(s)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-filter me-1"></i> Tìm Đơn Hàng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Tổng: @Model.TotalCount đơn hàng</h5>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Mã Đơn / Ngày tạo</th>
+                        <th>Khách hàng</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Orders == null || Model.Orders.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state py-5">
+                                    <i class="fas fa-box-open text-muted" style="font-size:3rem"></i>
+                                    <p class="mt-3 text-muted">Không tìm thấy đơn hàng nào</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var o in Model.Orders)
+                        {
+                            var bClass = o.Status switch {
+                                OrderStatuses.Pending => "bg-warning text-dark",
+                                OrderStatuses.Confirmed => "bg-info text-dark",
+                                OrderStatuses.Processing => "bg-primary",
+                                OrderStatuses.Shipping => "bg-purple text-white",
+                                OrderStatuses.Completed => "bg-success",
+                                OrderStatuses.Cancelled => "bg-danger",
+                                OrderStatuses.Refunded => "bg-dark",
+                                _ => "bg-secondary"
+                            };
+
+                            var pbClass = o.PaymentStatus switch {
+                                "PAID" => "bg-success",
+                                "UNPAID" => "bg-secondary",
+                                "FAILED" => "bg-danger",
+                                "REFUNDED" => "bg-warning text-dark",
+                                _ => "bg-light text-dark border"
+                            };
+
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold fs-6 text-primary">#( @(o.OrderNumber ?? o.Id.ToString().Substring(0,8).ToUpper()) )</div>
+                                    <div class="text-muted small">@o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-semibold">@o.CustomerName</div>
+                                    <div class="text-muted small"><i class="fas fa-envelope me-1" style="font-size:10px"></i> @o.Email</div>
+                                    <div class="text-muted small"><i class="fas fa-phone-alt me-1" style="font-size:10px"></i> @o.Phone</div>
+                                </td>
+
+                                <td>
+                                    <div class="fw-bold fs-6 text-danger">@string.Format("{0:N0} ₫", o.TotalAmount)</div>
+                                    <span class="badge @pbClass">@o.PaymentStatus</span>
+                                    @if(o.PaymentMethod != "COD") {
+                                        <div class="text-muted small mt-1">@o.PaymentMethod</div>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="badge @bClass px-2 py-1 fs-6">@OrderStatuses.GetDisplayName(o.Status)</span>
+                                </td>
+
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-sm btn-outline-primary mb-1 w-100" data-bs-toggle="modal" data-bs-target="#updateStatusModal-@o.Id">
+                                        <i class="fas fa-sync-alt me-1"></i> Cập nhật Status
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Modal cập nhật trạng thái đơn hàng -->
+                            <div class="modal fade" id="updateStatusModal-@o.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content text-start">
+                                        <form method="post" action="/Admin/UpdateOrderStatus">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="OrderId" value="@o.Id" />
+
+                                            <div class="modal-header bg-light">
+                                                <h5 class="modal-title">Cập nhật đơn hàng #@(o.OrderNumber ?? o.Id.ToString().Substring(0,8).ToUpper())</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Trạng thái hiện tại:</label>
+                                                    <span class="badge @bClass ms-2">@OrderStatuses.GetDisplayName(o.Status)</span>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Trạng thái MỚI</label>
+                                                    <select class="form-select status-select" name="NewStatus" data-target="cancel-reason-@o.Id" required>
+                                                        <option value="">-- Chọn trạng thái mới --</option>
+                                                        @foreach(var ns in OrderStatuses.AllStatuses) {
+                                                            if (ns != o.Status)
+                                                            {
+                                                                // Chỉ cho phép chuyển trạng thái theo đúng State Machine
+                                                                bool canTrans = OrderStatuses.CanTransition(o.Status, ns);
+                                                                if(canTrans) {
+                                                                    <option value="@ns">Chuyển sang: @OrderStatuses.GetDisplayName(ns)</option>
+                                                                } else {
+                                                                    <option value="@ns" disabled>(Không hợp lệ) @OrderStatuses.GetDisplayName(ns)</option>
+                                                                }
+                                                            }
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                <div class="mb-3 cancel-reason-group d-none" id="cancel-reason-@o.Id">
+                                                    <label class="form-label fw-bold text-danger">Lý do HỦY ĐƠN HÀNG (Bắt buộc khi HỦY)</label>
+                                                    <textarea class="form-control" name="CancelReason" rows="2" placeholder="Nhập lý do hủy đơn cho khách hàng..."></textarea>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold text-muted">Ghi chú nội bộ Admin (Tùy chọn)</label>
+                                                    <textarea class="form-control" name="AdminNotes" rows="2" placeholder="Ghi chú thêm về đơn hàng (không hiển thị cho khách)..."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-save me-1"></i> Lưu thay đổi</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Phân trang -->
+@if (Model.TotalPages > 1)
+{
+    var qString = $"&search={Model.SearchQuery}&status={Model.StatusFilter}";
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.Page - 1)@qString"><i class="fas fa-chevron-left"></i></a>
+            </li>
+            
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link @(i == Model.Page ? "bg-primary-custom border-0" : "text-dark")" href="?page=@i@qString">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.Page + 1)@qString"><i class="fas fa-chevron-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Hiển thị khung nhập "Lý do hủy đơn" nếu chọn status là Cancelled
+            $('.status-select').change(function() {
+                var val = $(this).val();
+                var targetId = $(this).data('target');
+                if(val === '@OrderStatuses.Cancelled') {
+                    $('#' + targetId).removeClass('d-none');
+                    $('#' + targetId + ' textarea').attr('required', 'required');
+                } else {
+                    $('#' + targetId).addClass('d-none');
+                    $('#' + targetId + ' textarea').removeAttr('required');
+                }
+            });
+        });
+    </script>
+}

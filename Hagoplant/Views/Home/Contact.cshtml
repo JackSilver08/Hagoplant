@@ -5,18 +5,18 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Hago Tree</title>
-
     <!-- Google Tag Manager -->
     <script>
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-WX29HS7M');
-    </script>
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-WX29HS7M');</script>
     <!-- End Google Tag Manager -->
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Hago Tree</title>
+
+  
 
 
 
@@ -1225,62 +1225,70 @@
                     height="0" width="0" style="display:none;visibility:hidden"></iframe>
         </noscript>
 
-    <!-- ================= HEADER ================= -->
+    <!-- Thêm phần Header này ngay sau thẻ <body> -->
     <header class="sticky-top bg-white shadow-sm vintage-border">
         <nav class="navbar navbar-expand-lg">
             <div class="container">
-
+                <!-- Logo -->
                 <a class="navbar-brand d-flex align-items-center" href="/">
-                    <img class="imglogo me-2" src="~/images/Hago_Logo.jpg" />
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
                 </a>
 
+                <!-- Toggle button cho mobile -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- Menu và thanh tìm kiếm -->
                 <div class="collapse navbar-collapse" id="navbarNav">
 
+                    <!-- Thanh tìm kiếm -->
                     <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
-                        <div class="input-group ">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm cây cảnh...">
-                            <button class="btn btn-primary-custom">
+                        <div class="input-group">
+                            <input id="homeProductSearch"
+                                   type="search"
+                                   class="form-control"
+                                   placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                                   aria-label="Tìm kiếm"
+                                   autocomplete="off" />
+                            <button id="homeProductSearchBtn" class="btn btn-primary-custom" type="button" aria-label="Tìm">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
 
-                    <ul class="navbar-nav ms-auto">
 
+                    <!-- Menu điều hướng -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li>
                             <a class="nav-link text-dark fw-medium" href="/Home/About">
                                 <i class="fas fa-info-circle me-1"></i> Giới thiệu
                             </a>
                         </li>
 
+                   
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#products">
-                                <i class="fas fa-tree me-1"></i> Sản phẩm
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#blog">
+                            <a class="nav-link text-dark fw-medium" href="/Home/Blog">
                                 <i class="fas fa-blog me-1"></i> Blog
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium active" href="/Home/Contact">
+                            <a class="nav-link text-dark fw-medium" href="/Home/contact ">
                                 <i class="fas fa-phone-alt me-1"></i> Liên hệ
                             </a>
                         </li>
 
+                        <!-- Giỏ hàng -->
                         <li class="nav-item position-relative mx-2">
-                            <a class="nav-link text-dark fw-medium" href="#">
+                            <a class="nav-link text-dark fw-medium" href="@Url.Action("Cart", "Home")" id="cart-btn">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="cart-badge">1</span>
+                                <span class="cart-badge">0</span>
                             </a>
                         </li>
+
                         @if (User?.Identity?.IsAuthenticated == true)
                         {
                             <!-- Đã đăng nhập: hiển thị tên + menu -->
@@ -1301,7 +1309,9 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="/Account/Profile">
+                                        <a class="dropdown-item" href="#"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#profileModal">
                                             <i class="fas fa-id-card me-2"></i> Tài khoản
                                         </a>
                                     </li>
@@ -1346,6 +1356,7 @@
                                 </ul>
                             </li>
                         }
+
                     </ul>
                 </div>
             </div>
@@ -1430,7 +1441,7 @@
         </div>
     </main>
 
-    <!-- ================= FOOTER ================= -->
+    <!-- Thêm phần Footer này trước thẻ đóng </body> -->
     <footer class="bg-dark text-white pt-5 pb-4">
         <div class="container">
             <div class="row">
@@ -1461,7 +1472,7 @@
                         </li>
                         <li class="mb-3 d-flex align-items-center">
                             <i class="fas fa-envelope me-3 text-primary-custom"></i>
-                            <span class="small">Hagotreevn@gmail.com</span>
+                            <span class="small">HagoTree@gmail.com</span>
                         </li>
                         <li class="mb-3 d-flex align-items-center">
                             <i class="fas fa-phone me-3 text-primary-custom"></i>
@@ -1474,13 +1485,13 @@
                 <div class="col-lg-4 col-md-12 mb-4">
                     <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
                     <div class="d-flex mb-4">
-                        <a href="#" class="social-icon me-3 facebook">
+                        <a href="https://www.facebook.com/HagoTreevn" class="social-icon me-3 facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="social-icon me-3 zalo">
+                        <a href="https://zalo.me/0947192590" class="social-icon me-3 zalo">
                             <i class="fab fa-whatsapp"></i>
                         </a>
-                        <a href="#" class="social-icon shopee">
+                        <a href="https://shopee.vn/maminhquan245" class="social-icon shopee">
                             <i class="fas fa-store"></i>
                         </a>
                     </div>
@@ -1489,19 +1500,40 @@
                     <div class="row">
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
-                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
-                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Index", "Home")"
+                                       class="text-light text-decoration-none small">Trang chủ</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@($"{Url.Action("Index", "Home")}#products")"
+                                       class="text-light text-decoration-none small">Sản phẩm</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("About", "Home")"
+                                       class="text-light text-decoration-none small">Giới thiệu</a>
+                                </li>
                             </ul>
                         </div>
+
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="#" class="text-light text-decoration-none small">Chính sách</a></li>
-                                <li class="mb-2"><a href="#" class="text-light text-decoration-none small">Bảo mật</a></li>
-                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Policy", "Pori")"
+                                       class="text-light text-decoration-none small">Chính sách</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Privacy", "Pori")"
+                                       class="text-light text-decoration-none small">Bảo mật</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Contact", "Home")"
+                                       class="text-light text-decoration-none small">Liên hệ</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -1509,6 +1541,146 @@
 
     <!-- ================= SCRIPT FORMSpree + Toast ================= -->
     <script>
+          // =========================
+        // CART: Fly-to-cart animation + tăng badge sau khi bay xong
+        // =========================
+            document.addEventListener('DOMContentLoaded', () => {
+        const cartBtn = document.getElementById('cart-btn');
+        const badgeEl = document.querySelector('.cart-badge');
+        if (!cartBtn || !badgeEl) return;
+
+        let cartCount = parseInt((badgeEl.textContent || '0').trim(), 10);
+        if (Number.isNaN(cartCount) || cartCount < 0) cartCount = 0;
+        badgeEl.textContent = cartCount;
+
+        function setCartCount(n) {
+          cartCount = n;
+          badgeEl.textContent = cartCount;
+        }
+
+        function bumpCart() {
+          cartBtn.classList.add('cart-bump');
+          setTimeout(() => cartBtn.classList.remove('cart-bump'), 350);
+        }
+
+          function flyToCart(clickedBtn) {
+          return new Promise((resolve) => {
+            // Nếu user bật reduced motion → bỏ animation
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              resolve();
+              return;
+            }
+
+            const card = clickedBtn.closest('.product-card') || clickedBtn.closest('.home-product-item');
+            const img = card ? card.querySelector('img') : null;
+            if (!img) { resolve(); return; }
+
+            // Target bay vào icon (nếu có), fallback về cả nút giỏ
+            const cartTarget = cartBtn.querySelector('i') || cartBtn;
+
+            const imgRect = img.getBoundingClientRect();
+            const cartRect = cartTarget.getBoundingClientRect();
+
+            // Nếu rect lỗi (hiếm) → resolve
+            if (imgRect.width === 0 || imgRect.height === 0) { resolve(); return; }
+
+            const clone = img.cloneNode(true);
+            clone.style.position = 'fixed';
+            clone.style.left = imgRect.left + 'px';
+            clone.style.top = imgRect.top + 'px';
+            clone.style.width = imgRect.width + 'px';
+            clone.style.height = imgRect.height + 'px';
+            clone.style.objectFit = 'cover';
+            clone.style.borderRadius = '12px';
+            clone.style.display = 'block';
+            clone.style.zIndex = '5000';
+            clone.style.pointerEvents = 'none';
+            clone.style.opacity = '1';
+            clone.style.transform = 'translate3d(0,0,0) scale(1)';
+            clone.style.willChange = 'transform, opacity';
+            clone.style.boxShadow = '0 18px 40px rgba(0,0,0,.18)';
+
+            document.body.appendChild(clone);
+
+            // FORCE REFLOW: cực quan trọng để đảm bảo transition “ăn”
+            // (nếu không, nhiều browser sẽ gộp thay đổi và bạn không thấy animation)
+            void clone.getBoundingClientRect();
+
+            const startX = imgRect.left + imgRect.width / 2;
+            const startY = imgRect.top + imgRect.height / 2;
+            const endX = cartRect.left + cartRect.width / 2;
+            const endY = cartRect.top + cartRect.height / 2;
+
+            const dx = endX - startX;
+            const dy = endY - startY;
+
+            // Transition sau khi đã reflow
+            clone.style.transition = 'transform 700ms cubic-bezier(.2,.8,.2,1), opacity 700ms ease';
+
+            requestAnimationFrame(() => {
+              clone.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(0.12)`;
+              clone.style.opacity = '0.2';
+            });
+
+            const done = () => {
+              clone.remove();
+              resolve();
+            };
+
+            clone.addEventListener('transitionend', done, { once: true });
+            setTimeout(done, 900); // fallback
+          });
+        }
+
+
+          // Bind nút add-to-cart
+                 document.querySelectorAll('.add-cart-form').forEach((form) => {
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+
+              const btn = form.querySelector('button[type="submit"]');
+              if (!btn) return;
+
+              if (btn.dataset.busy === '1') return;
+              btn.dataset.busy = '1';
+              btn.disabled = true;
+
+              try {
+                // 1) Bay vào giỏ
+                await flyToCart(btn);
+
+                // 2) POST thật lên server để lưu giỏ hàng
+                const fd = new FormData(form);
+
+                const res = await fetch(form.action, {
+                  method: 'POST',
+                  headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                  },
+                  body: new URLSearchParams(fd),
+                  credentials: 'same-origin'
+                });
+
+                if (!res.ok) {
+                  // fallback: submit kiểu truyền thống (nếu cần)
+                  form.submit();
+                  return;
+                }
+
+                const data = await res.json();
+
+                // 3) Cập nhật badge theo số lượng thật từ DB
+                if (data && data.ok === true) {
+                  setCartCount(data.count ?? (cartCount + 1));
+                  bumpCart();
+                }
+              } finally {
+                btn.dataset.busy = '0';
+                btn.disabled = false;
+              }
+            });
+          });
+        });
         const form = document.getElementById("contactForm");
 
         // Tạo toast container nếu chưa có (giống Index)

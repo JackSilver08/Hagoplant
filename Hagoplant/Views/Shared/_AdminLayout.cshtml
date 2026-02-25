@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Hago Tree Admin</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Francois One -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+    
+    @RenderSection("Styles", required: false)
+
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+        }
+        .text-primary-custom { color: #579a62 !important; }
+        .bg-primary-custom { background-color: #579a62 !important; }
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+        .btn-primary-custom:hover { background-color: #478152; border-color: #478152; }
+        .btn-secondary-custom {
+            background-color: transparent; border-color: #579a62; color: #579a62;
+        }
+        .btn-secondary-custom:hover { background-color: rgba(87, 154, 98, 0.1); }
+
+        /* Header Admin */
+        .admin-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: 80px;
+        }
+        .footerlogo { width: 80px; height: 80px; }
+
+        /* Sidebar Admin */
+        .admin-sidebar {
+            background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+            color: white;
+            min-height: calc(100vh - 80px);
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .admin-sidebar .nav-link {
+            color: #ddd;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .admin-sidebar .nav-link:hover {
+            background-color: rgba(87, 154, 98, 0.2); color: white; transform: translateX(5px);
+        }
+        .admin-sidebar .nav-link.active {
+            background-color: #579a62; color: white;
+        }
+        .admin-sidebar .nav-link i { width: 25px; }
+
+        /* Content area */
+        .admin-content {
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+            background-color: #f8f5f0;
+        }
+
+        /* Cards */
+        .admin-card {
+            border: 2px solid #d4af37;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .admin-card-header {
+            background: linear-gradient(to right, #579a62, #6bbf7a);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .table-search { max-width: 300px; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: #666;
+        }
+        .empty-state i {
+            font-size: 4rem; color: #ddd; margin-bottom: 20px;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-content { padding: 15px; }
+            .table-search { max-width: 100%; margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="admin-header d-flex align-items-center px-4">
+        <a href="/Admin/Index" class="text-decoration-none d-flex align-items-center">
+            <img class="footerlogo" src="~/images/HagoGreen.png" alt="Logo" />
+            <h4 class="text-white mb-0 ms-2">Hago Tree - Quản trị</h4>
+        </a>
+        <div class="ms-auto d-flex align-items-center">
+            <a href="/" class="btn btn-sm btn-outline-light me-3"><i class="fas fa-external-link-alt me-1"></i>Về trang chủ</a>
+            <form method="post" action="/Account/Logout" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt me-1"></i> Đăng xuất</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            @{
+                var currentUrl = Context.Request.Path.Value?.ToLower() ?? "";
+            }
+            <div class="col-lg-2 col-md-3">
+                <div class="admin-sidebar p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link @(currentUrl.EndsWith("/admin") || currentUrl.EndsWith("/admin/index") ? "active" : "")" href="/Admin/Index">
+                                <i class="fas fa-home"></i> Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentUrl.Contains("/users") ? "active" : "")" href="/Admin/Users">
+                                <i class="fas fa-users"></i> Người dùng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentUrl.Contains("/orders") ? "active" : "")" href="/Admin/Orders">
+                                <i class="fas fa-shopping-cart"></i> Đơn hàng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentUrl.Contains("/auditlogs") ? "active" : "")" href="/Admin/AuditLogs">
+                                <i class="fas fa-shield-alt"></i> Nhật ký hệ thống
+                            </a>
+                        </li>
+                        <!-- Products and Blog currently inside Index in tabs for simplicity, but links can anchor there -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Index#products">
+                                <i class="fas fa-tree"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Index#blog">
+                                <i class="fas fa-blog"></i> Blog
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9">
+                <div class="admin-content">
+                    <!-- Toast thông báo -->
+                    @if (TempData["Toast.Message"] != null)
+                    {
+                        var isOk = (string)TempData["Toast.Ok"] == "1";
+                        <div class="alert alert-@(isOk ? "success" : "danger") alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid @(isOk ? "#198754" : "#dc3545");">
+                            <i class="fas @(isOk ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
+                            @TempData["Toast.Message"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

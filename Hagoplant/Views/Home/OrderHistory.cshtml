@@ -1,0 +1,725 @@
+﻿@model Hagoplant.Models.ViewModels.OrderHistoryVm
+
+@{
+    var toastOk = TempData["Toast.Ok"]?.ToString();
+    var toastMessage = TempData["Toast.Message"]?.ToString();
+    var showToast = !string.IsNullOrWhiteSpace(toastMessage);
+    var isOk = toastOk == "1";
+}
+
+@functions {
+    string BadgeForOrderStatus(string? s)
+    {
+        var x = (s ?? "").Trim().ToLowerInvariant();
+        // bạn đổi mapping theo status thực tế của bạn
+        if (x.Contains("pending") || x.Contains("cho") || x.Contains("đợi")) return "bg-warning text-dark";
+        if (x.Contains("confirm") || x.Contains("xác")) return "bg-info text-dark";
+        if (x.Contains("ship") || x.Contains("giao")) return "bg-primary";
+        if (x.Contains("done") || x.Contains("hoàn") || x.Contains("thành công")) return "bg-success";
+        if (x.Contains("cancel") || x.Contains("hủy")) return "bg-danger";
+        return "bg-secondary";
+    }
+
+    string BadgeForPaymentStatus(string? s)
+    {
+        var x = (s ?? "").Trim().ToLowerInvariant();
+        if (x.Contains("paid") || x.Contains("đã")) return "bg-success";
+        if (x.Contains("unpaid") || x.Contains("chưa")) return "bg-warning text-dark";
+        if (x.Contains("fail") || x.Contains("lỗi")) return "bg-danger";
+        return "bg-secondary";
+    }
+
+    string Money(decimal v) => string.Format("{0:N0}₫", v);
+    string Dt(DateTimeOffset? d) => d.HasValue ? d.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm") : "-";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử mua hàng - Hago Tree</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Francois One -->
+    <link href="https://fonts.googleapis.com/css2?family=Francois+One&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Francois One', sans-serif;
+            background-color: #f8f5f0;
+            color: #333;
+        }
+
+        header {
+            z-index: 1030;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+                color: #579a62 !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #579a62 !important;
+                font-weight: bold;
+            }
+
+        .text-primary-custom {
+            color: #579a62 !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #579a62 !important;
+        }
+
+        .btn-primary-custom {
+            background-color: #579a62;
+            border-color: #579a62;
+            color: white;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #478152;
+                border-color: #478152;
+            }
+
+        .btn-secondary-custom {
+            background-color: transparent;
+            border-color: #579a62;
+            color: #579a62;
+        }
+
+            .btn-secondary-custom:hover {
+                background-color: rgba(87, 154, 98, 0.1);
+            }
+
+        /* Search bar styling (từ Index) */
+        .input-group .form-control {
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 50px 0 0 50px;
+            padding-left: 20px;
+        }
+
+        .input-group .btn {
+            border-radius: 0 50px 50px 0;
+            border: 2px solid #579a62;
+        }
+
+        .input-group .form-control:focus {
+            border-color: #579a62;
+            box-shadow: none;
+        }
+
+        /* Cart badge */
+        #cart-btn {
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #d4af37;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        /* Footer (từ Index) */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #2d2d2d) !important;
+        }
+
+            footer .social-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                color: white;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+                footer .social-icon.facebook {
+                    background-color: #3b5998;
+                }
+
+                footer .social-icon.zalo {
+                    background-color: #0068ff;
+                }
+
+                footer .social-icon.shopee {
+                    background-color: #ee4d2d;
+                }
+
+                footer .social-icon:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+            footer a.text-light:hover {
+                color: #579a62 !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+        .imglogo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .footerlogo {
+            width: 80px;
+            height: 80px;
+        }
+
+        /* Page-specific */
+        .order-card {
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+        }
+
+            .order-card .order-card-header {
+                background: linear-gradient(90deg, rgba(87,154,98,.10) 0%, rgba(212,175,55,.10) 100%);
+            }
+
+        .order-item-img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,.08);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER (giữ như Index) -->
+    <header class="sticky-top bg-white shadow-sm vintage-border">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <div class="me-2">
+                        <img class="imglogo" src="~/images/Hago_Logo.jpg" />
+                    </div>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Thanh tìm kiếm (giữ UI như Index; page này không bind filter) -->
+                    <div class="d-flex mx-lg-3 my-2 my-lg-0 flex-grow-1">
+                        <div class="input-group">
+                            <input type="search"
+                                   class="form-control"
+                                   placeholder="Tìm theo mã đơn hàng..."
+                                   aria-label="Tìm kiếm"
+                                   autocomplete="off"
+                                   id="orderSearch" />
+                            <button class="btn btn-primary-custom" type="button" aria-label="Tìm" id="orderSearchBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li>
+                            <a class="nav-link text-dark fw-medium" href="/Home/About">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="/Home/Blog">
+                                <i class="fas fa-blog me-1"></i> Blog
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-medium" href="/Home/Contact">
+                                <i class="fas fa-phone-alt me-1"></i> Liên hệ
+                            </a>
+                        </li>
+
+                        <li class="nav-item position-relative mx-2">
+                            <a class="nav-link text-dark fw-medium" href="@Url.Action("Cart", "Home")" id="cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge">0</span>
+                            </a>
+                        </li>
+
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-medium"
+                                   href="#"
+                                   id="userDropdown"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i> @User.Identity!.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <!-- SỬA LINK: trỏ đúng route -->
+                                        <a class="dropdown-item" href="@Url.Action("History", "Order")">
+                                            <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form method="post" action="/Account/Logout" class="px-3">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENT (mới) -->
+    <main class="py-5">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+                <div>
+                    <h2 class="mb-1 text-primary-custom">
+                        <i class="fa-solid fa-receipt me-2"></i>Lịch sử mua hàng
+                    </h2>
+                    <div class="text-muted small">
+                        Tổng đơn: <strong>@(Model?.Orders?.Count ?? 0)</strong>
+                    </div>
+                </div>
+
+                <div class="text-muted small">
+                    <a class="text-decoration-none" href="@Url.Action("Index", "Home")">
+                        <i class="fa-solid fa-arrow-left me-1"></i>Quay lại trang chủ
+                    </a>
+                </div>
+            </div>
+
+            @if (Model?.Orders == null || Model.Orders.Count == 0)
+            {
+                <div class="alert alert-info">
+                    Bạn chưa có đơn hàng nào.
+                </div>
+            }
+            else
+            {
+                <div class="accordion" id="ordersAccordion">
+                    @for (int i = 0; i < Model.Orders.Count; i++)
+                    {
+                        var o = Model.Orders[i];
+                        var headingId = $"heading_{i}";
+                        var collapseId = $"collapse_{i}";
+                        var statusBadge = BadgeForOrderStatus(o.Status);
+                        var payBadge = BadgeForPaymentStatus(o.PaymentStatus);
+
+                        <div class="accordion-item order-card mb-3">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button collapsed order-card-header" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId"
+                                        aria-expanded="false"
+                                        aria-controls="@collapseId">
+                                    <div class="w-100">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="fw-bold">#@o.OrderNumber</span>
+                                                <span class="badge @statusBadge">@((o.Status ?? "Không rõ"))</span>
+                                                <span class="badge @payBadge">@((o.PaymentStatus ?? "Thanh toán: không rõ"))</span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="fa-regular fa-clock me-1"></i>@Dt(o.CreatedAt)
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-2 d-flex flex-wrap gap-3 small">
+                                            <div>
+                                                <span class="text-muted">Tạm tính:</span> <strong>@Money(o.Subtotal)</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-muted">Giảm:</span> <strong>@Money(o.DiscountAmount)</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-muted">Tổng:</span> <strong class="text-primary-custom">@Money(o.TotalAmount)</strong>
+                                            </div>
+                                            <div>
+                                                <span class="text-muted">PTTT:</span> <strong>@(o.PaymentMethod ?? "-")</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+
+                            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#ordersAccordion">
+                                <div class="accordion-body">
+                                    <div class="row g-4">
+                                        <!-- Thông tin khách -->
+                                        <div class="col-lg-4">
+                                            <div class="p-3 rounded-3 border bg-light">
+                                                <div class="fw-bold mb-2">Thông tin nhận hàng</div>
+                                                <div class="small">
+                                                    <div><span class="text-muted">Tên:</span> <strong>@(o.CustomerName ?? "-")</strong></div>
+                                                    <div><span class="text-muted">SĐT:</span> <strong>@(o.Phone ?? "-")</strong></div>
+                                                    <div><span class="text-muted">Email:</span> <strong>@(o.Email ?? "-")</strong></div>
+
+                                                    <hr class="my-2" />
+
+                                                    <div class="text-muted">Địa chỉ:</div>
+                                                    @if (o.Shipping != null)
+                                                    {
+                                                        <div>@(o.Shipping.AddressLine ?? "-")</div>
+                                                        <div>@($"{o.Shipping.Ward} {o.Shipping.District} {o.Shipping.Province}".Trim())</div>
+                                                        @if (!string.IsNullOrWhiteSpace(o.Shipping.Note))
+                                                        {
+                                                            <div class="mt-1"><span class="text-muted">Ghi chú:</span> @o.Shipping.Note</div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div>-</div>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(o.VoucherCodeSnapshot))
+                                                    {
+                                                        <hr class="my-2" />
+                                                        <div><span class="text-muted">Voucher:</span> <strong>@o.VoucherCodeSnapshot</strong></div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sản phẩm -->
+                                        <div class="col-lg-8">
+                                            <div class="fw-bold mb-2">Sản phẩm</div>
+
+                                            @if (o.Items == null || o.Items.Count == 0)
+                                            {
+                                                <div class="text-muted small">Không có dữ liệu sản phẩm trong đơn.</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table align-middle">
+                                                        <thead>
+                                                            <tr class="small text-muted">
+                                                                <th style="width:72px">Ảnh</th>
+                                                                <th>Tên</th>
+                                                                <th class="text-end">Đơn giá</th>
+                                                                <th class="text-end">SL</th>
+                                                                <th class="text-end">Thành tiền</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var it in o.Items)
+                                                            {
+                                                                var line = it.UnitPrice * it.Quantity;
+                                                                <tr class="order-row" data-order="@o.OrderNumber" data-name="@it.Name">
+                                                                    <td>
+                                                                        <img class="order-item-img"
+                                                                             src="@(string.IsNullOrWhiteSpace(it.ImageUrl) ? "https://via.placeholder.com/120x120?text=Hago+Tree" : it.ImageUrl)"
+                                                                             alt="@it.Name" />
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (!string.IsNullOrWhiteSpace(it.Slug))
+                                                                        {
+                                                                            <a class="text-decoration-none text-dark"
+                                                                               href="@Url.Action("Detail", "Product", new { slug = it.Slug })">
+                                                                                <div class="fw-semibold">@it.Name</div>
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="fw-semibold">@it.Name</div>
+                                                                        }
+                                                                        @if (!string.IsNullOrWhiteSpace(it.Slug))
+                                                                        {
+                                                                            <div class="text-muted small">@it.Slug</div>
+                                                                        }
+                                                                    </td>
+                                                                    <td class="text-end">@Money(it.UnitPrice)</td>
+                                                                    <td class="text-end">@it.Quantity</td>
+                                                                    <td class="text-end fw-bold">@Money(line)</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+
+                                            <!-- Thanh toán -->
+                                            <div class="mt-3">
+                                                <div class="fw-bold mb-2">Thanh toán</div>
+                                                @if (o.Payments == null || o.Payments.Count == 0)
+                                                {
+                                                    <div class="text-muted small">Chưa có giao dịch thanh toán.</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm align-middle">
+                                                            <thead>
+                                                                <tr class="small text-muted">
+                                                                    <th>Provider</th>
+                                                                    <th>Method</th>
+                                                                    <th>Status</th>
+                                                                    <th class="text-end">Amount</th>
+                                                                    <th>PaidAt</th>
+                                                                    <th>Ref</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var p in o.Payments)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@(p.Provider ?? "-")</td>
+                                                                        <td>@(p.Method ?? "-")</td>
+                                                                        <td>@(p.Status ?? "-")</td>
+                                                                        <td class="text-end">@Money(p.Amount)</td>
+                                                                        <td>@Dt(p.PaidAt)</td>
+                                                                        <td class="text-muted small">@((p.TransactionRef ?? "-"))</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div> <!-- row -->
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </main>
+
+    <!-- FOOTER (giữ như Index) -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img class="footerlogo" src="~/images/HagoGreen.png" />
+                        </div>
+                        <div>
+                            <h3 class="h4 mb-1 text-white">Hago Tree</h3>
+                            <p class="text-light mb-0 small">Chuyên cây cảnh nhân tạo thẩm mỹ – Đẹp bền vững theo thời gian.</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-light small">Kết nối với chúng tôi để nhận ưu đãi & tin tức mới nhất!</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Liên hệ</h5>
+                    <ul class="list-unstyled text-light">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary-custom"></i>
+                            <span class="small">Hẻm 1581, Đường Bùi Hữu Nghĩa, Phường Biên Hòa, Đồng Nai</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope me-3 text-primary-custom"></i>
+                            <span class="small">HagoTree@gmail.com</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone me-3 text-primary-custom"></i>
+                            <span class="small">0947192590</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
+                    <div class="d-flex mb-4">
+                        <a href="https://www.facebook.com/HagoTreevn" class="social-icon me-3 facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://zalo.me/0947192590" class="social-icon me-3 zalo">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="https://shopee.vn/maminhquan245" class="social-icon shopee">
+                            <i class="fas fa-store"></i>
+                        </a>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Index", "Home")" class="text-light text-decoration-none small">Trang chủ</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@($"{Url.Action("Index", "Home")}#products")" class="text-light text-decoration-none small">Sản phẩm</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("About", "Home")" class="text-light text-decoration-none small">Giới thiệu</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Policy", "Pori")" class="text-light text-decoration-none small">Chính sách</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Privacy", "Pori")" class="text-light text-decoration-none small">Bảo mật</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Contact", "Home")" class="text-light text-decoration-none small">Liên hệ</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    @if (showToast)
+    {
+        <div id="hagoToast"
+             class="position-fixed top-0 end-0 p-3"
+             style="z-index: 2000; width: min(420px, 92vw);">
+            <div class="card shadow-sm border-0">
+                <div class="card-body d-flex gap-3 align-items-start">
+                    <div class="mt-1">
+                        @if (isOk)
+                        {
+                            <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle-xmark text-danger fs-4"></i>
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold mb-1">@(isOk ? "Thành công" : "Không thành công")</div>
+                        <div class="small text-muted">@toastMessage</div>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-link text-muted" id="hagoToastClose">Đóng</button>
+                </div>
+
+                <div class="progress rounded-0" style="height: 4px;">
+                    <div id="hagoToastProgress" class="progress-bar" role="progressbar" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toast (giữ như Index nhưng gọn)
+        document.addEventListener('DOMContentLoaded', function () {
+            const toast = document.getElementById('hagoToast');
+            if (!toast) return;
+
+            const btnClose = document.getElementById('hagoToastClose');
+            const bar = document.getElementById('hagoToastProgress');
+            const DURATION = 4500, TICK = 50;
+            let elapsed = 0;
+
+            function hideToast() {
+                toast.style.transition = 'opacity 250ms ease, transform 250ms ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 260);
+            }
+
+            const timer = setInterval(() => {
+                elapsed += TICK;
+                const remain = Math.max(0, DURATION - elapsed);
+                const pct = (remain / DURATION) * 100;
+                if (bar) bar.style.width = pct + '%';
+                if (elapsed >= DURATION) {
+                    clearInterval(timer);
+                    hideToast();
+                }
+            }, TICK);
+
+            btnClose?.addEventListener('click', () => { clearInterval(timer); hideToast(); });
+        });
+
+        // Filter đơn hàng theo order number / product name (nhẹ, không ảnh hưởng UI)
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('orderSearch');
+            const btn = document.getElementById('orderSearchBtn');
+            if (!input || !btn) return;
+
+            function norm(s) {
+                return (s || '')
+                    .toString()
+                    .trim()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            }
+
+            function apply() {
+                const q = norm(input.value);
+                const rows = document.querySelectorAll('.order-row');
+                if (!rows || rows.length === 0) return;
+
+                rows.forEach(r => {
+                    const code = norm(r.getAttribute('data-order'));
+                    const name = norm(r.getAttribute('data-name'));
+                    const show = !q || code.includes(q) || name.includes(q);
+                    r.style.display = show ? '' : 'none';
+                });
+            }
+
+            input.addEventListener('input', apply);
+            btn.addEventListener('click', apply);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); apply(); }
+            });
+        });
+    </script>
+</body>
+</html>

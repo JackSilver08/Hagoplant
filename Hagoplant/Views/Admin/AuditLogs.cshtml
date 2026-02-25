@@ -1,0 +1,175 @@
+@using Hagoplant.Models
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Nhật Ký Hệ Thống (Audit Logs)";
+
+    var logs = ViewBag.Logs as List<AuditLog>;
+    var totalCount = (int)ViewBag.TotalCount;
+    var pageNum = (int)ViewBag.Page;
+    var totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary-custom mb-0"><i class="fas fa-shield-alt me-2"></i>Nhật ký Hệ Thống</h2>
+    <div>
+        <span class="badge bg-secondary-subtle text-secondary py-2 px-3 fs-6 rounded-pill">
+            <i class="fas fa-database me-1"></i> @totalCount bản ghi log
+        </span>
+    </div>
+</div>
+
+<!-- Bộ Lọc Audit Logs -->
+<div class="admin-card mb-4" style="border:none; box-shadow:0 3px 10px rgba(0,0,0,0.05);">
+    <div class="card-body bg-light rounded-3 p-4">
+        <form method="get" action="/Admin/AuditLogs" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label text-muted fw-bold small">Hành động (Action)</label>
+                <select name="action" class="form-select">
+                    <option value="">Tất cả thao tác</option>
+                    @foreach(var act in AuditActions.AllActions)
+                    {
+                        if(ViewBag.ActionFilter == act){
+                            <option value="@act" selected>@act</option>
+                        } else {
+                            <option value="@act">@act</option>
+                        }
+                    }
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label text-muted fw-bold small">Email Người dùng</label>
+                <input type="text" name="userEmail" class="form-control" value="@ViewBag.UserEmailFilter" placeholder="admin@domain.com">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted fw-bold small">Từ ngày</label>
+                <input type="date" name="from" class="form-control" value="@(Context.Request.Query["from"])">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted fw-bold small">Tới ngày</label>
+                <input type="date" name="to" class="form-control" value="@(Context.Request.Query["to"])">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary-custom w-100"><i class="fas fa-filter me-1"></i> Truy xuất</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng Log -->
+<div class="admin-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0 align-middle text-sm" style="font-size:0.9rem;">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="py-3 px-3">Thời gian</th>
+                        <th>Hành động (Action)</th>
+                        <th>Người thực hiện</th>
+                        <th>Mục tiêu (Entity)</th>
+                        <th>Trạng thái</th>
+                        <th>Môi trường (IP)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (logs == null || logs.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-ghost fs-1 mb-3 opacity-25"></i>
+                                <br/>Không có dữ liệu nhật ký phù hợp (Audit Logs is empty).
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var a in logs)
+                        {
+                            var badgeClass = a.Result == AuditResult.Success ? "bg-success" : (a.Result == AuditResult.Failure ? "bg-danger" : "bg-warning");
+                            
+                            <tr>
+                                <td class="px-3" style="width:160px;">
+                                    <strong>@a.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong><br/>
+                                    <span class="text-muted"><i class="far fa-clock"></i> @a.CreatedAt.ToLocalTime().ToString("HH:mm:ss")</span>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge bg-secondary mb-1">@a.Action</span>
+                                    @if (!string.IsNullOrEmpty(a.Details))
+                                    {
+                                        <div class="text-muted font-monospace mt-1" style="font-size:0.8rem;">
+                                            &gt; @(a.Details.Length > 80 ? a.Details.Substring(0, 80) + "..." : a.Details)
+                                        </div>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if(a.UserId.HasValue){
+                                        <div class="fw-bold">@a.UserEmail</div>
+                                        <div class="text-muted" style="font-size:10px;">ID: @a.UserId.Value.ToString().Substring(0,8)...</div>
+                                    } else {
+                                        <span class="text-muted font-monospace">System/Guest</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if(!string.IsNullOrEmpty(a.EntityType))
+                                    {
+                                        <span class="badge border border-dark text-dark fw-bold">@a.EntityType</span>
+                                        @if(!string.IsNullOrEmpty(a.EntityId)) {
+                                            <div class="mt-1 font-monospace text-muted" style="font-size:10px;">@a.EntityId.Substring(0, Math.Min(a.EntityId.Length, 12))...</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="badge @badgeClass"><i class="fas @(a.Result == AuditResult.Success ? "fa-check" : "fa-times")"></i> @a.Result</span>
+                                    @if(!string.IsNullOrEmpty(a.ErrorMessage)){
+                                        <br/><small class="text-danger mt-1 d-block"><i class="fas fa-exclamation-triangle"></i> @a.ErrorMessage</small>
+                                    }
+                                </td>
+
+                                <td style="max-width:200px; word-wrap:break-word;">
+                                    <code>@a.IpAddress</code>
+                                    <div class="text-muted text-truncate" title="@a.UserAgent" style="max-width:180px; font-size:10px;">@a.UserAgent</div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Phân trang Audit -->
+@if (totalPages > 1)
+{
+    var qString = $"&action={ViewBag.ActionFilter}&userEmail={ViewBag.UserEmailFilter}&from={Context.Request.Query["from"]}&to={Context.Request.Query["to"]}";
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(pageNum == 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(pageNum - 1)@qString">&laquo;</a>
+            </li>
+            
+            @for (int i = Math.Max(1, pageNum - 2); i <= Math.Min(totalPages, pageNum + 2); i++)
+            {
+                <li class="page-item @(i == pageNum ? "active" : "")">
+                    <a class="page-link" href="?page=@i@qString">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(pageNum == totalPages ? "disabled" : "")">
+                <a class="page-link" href="?page=@(pageNum + 1)@qString">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}

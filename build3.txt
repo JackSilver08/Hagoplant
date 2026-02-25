@@ -1,0 +1,29 @@
+﻿  Determining projects to restore...
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Authentication.Cookies will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore.Relational (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore.Relational 10.0.0 was resolved.
+  All projects are up-to-date for restore.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Authentication.Cookies will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore.Relational (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore.Relational 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Controllers\AccountController.cs(263,99): error CS1002: ; expected [C:\Hagoplant\Hagoplant\Hagoplant.csproj]
+C:\Hagoplant\Hagoplant\Controllers\AccountController.cs(263,106): error CS1002: ; expected [C:\Hagoplant\Hagoplant\Hagoplant.csproj]
+
+Build FAILED.
+
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Authentication.Cookies will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore.Relational (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore.Relational 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Authentication.Cookies will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Hagoplant.csproj : warning NU1608: Detected package version outside of dependency constraint: EFCore.NamingConventions 9.0.0 requires Microsoft.EntityFrameworkCore.Relational (>= 9.0.0 && < 10.0.0) but version Microsoft.EntityFrameworkCore.Relational 10.0.0 was resolved.
+C:\Hagoplant\Hagoplant\Controllers\AccountController.cs(263,99): error CS1002: ; expected [C:\Hagoplant\Hagoplant\Hagoplant.csproj]
+C:\Hagoplant\Hagoplant\Controllers\AccountController.cs(263,106): error CS1002: ; expected [C:\Hagoplant\Hagoplant\Hagoplant.csproj]
+    8 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:01.46

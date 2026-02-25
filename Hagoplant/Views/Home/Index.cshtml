@@ -11,6 +11,14 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-WX29HS7M');</script>
+    <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hago Tree - Cây Cảnh Cao Cấp</title>
@@ -592,11 +600,6 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#products">
-                                <i class="fas fa-tree me-1"></i> Sản phẩm
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-dark fw-medium" href="/Home/Blog">
                                 <i class="fas fa-blog me-1"></i> Blog
                             </a>
@@ -631,10 +634,11 @@
 
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="/Order/History">
+                                        <a class="dropdown-item" href="@Url.Action("History", "Order")">
                                             <i class="fas fa-receipt me-2"></i> Lịch sử mua hàng
                                         </a>
                                     </li>
+
                                     <li>
                                         <a class="dropdown-item" href="#"
                                            data-bs-toggle="modal"
@@ -1071,13 +1075,13 @@
                 <div class="col-lg-4 col-md-12 mb-4">
                     <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
                     <div class="d-flex mb-4">
-                        <a href="#" class="social-icon me-3 facebook">
+                        <a href="https://www.facebook.com/HagoTreevn" class="social-icon me-3 facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="social-icon me-3 zalo">
+                        <a href="https://zalo.me/0947192590" class="social-icon me-3 zalo">
                             <i class="fab fa-whatsapp"></i>
                         </a>
-                        <a href="#" class="social-icon shopee">
+                        <a href="https://shopee.vn/maminhquan245" class="social-icon shopee">
                             <i class="fas fa-store"></i>
                         </a>
                     </div>
@@ -1086,19 +1090,40 @@
                     <div class="row">
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
-                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
-                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Index", "Home")"
+                                       class="text-light text-decoration-none small">Trang chủ</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@($"{Url.Action("Index", "Home")}#products")"
+                                       class="text-light text-decoration-none small">Sản phẩm</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("About", "Home")"
+                                       class="text-light text-decoration-none small">Giới thiệu</a>
+                                </li>
                             </ul>
                         </div>
+
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
-                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
-                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Policy", "Pori")"
+                                       class="text-light text-decoration-none small">Chính sách</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Privacy", "Pori")"
+                                       class="text-light text-decoration-none small">Bảo mật</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Contact", "Home")"
+                                       class="text-light text-decoration-none small">Liên hệ</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -1156,8 +1181,14 @@
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+                var hr = this.getAttribute('href');
+                if(hr && hr !== '#' && hr !== '#!') {
+                    var el = document.querySelector(hr);
+                    if(el) {
+                        e.preventDefault();
+                        el.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
             });
         });
 

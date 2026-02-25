@@ -345,11 +345,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark fw-medium" href="#products">
-                                <i class="fas fa-tree me-1"></i> Sản phẩm
-                            </a>
-                        </li>
+              
                         <li class="nav-item">
                             <a class="nav-link text-dark fw-medium" href="#blog">
                                 <i class="fas fa-blog me-1"></i> Blog
@@ -364,9 +360,9 @@
 
                         <!-- Giỏ hàng -->
                         <li class="nav-item position-relative mx-2">
-                            <a class="nav-link text-dark fw-medium" href="#cart" id="cart-btn">
+                            <a class="nav-link text-dark fw-medium" href="@Url.Action("Cart", "Home")" id="cart-btn">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="cart-badge">3</span>
+                                <span class="cart-badge">0</span>
                             </a>
                         </li>
 
@@ -726,13 +722,13 @@
                 <div class="col-lg-4 col-md-12 mb-4">
                     <h5 class="text-primary-custom mb-3 h6">Theo dõi</h5>
                     <div class="d-flex mb-4">
-                        <a href="#" class="social-icon me-3 facebook">
+                        <a href="https://www.facebook.com/HagoTreevn" class="social-icon me-3 facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="social-icon me-3 zalo">
+                        <a href="https://zalo.me/0947192590" class="social-icon me-3 zalo">
                             <i class="fab fa-whatsapp"></i>
                         </a>
-                        <a href="#" class="social-icon shopee">
+                        <a href="https://shopee.vn/maminhquan245" class="social-icon shopee">
                             <i class="fas fa-store"></i>
                         </a>
                     </div>
@@ -741,19 +737,40 @@
                     <div class="row">
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="#home" class="text-light text-decoration-none small">Trang chủ</a></li>
-                                <li class="mb-2"><a href="#products" class="text-light text-decoration-none small">Sản phẩm</a></li>
-                                <li class="mb-2"><a href="#about" class="text-light text-decoration-none small">Giới thiệu</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Index", "Home")"
+                                       class="text-light text-decoration-none small">Trang chủ</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@($"{Url.Action("Index", "Home")}#products")"
+                                       class="text-light text-decoration-none small">Sản phẩm</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("About", "Home")"
+                                       class="text-light text-decoration-none small">Giới thiệu</a>
+                                </li>
                             </ul>
                         </div>
+
                         <div class="col-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2"><a href="/Pori/Policy" class="text-light text-decoration-none small">Chính sách</a></li>
-                                <li class="mb-2"><a href="/Pori/Privacy" class="text-light text-decoration-none small">Bảo mật</a></li>
-                                <li class="mb-2"><a href="#contact" class="text-light text-decoration-none small">Liên hệ</a></li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Policy", "Pori")"
+                                       class="text-light text-decoration-none small">Chính sách</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Privacy", "Pori")"
+                                       class="text-light text-decoration-none small">Bảo mật</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="@Url.Action("Contact", "Home")"
+                                       class="text-light text-decoration-none small">Liên hệ</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>

@@ -1,0 +1,8 @@
+﻿c:\Hagoplant\Hagoplant\Views\Admin\Orders.cshtml(85,47): error CS0117: 'OrderStatuses' does not contain a definition for 'Shipped' [c:\Hagoplant\Hagoplant\Hagoplant.csproj]
+c:\Hagoplant\Hagoplant\Views\Admin\Orders.cshtml(157,83): error CS1061: 'Order' does not contain a definition for 'CanTransitionTo' and no accessible extension method 'CanTransitionTo' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) [c:\Hagoplant\Hagoplant\Hagoplant.csproj]
+
+Build FAILED.
+    6 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:04.79

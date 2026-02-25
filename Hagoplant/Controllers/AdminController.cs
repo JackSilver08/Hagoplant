@@ -1,5 +1,6 @@
 ﻿using Hagoplant.DBcontext;
 using Hagoplant.Models;
+using Hagoplant.Services;
 using Hagoplant.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,74 +16,84 @@ namespace Hagoplant.Controllers
     public class AdminController : Controller
     {
         private readonly HagoDbContext _db;
+        private readonly IAuditService _audit;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(HagoDbContext db)
+        public AdminController(HagoDbContext db, IAuditService audit, ILogger<AdminController> logger)
         {
             _db = db;
+            _audit = audit;
+            _logger = logger;
         }
 
-        // HIỆN SẢN PHẨM (load về Admin/Index)
+        // ========================
+        // DASHBOARD
+        // ========================
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            Console.WriteLine("A: load products");
             var products = await _db.Products.AsNoTracking()
                 .OrderByDescending(p => p.CreatedAt)
+                .Take(10)
                 .ToListAsync();
 
-            Console.WriteLine("B: load blogposts");
             var blogPosts = await _db.BlogPosts.AsNoTracking()
-       .OrderByDescending(b => b.CreatedAt)
-       .Select(b => new BlogPost
-       {
-           Id = b.Id,
-           Title = b.Title,
-           Slug = b.Slug,
-           Excerpt = b.Excerpt,
-           ContentHtml = b.ContentHtml,
-           CoverImageUrl = b.CoverImageUrl,
-           AuthorUserId = b.AuthorUserId,
-           Status = b.Status,
-           PublishedAt = b.PublishedAt,
-           CreatedAt = b.CreatedAt,
-           UpdatedAt = b.UpdatedAt,
-           ViewCount = b.ViewCount
-       })
-       .ToListAsync();
+                .OrderByDescending(b => b.CreatedAt)
+                .Take(10)
+                .ToListAsync();
 
-
-
-            Console.WriteLine("C: load users");
             var users = await _db.Users
                 .AsNoTracking()
                 .OrderByDescending(u => u.CreatedAt)
-                .Select(u => new User
-                {
-                    Id = u.Id,
-                    Email = u.Email,
-                    FullName = u.FullName,
-                    Phone = u.Phone,
-                    IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt
-                })
+                .Take(10)
                 .ToListAsync();
 
             var orders = await _db.Orders.AsNoTracking()
-     .OrderByDescending(o => o.CreatedAt)
-     .ToListAsync();
+                .OrderByDescending(o => o.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            var recentLogs = await _db.AuditLogs.AsNoTracking()
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(20)
+                .ToListAsync();
+
+            // Statistics
+            var totalUsers = await _db.Users.CountAsync();
+            var totalOrders = await _db.Orders.CountAsync();
+            var pendingOrders = await _db.Orders.CountAsync(o =>
+                o.Status == OrderStatuses.Pending || o.Status == OrderStatuses.AwaitingPayment);
+            var totalRevenue = await _db.Orders
+                .Where(o => o.Status == OrderStatuses.Paid ||
+                           o.Status == OrderStatuses.Processing ||
+                           o.Status == OrderStatuses.Shipping ||
+                           o.Status == OrderStatuses.Completed)
+                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0;
+            var totalProducts = await _db.Products.CountAsync();
+            var activeProducts = await _db.Products.CountAsync(p => p.IsActive);
 
             var vm = new AdminDashboardVm
             {
                 Products = products,
                 BlogPosts = blogPosts,
                 Users = users,
-                Orders = orders
+                Orders = orders,
+                RecentAuditLogs = recentLogs,
+                TotalUsers = totalUsers,
+                TotalOrders = totalOrders,
+                PendingOrders = pendingOrders,
+                TotalRevenue = totalRevenue,
+                TotalProducts = totalProducts,
+                ActiveProducts = activeProducts
             };
 
             return View(vm);
         }
 
-        // THÊM SẢN PHẨM
+        // ========================
+        // PRODUCT CRUD
+        // ========================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProduct(
@@ -114,12 +125,18 @@ namespace Hagoplant.Controllers
             _db.Products.Add(entity);
             await _db.SaveChangesAsync();
 
+            await _audit.LogAsync(
+                AuditActions.ProductCreated,
+                entityType: "Product",
+                entityId: entity.Id.ToString(),
+                details: $"Product created: {entity.Name} (slug: {entity.Slug})",
+                result: AuditResult.Success);
+
             TempData["Toast.Ok"] = "1";
             TempData["Toast.Message"] = "Đã thêm sản phẩm.";
             return RedirectToAction(nameof(Index));
         }
 
-        // SỬA SẢN PHẨM
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProduct(
@@ -143,29 +160,35 @@ namespace Hagoplant.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var oldValues = $"Name={entity.Name}, Price={entity.Price}";
+
             entity.Name = input.Name.Trim();
             entity.Slug = input.Slug.Trim();
             entity.Description = input.Description?.Trim();
             entity.Price = input.Price;
             entity.SalePrice = input.SalePrice;
-            var newUrl = input.ImageUrl?.Trim();
 
-            // Chỉ set khi có URL mới (tức là đã upload Cloudinary)
+            var newUrl = input.ImageUrl?.Trim();
             if (!string.IsNullOrWhiteSpace(newUrl))
-            {
                 entity.ImageUrl = newUrl;
-            }
+
             entity.IsActive = input.IsActive;
             entity.IsFeatured = input.IsFeatured;
 
             await _db.SaveChangesAsync();
+
+            await _audit.LogAsync(
+                AuditActions.ProductUpdated,
+                entityType: "Product",
+                entityId: entity.Id.ToString(),
+                details: $"Product updated. Old: {oldValues}, New: Name={entity.Name}, Price={entity.Price}",
+                result: AuditResult.Success);
 
             TempData["Toast.Ok"] = "1";
             TempData["Toast.Message"] = "Đã cập nhật sản phẩm.";
             return RedirectToAction(nameof(Index));
         }
 
-        // XÓA SẢN PHẨM
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(Guid id)
@@ -178,13 +201,521 @@ namespace Hagoplant.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            _db.Products.Remove(entity);
+            // Soft delete: đánh dấu IsActive = false thay vì xóa thật
+            // Tránh vỡ OrderHistory khi sản phẩm đã có trong đơn hàng
+            entity.IsActive = false;
             await _db.SaveChangesAsync();
 
+            await _audit.LogAsync(
+                AuditActions.ProductDeleted,
+                entityType: "Product",
+                entityId: entity.Id.ToString(),
+                details: $"Product soft-deleted: {entity.Name}",
+                result: AuditResult.Success);
+
             TempData["Toast.Ok"] = "1";
-            TempData["Toast.Message"] = "Đã xóa sản phẩm.";
+            TempData["Toast.Message"] = "Đã ẩn sản phẩm (soft delete để bảo toàn lịch sử đơn hàng).";
             return RedirectToAction(nameof(Index));
         }
+
+        // ========================
+        // USER MANAGEMENT
+        // ========================
+
+        [HttpGet]
+        public async Task<IActionResult> Users(
+            int page = 1,
+            string? search = null,
+            string? role = null,
+            bool? isActive = null)
+        {
+            const int pageSize = 20;
+
+            var query = _db.Users.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(u =>
+                    EF.Functions.ILike(u.Email, $"%{search}%") ||
+                    (u.FullName != null && EF.Functions.ILike(u.FullName, $"%{search}%")));
+            }
+
+            if (!string.IsNullOrWhiteSpace(role))
+                query = query.Where(u => u.Role == role);
+
+            if (isActive.HasValue)
+                query = query.Where(u => u.IsActive == isActive.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vm = new AdminUserListVm
+            {
+                Users = users,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                SearchQuery = search,
+                RoleFilter = role,
+                IsActiveFilter = isActive
+            };
+
+            return View(vm);
+        }
+
+        /// <summary>Thay đổi Role người dùng - chỉ Admin mới có quyền</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeUserRole(Guid userId, string newRole)
+        {
+            // Validate role
+            if (!UserRoles.AllRoles.Contains(newRole))
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Role không hợp lệ.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            // Chặn tự thay đổi role của mình
+            var currentUserId = TryGetCurrentUserId();
+            if (currentUserId == userId)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể thay đổi role của chính mình.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Người dùng không tồn tại.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            var oldRole = user.Role;
+            user.Role = newRole;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+            await _db.SaveChangesAsync();
+
+            await _audit.LogAsync(
+                AuditActions.UserRoleChanged,
+                entityType: "User",
+                entityId: userId.ToString(),
+                details: $"Role changed for {user.Email}: {oldRole} → {newRole}",
+                result: AuditResult.Success);
+
+            TempData["Toast.Ok"] = "1";
+            TempData["Toast.Message"] = $"Đã thay đổi role của {user.Email} thành {newRole}.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        /// <summary>Kích hoạt/vô hiệu hóa tài khoản (thay thế xóa thật)</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleUserActive(Guid id)
+        {
+            var currentIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.TryParse(currentIdStr, out var currentId) && currentId == id)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể vô hiệu hóa tài khoản đang đăng nhập.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Người dùng không tồn tại.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            user.IsActive = !user.IsActive;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+            await _db.SaveChangesAsync();
+
+            var action = user.IsActive ? AuditActions.UserActivated : AuditActions.UserDeactivated;
+            await _audit.LogAsync(
+                action,
+                entityType: "User",
+                entityId: id.ToString(),
+                details: $"User {user.Email} {(user.IsActive ? "activated" : "deactivated")}",
+                result: AuditResult.Success);
+
+            TempData["Toast.Ok"] = "1";
+            TempData["Toast.Message"] = user.IsActive
+                ? $"Đã kích hoạt tài khoản {user.Email}."
+                : $"Đã vô hiệu hóa tài khoản {user.Email}.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var currentIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.TryParse(currentIdStr, out var currentId) && currentId == id)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể xóa tài khoản đang đăng nhập.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Người dùng không tồn tại.";
+                return RedirectToAction(nameof(Users));
+            }
+
+            _db.Users.Remove(user);
+
+            try
+            {
+                await _db.SaveChangesAsync();
+
+                await _audit.LogAsync(
+                    AuditActions.UserDeleted,
+                    entityType: "User",
+                    entityId: id.ToString(),
+                    details: $"User permanently deleted: {user.Email}",
+                    result: AuditResult.Success);
+
+                TempData["Toast.Ok"] = "1";
+                TempData["Toast.Message"] = "Đã xóa người dùng.";
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không thể xóa do có dữ liệu liên quan. Nên dùng 'Vô hiệu hóa' thay thế.";
+            }
+
+            return RedirectToAction(nameof(Users));
+        }
+
+        // ========================
+        // ORDER MANAGEMENT (State Machine)
+        // ========================
+
+        [HttpGet]
+        public async Task<IActionResult> Orders(
+            int page = 1,
+            string? status = null,
+            string? search = null)
+        {
+            const int pageSize = 20;
+
+            var query = _db.Orders.AsNoTracking()
+                .Include(o => o.Payments)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(status))
+                query = query.Where(o => o.Status == status);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(o =>
+                    (o.OrderNumber != null && EF.Functions.ILike(o.OrderNumber, $"%{search}%")) ||
+                    (o.Email != null && EF.Functions.ILike(o.Email, $"%{search}%")) ||
+                    (o.CustomerName != null && EF.Functions.ILike(o.CustomerName, $"%{search}%")));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vm = new AdminOrderListVm
+            {
+                Orders = orders,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                StatusFilter = status,
+                SearchQuery = search
+            };
+
+            return View(vm);
+        }
+
+        /// <summary>Cập nhật trạng thái đơn hàng theo State Machine</summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(UpdateOrderStatusVm vm)
+        {
+            var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == vm.OrderId);
+            if (order == null)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction(nameof(Orders));
+            }
+
+            // Validate state transition
+            if (!OrderStatuses.CanTransition(order.Status, vm.NewStatus))
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = $"Không thể chuyển từ '{OrderStatuses.GetDisplayName(order.Status)}' sang '{OrderStatuses.GetDisplayName(vm.NewStatus)}'.";
+                return RedirectToAction(nameof(Orders));
+            }
+
+            var oldStatus = order.Status;
+            var now = DateTimeOffset.UtcNow;
+            var adminUserId = TryGetCurrentUserId();
+
+            order.Status = vm.NewStatus;
+            order.UpdatedAt = now;
+
+            if (!string.IsNullOrWhiteSpace(vm.AdminNotes))
+                order.AdminNotes = vm.AdminNotes;
+
+            // Set timestamp theo trạng thái
+            switch (vm.NewStatus)
+            {
+                case OrderStatuses.Paid:
+                    order.ConfirmedAt = now;
+                    order.ConfirmedByUserId = adminUserId;
+                    break;
+                case OrderStatuses.Shipping:
+                    order.ShippedAt = now;
+                    break;
+                case OrderStatuses.Completed:
+                    order.CompletedAt = now;
+                    break;
+                case OrderStatuses.Cancelled:
+                    order.CancelledAt = now;
+                    order.CancelReason = vm.CancelReason ?? "Admin hủy";
+                    break;
+                case OrderStatuses.Refunded:
+                    order.RefundedAt = now;
+                    break;
+            }
+
+            await _db.SaveChangesAsync();
+
+            await _audit.LogAsync(
+                AuditActions.OrderStatusChanged,
+                entityType: "Order",
+                entityId: vm.OrderId.ToString(),
+                details: $"Order status changed: {oldStatus} → {vm.NewStatus}. Order: {order.OrderNumber}. Notes: {vm.AdminNotes}",
+                result: AuditResult.Success);
+
+            TempData["Toast.Ok"] = "1";
+            TempData["Toast.Message"] = $"Đã cập nhật trạng thái đơn hàng thành '{OrderStatuses.GetDisplayName(vm.NewStatus)}'.";
+            return RedirectToAction(nameof(Orders));
+        }
+
+        // ========================
+        // AUDIT LOG VIEW
+        // ========================
+
+        [HttpGet]
+        public async Task<IActionResult> AuditLogs(
+            int page = 1,
+            string? action = null,
+            string? userEmail = null,
+            DateTime? from = null,
+            DateTime? to = null)
+        {
+            const int pageSize = 50;
+
+            var query = _db.AuditLogs.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(action))
+                query = query.Where(a => a.Action == action);
+
+            if (!string.IsNullOrWhiteSpace(userEmail))
+                query = query.Where(a => a.UserEmail != null && EF.Functions.ILike(a.UserEmail, $"%{userEmail}%"));
+
+            if (from.HasValue)
+                query = query.Where(a => a.CreatedAt >= new DateTimeOffset(from.Value, TimeSpan.Zero));
+
+            if (to.HasValue)
+                query = query.Where(a => a.CreatedAt <= new DateTimeOffset(to.Value.AddDays(1), TimeSpan.Zero));
+
+            var totalCount = await query.CountAsync();
+            var logs = await query
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.Logs = logs;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            ViewBag.ActionFilter = action;
+            ViewBag.UserEmailFilter = userEmail;
+
+            return View();
+        }
+
+        // ========================
+        // BLOG CRUD
+        // ========================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBlogPost(
+        [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status,PublishedAt")] BlogPost input)
+        {
+            input.Title = (input.Title ?? "").Trim();
+            input.Slug = (input.Slug ?? "").Trim();
+            input.Excerpt = string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim();
+            input.ContentHtml = (input.ContentHtml ?? "").Trim();
+            input.CoverImageUrl = string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim();
+
+            if (string.IsNullOrWhiteSpace(input.Slug) && !string.IsNullOrWhiteSpace(input.Title))
+                input.Slug = Slugify(input.Title);
+
+            input.Status = NormalizeStatus(input.Status);
+
+            await ValidateBlogPostAsync(input, currentId: null);
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Dữ liệu bài viết không hợp lệ.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            DateTimeOffset? publishedAt = input.Status == BlogPostStatuses.Published
+                ? (input.PublishedAt ?? now)
+                : null;
+
+            var entity = new BlogPost
+            {
+                Id = Guid.NewGuid(),
+                Title = input.Title,
+                Slug = input.Slug,
+                Excerpt = input.Excerpt,
+                ContentHtml = input.ContentHtml,
+                CoverImageUrl = input.CoverImageUrl,
+                Status = input.Status,
+                PublishedAt = publishedAt,
+                CreatedAt = now,
+                UpdatedAt = now,
+                AuthorUserId = TryGetCurrentUserId()
+            };
+
+            _db.BlogPosts.Add(entity);
+            await _db.SaveChangesAsync();
+
+            await _audit.LogAsync(
+                AuditActions.BlogPostCreated,
+                entityType: "BlogPost",
+                entityId: entity.Id.ToString(),
+                details: $"Blog post created: {entity.Title}",
+                result: AuditResult.Success);
+
+            TempData["Toast.Ok"] = "1";
+            TempData["Toast.Message"] = "Đã tạo bài viết blog.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBlogPost(
+            Guid id,
+            [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status")] BlogPost input)
+        {
+            await ValidateBlogPostAsync(input, currentId: id);
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Dữ liệu cập nhật bài viết không hợp lệ.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            var newStatus = NormalizeStatus(input.Status);
+
+            var rows = await _db.BlogPosts
+                .Where(b => b.Id == id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(b => b.Title, (input.Title ?? "").Trim())
+                    .SetProperty(b => b.Slug, (input.Slug ?? "").Trim())
+                    .SetProperty(b => b.Excerpt, string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim())
+                    .SetProperty(b => b.ContentHtml, (input.ContentHtml ?? "").Trim())
+                    .SetProperty(b => b.CoverImageUrl, string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim())
+                    .SetProperty(b => b.Status, newStatus)
+                    .SetProperty(b => b.UpdatedAt, now)
+                );
+
+            if (rows == 0)
+            {
+                TempData["Toast.Ok"] = "0";
+                TempData["Toast.Message"] = "Không tìm thấy bài viết.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (newStatus == BlogPostStatuses.Draft)
+            {
+                await _db.BlogPosts
+                    .Where(b => b.Id == id)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(b => b.PublishedAt, (DateTimeOffset?)null));
+            }
+            else if (newStatus == BlogPostStatuses.Published)
+            {
+                await _db.BlogPosts
+                    .Where(b => b.Id == id && b.PublishedAt == null)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(b => b.PublishedAt, now));
+            }
+
+            await _audit.LogAsync(
+                AuditActions.BlogPostUpdated,
+                entityType: "BlogPost",
+                entityId: id.ToString(),
+                details: $"Blog post updated. New status: {newStatus}",
+                result: AuditResult.Success);
+
+            TempData["Toast.Ok"] = "1";
+            TempData["Toast.Message"] = "Đã cập nhật bài viết blog.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBlogPost(Guid id)
+        {
+            var post = await _db.BlogPosts.FirstOrDefaultAsync(b => b.Id == id);
+            if (post != null)
+            {
+                await _audit.LogAsync(
+                    AuditActions.BlogPostDeleted,
+                    entityType: "BlogPost",
+                    entityId: id.ToString(),
+                    details: $"Blog post deleted: {post.Title}",
+                    result: AuditResult.Success);
+            }
+
+            var rows = await _db.BlogPosts
+                .Where(x => x.Id == id)
+                .ExecuteDeleteAsync();
+
+            TempData["Toast.Ok"] = rows > 0 ? "1" : "0";
+            TempData["Toast.Message"] = rows > 0 ? "Đã xóa bài viết blog." : "Không tìm thấy bài viết.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ========================
+        // HELPER METHODS
+        // ========================
 
         private async Task ValidateProductAsync(Product input, Guid? currentId)
         {
@@ -217,6 +748,43 @@ namespace Hagoplant.Controllers
             }
         }
 
+        private async Task ValidateBlogPostAsync(BlogPost input, Guid? currentId)
+        {
+            if (string.IsNullOrWhiteSpace(input.Title))
+                ModelState.AddModelError(nameof(BlogPost.Title), "Tiêu đề là bắt buộc.");
+
+            if (string.IsNullOrWhiteSpace(input.Slug) && !string.IsNullOrWhiteSpace(input.Title))
+                input.Slug = Slugify(input.Title);
+
+            if (string.IsNullOrWhiteSpace(input.Slug))
+                ModelState.AddModelError(nameof(BlogPost.Slug), "Slug là bắt buộc.");
+
+            if (string.IsNullOrWhiteSpace(input.ContentHtml))
+                ModelState.AddModelError(nameof(BlogPost.ContentHtml), "Nội dung bài viết là bắt buộc.");
+
+            var st = NormalizeStatus(input.Status);
+            var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "draft", "published", "archived" };
+            if (!allowed.Contains(st))
+                ModelState.AddModelError(nameof(BlogPost.Status), "Trạng thái không hợp lệ.");
+
+            if (!string.IsNullOrWhiteSpace(input.Slug))
+            {
+                var slug = input.Slug.Trim();
+                var exists = await _db.BlogPosts.AnyAsync(b =>
+                    b.Slug == slug && (!currentId.HasValue || b.Id != currentId.Value));
+                if (exists)
+                    ModelState.AddModelError(nameof(BlogPost.Slug), "Slug đã tồn tại.");
+            }
+        }
+
+        private static string NormalizeStatus(string? s) => (s ?? "").Trim().ToLowerInvariant();
+
+        private Guid? TryGetCurrentUserId()
+        {
+            var raw = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(raw, out var g) ? g : null;
+        }
+
         private static string Slugify(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
@@ -239,245 +807,6 @@ namespace Hagoplant.Controllers
             noDiacritics = Regex.Replace(noDiacritics, @"-+", "-").Trim('-');
 
             return noDiacritics;
-        }
-
-
-        // =========================
-        // BLOG CRUD
-        // =========================
-
-        // THÊM BLOG
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateBlogPost(
-        [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status,PublishedAt")] BlogPost input)
-        {
-            // Chuẩn hoá input sớm để validation dùng đúng
-            input.Title = (input.Title ?? "").Trim();
-            input.Slug = (input.Slug ?? "").Trim();
-            input.Excerpt = string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim();
-            input.ContentHtml = (input.ContentHtml ?? "").Trim();
-            input.CoverImageUrl = string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim();
-
-            // Nếu chưa có slug thì tự tạo từ title
-            if (string.IsNullOrWhiteSpace(input.Slug) && !string.IsNullOrWhiteSpace(input.Title))
-                input.Slug = Slugify(input.Title);
-
-            // status chuẩn hoá
-            input.Status = NormalizeStatus(input.Status);
-
-            await ValidateBlogPostAsync(input, currentId: null);
-
-            if (!ModelState.IsValid)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Dữ liệu bài viết không hợp lệ.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var now = DateTimeOffset.UtcNow;
-
-            // PublishedAt theo rule:
-            // - published: nếu không truyền thì set now
-            // - draft/archived: null
-            DateTimeOffset? publishedAt =
-                input.Status == BlogPostStatuses.Published
-                    ? (input.PublishedAt ?? now)
-                    : null;
-
-            var entity = new BlogPost
-            {
-                Id = Guid.NewGuid(),
-                Title = input.Title,
-                Slug = input.Slug,
-                Excerpt = input.Excerpt,
-                ContentHtml = input.ContentHtml,
-                CoverImageUrl = input.CoverImageUrl,
-                Status = input.Status,
-                PublishedAt = publishedAt,
-                CreatedAt = now,
-                UpdatedAt = now,
-                AuthorUserId = TryGetCurrentUserId() // null nếu chưa login/claim không phải Guid
-            };
-
-            _db.BlogPosts.Add(entity);
-            await _db.SaveChangesAsync();
-
-            TempData["Toast.Ok"] = "1";
-            TempData["Toast.Message"] = "Đã tạo bài viết blog.";
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateBlogPost(
-            Guid id,
-            [Bind("Title,Slug,Excerpt,ContentHtml,CoverImageUrl,Status")] BlogPost input)
-        {
-            await ValidateBlogPostAsync(input, currentId: id);
-
-            if (!ModelState.IsValid)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Dữ liệu cập nhật bài viết không hợp lệ.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var now = DateTimeOffset.UtcNow;
-            var newStatus = NormalizeStatus(input.Status);
-
-            // 1) Update các field cơ bản trước
-            var rows = await _db.BlogPosts
-                .Where(b => b.Id == id)
-                .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(b => b.Title, (input.Title ?? "").Trim())
-                    .SetProperty(b => b.Slug, (input.Slug ?? "").Trim())
-                    .SetProperty(b => b.Excerpt, string.IsNullOrWhiteSpace(input.Excerpt) ? null : input.Excerpt.Trim())
-                    .SetProperty(b => b.ContentHtml, (input.ContentHtml ?? "").Trim())
-                    .SetProperty(b => b.CoverImageUrl, string.IsNullOrWhiteSpace(input.CoverImageUrl) ? null : input.CoverImageUrl.Trim())
-                    .SetProperty(b => b.Status, newStatus)
-                    .SetProperty(b => b.UpdatedAt, now)
-                );
-
-            if (rows == 0)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Không tìm thấy bài viết.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            // 2) Update PublishedAt theo status (tách ra cho dễ, tránh expression phức tạp)
-            if (newStatus == BlogPostStatuses.Draft)
-            {
-                await _db.BlogPosts
-                    .Where(b => b.Id == id)
-                    .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(b => b.PublishedAt, (DateTimeOffset?)null)
-                    );
-            }
-            else if (newStatus == BlogPostStatuses.Published)
-            {
-                // Chỉ set now nếu PublishedAt đang null
-                await _db.BlogPosts
-                    .Where(b => b.Id == id && b.PublishedAt == null)
-                    .ExecuteUpdateAsync(setters => setters
-                        .SetProperty(b => b.PublishedAt, now)
-                    );
-            }
-            // archived: không đụng PublishedAt
-
-            TempData["Toast.Ok"] = "1";
-            TempData["Toast.Message"] = "Đã cập nhật bài viết blog.";
-            return RedirectToAction(nameof(Index));
-        }
-
-
-
-
-        // XÓA BLOG
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteBlogPost(Guid id)
-        {
-            var rows = await _db.BlogPosts
-                .Where(x => x.Id == id)
-                .ExecuteDeleteAsync();
-
-            TempData["Toast.Ok"] = rows > 0 ? "1" : "0";
-            TempData["Toast.Message"] = rows > 0 ? "Đã xóa bài viết blog." : "Không tìm thấy bài viết.";
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        // =========================
-        // BLOG VALIDATION HELPERS
-        // =========================
-        private async Task ValidateBlogPostAsync(BlogPost input, Guid? currentId)
-        {
-            if (string.IsNullOrWhiteSpace(input.Title))
-                ModelState.AddModelError(nameof(BlogPost.Title), "Tiêu đề là bắt buộc.");
-
-            if (string.IsNullOrWhiteSpace(input.Slug) && !string.IsNullOrWhiteSpace(input.Title))
-                input.Slug = Slugify(input.Title);
-
-            if (string.IsNullOrWhiteSpace(input.Slug))
-                ModelState.AddModelError(nameof(BlogPost.Slug), "Slug là bắt buộc.");
-
-            if (string.IsNullOrWhiteSpace(input.ContentHtml))
-                ModelState.AddModelError(nameof(BlogPost.ContentHtml), "Nội dung bài viết là bắt buộc.");
-
-            // status check
-            var st = NormalizeStatus(input.Status);
-            if (string.IsNullOrWhiteSpace(st))
-                ModelState.AddModelError(nameof(BlogPost.Status), "Trạng thái là bắt buộc.");
-
-            var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "draft", "published", "archived"
-    };
-            if (!allowed.Contains(st))
-                ModelState.AddModelError(nameof(BlogPost.Status), "Trạng thái không hợp lệ (draft/published/archived).");
-
-            // slug unique
-            if (!string.IsNullOrWhiteSpace(input.Slug))
-            {
-                var slug = input.Slug.Trim();
-                var exists = await _db.BlogPosts.AnyAsync(b =>
-                    b.Slug == slug && (!currentId.HasValue || b.Id != currentId.Value));
-
-                if (exists)
-                    ModelState.AddModelError(nameof(BlogPost.Slug), "Slug đã tồn tại. Vui lòng chọn slug khác.");
-            }
-        }
-
-        private static string NormalizeStatus(string? s)
-        {
-            return (s ?? "").Trim().ToLowerInvariant();
-        }
-
-        private Guid? TryGetCurrentUserId()
-        {
-            // Nếu bạn có lưu Guid userId trong ClaimTypes.NameIdentifier
-            var raw = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            return Guid.TryParse(raw, out var g) ? g : null;
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(Guid id)
-        {
-            // Chặn tự xóa chính mình
-            var currentIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (Guid.TryParse(currentIdStr, out var currentId) && currentId == id)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Không thể xóa tài khoản đang đăng nhập.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user == null)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Người dùng không tồn tại.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            _db.Users.Remove(user);
-
-            try
-            {
-                await _db.SaveChangesAsync();
-                TempData["Toast.Ok"] = "1";
-                TempData["Toast.Message"] = "Đã xóa người dùng.";
-            }
-            catch (DbUpdateException)
-            {
-                TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Không thể xóa do có dữ liệu liên quan (FK). Nên dùng soft delete hoặc khóa tài khoản.";
-            }
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }
