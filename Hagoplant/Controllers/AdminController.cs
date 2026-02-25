@@ -72,6 +72,36 @@ namespace Hagoplant.Controllers
             var totalProducts = await _db.Products.CountAsync();
             var activeProducts = await _db.Products.CountAsync(p => p.IsActive);
 
+            // Chart 1: Revenue last 6 months
+            var sixMonthsAgo = DateTimeOffset.UtcNow.AddMonths(-6);
+            var recentSales = await _db.Orders
+                .Where(o => o.CreatedAt >= sixMonthsAgo &&
+                            (o.Status == OrderStatuses.Paid ||
+                             o.Status == OrderStatuses.Processing ||
+                             o.Status == OrderStatuses.Shipping ||
+                             o.Status == OrderStatuses.Completed))
+                .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
+                .Select(g => new { 
+                    g.Key.Year, 
+                    g.Key.Month, 
+                    Total = g.Sum(o => (decimal?)o.TotalAmount) ?? 0 
+                })
+                .ToListAsync();
+
+            var revLabels = new List<string>();
+            var revData = new List<decimal>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var dt = DateTime.Now.AddMonths(-i);
+                revLabels.Add($"T{dt.Month}/{dt.Year}");
+                var mtSales = recentSales.FirstOrDefault(x => x.Year == dt.Year && x.Month == dt.Month);
+                revData.Add(mtSales?.Total ?? 0);
+            }
+
+            // Chart 2: Product statuses (Active vs Inactive)
+            var pLabels = new List<string> { "Đang bán", "Ngừng bán" };
+            var pData = new List<int> { activeProducts, totalProducts - activeProducts };
+
             var vm = new AdminDashboardVm
             {
                 Products = products,
@@ -84,7 +114,11 @@ namespace Hagoplant.Controllers
                 PendingOrders = pendingOrders,
                 TotalRevenue = totalRevenue,
                 TotalProducts = totalProducts,
-                ActiveProducts = activeProducts
+                ActiveProducts = activeProducts,
+                RevenueLabels = revLabels,
+                RevenueData = revData,
+                ProductDistributionLabels = pLabels,
+                ProductDistributionData = pData
             };
 
             return View(vm);

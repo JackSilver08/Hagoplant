@@ -92,19 +92,21 @@
             font-size: 1.2rem;
         }
 
-        /* Responsive adjustments */
+        /* Responsive adjustments - mobile header */
         @@media (max-width: 991px) {
             .navbar-collapse {
-                padding: 1rem 0;
+                padding: 0.75rem 0;
+                border-top: 1px solid #f0f0f0;
             }
-
-            .input-group {
-                margin-bottom: 1rem;
+            .navbar-collapse .d-flex.flex-grow-1 { padding: 0.25rem 0; }
+            .navbar-nav .nav-item { margin-bottom: 2px; }
+            .navbar-nav .nav-link { padding: 0.6rem 1rem; border-radius: 6px; }
+            #cart-btn {
+                display: inline-flex !important;
+                width: auto;
+                align-items: center;
             }
-
-            .navbar-nav .nav-item {
-                margin-bottom: 0.5rem;
-            }
+            .nav-item.position-relative.mx-2 { width: auto; }
         }
 
         @@media (min-width: 992px) {
@@ -1213,6 +1215,70 @@
             width: 80px;
             height: 80px;
         }
+
+        /* ===== RESPONSIVE MOBILE CHO CONTACT ===== */
+        @@media (max-width: 767px) {
+            /* H1 gọn hơn */
+            main h1 {
+                font-size: 2rem !important;
+                padding: 1rem 0 !important;
+                letter-spacing: 0 !important;
+            }
+            /* Section thường */
+            main > section:not(.row) {
+                padding: 1.5rem 1rem !important;
+                margin-bottom: 1rem !important;
+                border-radius: 15px !important;
+            }
+            /* === FIX 2 CỘT xếp DỌC TRÊN MOBILE === */
+            /* Bỏ card style của section.row, giữ nó là Bootstrap row thần */
+            section.row {
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            /* Buộc các col-md-* xuống 1 cột */
+            .col-md-5, .col-md-7, .col-md-6 {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            section.row > div .bg-white {
+                padding: 1.25rem !important;
+                margin-bottom: 1rem;
+                border-radius: 12px !important;
+            }
+            /* Lead text */
+            main .lead {
+                font-size: 1.05rem !important;
+                padding: 1rem !important;
+                margin: 1rem auto 1.5rem !important;
+            }
+            /* Nút gửi full width */
+            main .btn-primary-custom { width: 100%; text-align: center; }
+            /* === FOOTER MOBILE === */
+            footer .col-lg-4:first-child > .d-flex {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            footer .col-lg-4:first-child > .d-flex > .me-3 {
+                margin-right: 0 !important;
+                margin-bottom: 1rem;
+            }
+            footer h5 { text-align: center; }
+            footer .d-flex.mb-4 { justify-content: center; }
+            footer .row .col-6 { text-align: left; }
+            footer .footerlogo { width: 60px; height: 60px; }
+
+            /* Ẩn hiệu ứng lá cây bay trên mobile */
+            .floating-leaf {
+                display: none;
+            }
+        }
     </style>
 </head>
 
@@ -1379,7 +1445,7 @@
             <section class="row g-4 fade-in-element">
 
                 <!-- Thông tin liên hệ -->
-                <div class="col-md-5">
+                <div class="col-12 col-md-5">
                     <div class="bg-white h-100 p-4">
                         <h3>Thông tin liên hệ</h3>
 
@@ -1407,7 +1473,7 @@
                 </div>
 
                 <!-- FORM FORMSpree -->
-                <div class="col-md-7">
+                <div class="col-12 col-md-7">
                     <div class="bg-white p-4">
                         <h3>Gửi tin nhắn cho chúng tôi</h3>
 

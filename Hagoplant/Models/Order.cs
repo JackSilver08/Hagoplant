@@ -142,6 +142,7 @@ namespace Hagoplant.Models
             return (from, to) switch
             {
                 (Pending, AwaitingPayment) => true,
+                (Pending, Paid) => true, // Allowed to jump directly to PAID
                 (Pending, Cancelled) => true,
                 (AwaitingPayment, Paid) => true,
                 (AwaitingPayment, Cancelled) => true,

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hagoplant.Controllers
 {
@@ -234,6 +235,7 @@ namespace Hagoplant.Controllers
         // TIẾN HÀNH THANH TOÁN (GIẢ LẬP)
         // =============================
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Checkout()
         {
             var cart = await BuildCartVmAsync();
@@ -324,6 +326,7 @@ namespace Hagoplant.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Checkout(CheckoutPageVm vm)
         {
             var cart = await BuildCartVmAsync();
@@ -418,7 +421,7 @@ namespace Hagoplant.Controllers
         {
             // 1) đọc payment mới nhất của order
             var payment = await _db.Payments
-                .AsNoTracking()
+                .Include(p => p.Order)
                 .Where(p => p.OrderId == orderId)
                 .OrderByDescending(p => p.CreatedAt)
                 .FirstOrDefaultAsync();
@@ -426,8 +429,24 @@ namespace Hagoplant.Controllers
             if (payment == null)
                 return NotFound(new { ok = false, message = "Payment not found" });
 
-            // 2) trả status hiện tại trong DB
-            // PENDING / PAID / FAILED ... tùy bạn đặt
+            // 2) Kểm tra qua PayOS nếu đang PENDING
+            if (payment.Status == "PENDING" && payment.Provider == "payos" && !string.IsNullOrEmpty(payment.TransactionRef))
+            {
+                var payOsStatus = await _payOs.GetPaymentAsync(payment.TransactionRef);
+                if (payOsStatus?.data != null && payOsStatus.data.status == "PAID")
+                {
+                    payment.Status = "PAID";
+                    payment.PaidAt = DateTimeOffset.UtcNow;
+                    if (payment.Order != null)
+                    {
+                        payment.Order.PaymentStatus = "PAID";
+                        payment.Order.Status = "PAID";
+                    }
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            // 3) trả status hiện tại trong DB
             return Json(new
             {
                 ok = true,

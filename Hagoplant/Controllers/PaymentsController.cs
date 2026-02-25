@@ -15,17 +15,20 @@ namespace Hagoplant.Controllers
         private readonly IAuditService _audit;
         private readonly IConfiguration _config;
         private readonly ILogger<PaymentsController> _logger;
+        private readonly PayOsClient _payOs;
 
         public PaymentsController(
             HagoDbContext db,
             IAuditService audit,
             IConfiguration config,
-            ILogger<PaymentsController> logger)
+            ILogger<PaymentsController> logger,
+            PayOsClient payOs)
         {
             _db = db;
             _audit = audit;
             _config = config;
             _logger = logger;
+            _payOs = payOs;
         }
 
         /// <summary>
@@ -42,8 +45,35 @@ namespace Hagoplant.Controllers
             if (order == null)
                 return NotFound();
 
-            // Chỉ hiển thị trang cảm ơn, không cập nhật trạng thái
-            // Verify thực sự sẽ do webhook xử lý
+            // Nếu đang PENDING, thử hỏi PayOS
+            if (order.PaymentStatus == PaymentStatuses.Pending || order.PaymentStatus == PaymentStatuses.Unpaid)
+            {
+                var payment = order.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+                if (payment != null && payment.Status == PaymentStatuses.Pending && payment.Provider == "payos" && !string.IsNullOrEmpty(payment.TransactionRef))
+                {
+                    try
+                    {
+                        var payOsStatus = await _payOs.GetPaymentAsync(payment.TransactionRef);
+                        if (payOsStatus?.data != null && payOsStatus.data.status == "PAID")
+                        {
+                            payment.Status = PaymentStatuses.Paid;
+                            payment.PaidAt = DateTimeOffset.UtcNow;
+                            
+                            order.PaymentStatus = PaymentStatuses.Paid;
+                            order.Status = OrderStatuses.Paid;
+                            order.ConfirmedAt = DateTimeOffset.UtcNow;
+                            order.UpdatedAt = DateTimeOffset.UtcNow;
+                            
+                            await _db.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Lỗi kiểm tra trạng thái PayOS trong PayReturn");
+                    }
+                }
+            }
+
             TempData["Toast.Ok"] = "1";
             TempData["Toast.Message"] = "Cảm ơn bạn đã đặt hàng! Chúng tôi sẽ xác nhận đơn hàng của bạn trong thời gian sớm nhất.";
 

@@ -100,11 +100,16 @@
             const data = await res.json();
 
            if (data && data.paymentStatus === "PAID") {
-    statusEl.classList.remove("text-warning");
-    statusEl.classList.add("text-success");
-    statusEl.textContent = "Đã thanh toán";
-    spinner.classList.add("d-none");
-}
+                statusEl.classList.remove("text-warning");
+                statusEl.classList.add("text-success");
+                statusEl.textContent = "Đã thanh toán thành công!";
+                if (spinner) spinner.classList.add("d-none");
+                
+                // Tự động chuyển hướng về trang cảm ơn sau 1.5s
+                setTimeout(() => {
+                    window.location.href = "@Url.Action("PayReturn", "Payments")?orderId=" + orderId;
+                }, 1500);
+           }
 
         } catch (e) {
             // im lặng - tránh làm phiền người dùng

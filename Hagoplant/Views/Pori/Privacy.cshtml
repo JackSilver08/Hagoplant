@@ -299,16 +299,12 @@
         /* Responsive adjustments */
         @@media (max-width: 991px) {
             .navbar-collapse {
-                padding: 1rem 0;
+                padding: 0.75rem 0;
+                border-top: 1px solid #f0f0f0;
             }
-
-            .input-group {
-                margin-bottom: 1rem;
-            }
-
-            .navbar-nav .nav-item {
-                margin-bottom: 0.5rem;
-            }
+            .navbar-collapse .d-flex.flex-grow-1 { display: none !important; }
+            .navbar-nav .nav-item { margin-bottom: 2px; }
+            .navbar-nav .nav-link { padding: 0.6rem 1rem; border-radius: 6px; }
         }
 
         @@media (min-width: 992px) {
@@ -576,16 +572,21 @@
 
         /* Responsive footer */
         @@media (max-width: 768px) {
-            footer .d-flex.align-items-center {
+            footer .col-lg-4:first-child > .d-flex {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
             }
-
-                footer .d-flex.align-items-center .me-3 {
-                    margin-right: 0 !important;
-                    margin-bottom: 1rem;
-                }
+            footer .col-lg-4:first-child > .d-flex > .me-3 {
+                margin-right: 0 !important;
+                margin-bottom: 1rem;
+            }
+            footer h5 { text-align: center; }
+            footer .d-flex.mb-4 { justify-content: center; }
+            footer .row .col-6 { text-align: left; }
+            footer .footerlogo { width: 60px; height: 60px; }
         }
+
 
         .imglogo {
             width: 50px;
@@ -655,7 +656,8 @@
                                 <i class="fas fa-shopping-cart"></i>
                                 <span class="cart-badge">0</span>
                             </a>
-                        </li>s
+                        </li>
+
 
                         @if (User?.Identity?.IsAuthenticated == true)
                         {

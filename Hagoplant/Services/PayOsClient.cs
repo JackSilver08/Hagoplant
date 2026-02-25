@@ -43,6 +43,20 @@ namespace Hagoplant.Services
             return obj ?? throw new InvalidOperationException("payOS empty response");
         }
 
+        public async Task<PayOsGetPaymentResp?> GetPaymentAsync(string paymentLinkId)
+        {
+            using var req = new HttpRequestMessage(HttpMethod.Get, $"{_opt.BaseUrl}/v2/payment-requests/{paymentLinkId}");
+            req.Headers.Add("x-client-id", _opt.ClientId);
+            req.Headers.Add("x-api-key", _opt.ApiKey);
+
+            using var res = await _http.SendAsync(req);
+            if (!res.IsSuccessStatusCode)
+                return null;
+
+            var obj = await res.Content.ReadFromJsonAsync<PayOsGetPaymentResp>();
+            return obj;
+        }
+
         private static string HmacSha256Hex(string data, string key)
         {
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));

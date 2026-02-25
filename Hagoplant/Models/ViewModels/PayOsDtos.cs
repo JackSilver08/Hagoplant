@@ -26,4 +26,22 @@
         public string checkoutUrl { get; set; } = "";
         public string qrCode { get; set; } = "";
     }
+    
+    public class PayOsGetPaymentResp
+    {
+        public string code { get; set; } = "";
+        public string desc { get; set; } = "";
+        public PayOsGetPaymentData? data { get; set; }
+    }
+
+    public class PayOsGetPaymentData
+    {
+        public string id { get; set; } = "";
+        public int orderCode { get; set; }
+        public int amount { get; set; }
+        public int amountPaid { get; set; }
+        public int amountRemaining { get; set; }
+        public string status { get; set; } = "";
+        public string createdAt { get; set; } = "";
+    }
 }

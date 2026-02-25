@@ -280,16 +280,21 @@
 
         /* Responsive footer */
         @@media (max-width: 768px) {
-            footer .d-flex.align-items-center {
+            footer .col-lg-4:first-child > .d-flex {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
             }
-
-                footer .d-flex.align-items-center .me-3 {
-                    margin-right: 0 !important;
-                    margin-bottom: 1rem;
-                }
+            footer .col-lg-4:first-child > .d-flex > .me-3 {
+                margin-right: 0 !important;
+                margin-bottom: 1rem;
+            }
+            footer h5 { text-align: center; }
+            footer .d-flex.mb-4 { justify-content: center; }
+            footer .row .col-6 { text-align: left; }
+            footer .footerlogo { width: 60px; height: 60px; }
         }
+
 
         .imglogo {
             width: 50px;
@@ -302,9 +307,8 @@
             height: 80px;
         }
 
-        main {
-            font-size: 10px;
-        }
+
+
     </style>
 </head>
 <body>

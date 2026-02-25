@@ -17,6 +17,12 @@ namespace Hagoplant.ViewModels
         public decimal TotalRevenue { get; set; }
         public int TotalProducts { get; set; }
         public int ActiveProducts { get; set; }
+
+        public List<string> RevenueLabels { get; set; } = new();
+        public List<decimal> RevenueData { get; set; } = new();
+
+        public List<string> ProductDistributionLabels { get; set; } = new();
+        public List<int> ProductDistributionData { get; set; } = new();
     }
 
     public class AdminUserListVm
