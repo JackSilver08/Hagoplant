@@ -137,8 +137,22 @@ namespace Hagoplant.Controllers
 
             if (!ModelState.IsValid)
             {
+                // Log chi tiết lỗi để debug trên server
+                var errors = ModelState
+                    .Where(e => e.Value?.Errors.Count > 0)
+                    .Select(e => $"{e.Key}: {string.Join(", ", e.Value!.Errors.Select(x => x.ErrorMessage))}")
+                    .ToList();
+                _logger.LogWarning("CreateProduct ModelState invalid. Errors: {Errors}", string.Join(" | ", errors));
+
+                // Hiển thị lỗi cụ thể để admin biết sửa gì
+                var errorMsg = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
                 TempData["Toast.Ok"] = "0";
-                TempData["Toast.Message"] = "Dữ liệu sản phẩm không hợp lệ.";
+                TempData["Toast.Message"] = string.IsNullOrWhiteSpace(errorMsg)
+                    ? "Dữ liệu sản phẩm không hợp lệ."
+                    : errorMsg;
                 return RedirectToAction(nameof(Index));
             }
 

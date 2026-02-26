@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using System.Globalization;
 using System.Threading.RateLimiting;
 
 // =============================================
@@ -216,6 +217,19 @@ try
     app.UseSecurityHeaders();
 
     app.UseStaticFiles();
+
+    // =============================================
+    // LOCALIZATION - Fix model binding số trên server Linux
+    // Server Linux dùng InvariantCulture, khi admin nhập giá dạng "20,000" sẽ fail
+    // =============================================
+    var supportedCultures = new[] { "vi-VN", "en-US" };
+    app.UseRequestLocalization(options =>
+    {
+        options.SetDefaultCulture("vi-VN")
+               .AddSupportedCultures(supportedCultures)
+               .AddSupportedUICultures(supportedCultures);
+    });
+
     app.UseRouting();
 
     // Rate Limiting (trước Auth để block sớm)
