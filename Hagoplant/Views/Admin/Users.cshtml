@@ -1,39 +1,39 @@
-@model Hagoplant.ViewModels.AdminUserListVm
+﻿@model Hagoplant.ViewModels.AdminUserListVm
 @using Hagoplant.Models
 @using System.Security.Claims
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Quản lý Người Dùng";
+    ViewData["Title"] = "Quáº£n lÃ½ NgÆ°á»i DÃ¹ng";
 
     var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
     Guid.TryParse(currentUserIdStr, out var currentUserId);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary-custom mb-0"><i class="fas fa-users me-2"></i>Quản lý Người Dùng</h2>
+    <h2 class="text-primary-custom mb-0"><i class="fas fa-users me-2"></i>Quáº£n lÃ½ NgÆ°á»i DÃ¹ng</h2>
 </div>
 
-<!-- Bộ lọc tìm kiếm -->
-<div class="admin-card mb-4" style="border:none; box-shadow:0 3px 10px rgba(0,0,0,0.05);">
+<!-- Bá»™ lá»c tÃ¬m kiáº¿m -->
+<div class="admin-card admin-card-soft mb-4">
     <div class="card-body">
         <form method="get" action="/Admin/Users" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label text-muted small mb-1">Tìm theo Tên hoặc Email</label>
+                <label class="form-label text-muted small mb-1">TÃ¬m theo TÃªn hoáº·c Email</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-                    <input type="text" name="search" class="form-control" value="@Model.SearchQuery" placeholder="Nhập từ khóa...">
+                    <input type="text" name="search" class="form-control" value="@Model.SearchQuery" placeholder="Nháº­p tá»« khÃ³a...">
                 </div>
             </div>
             
             <div class="col-md-3">
-                <label class="form-label text-muted small mb-1">Phân quyền</label>
+                <label class="form-label text-muted small mb-1">PhÃ¢n quyá»n</label>
                 <select name="role" class="form-select">
-                    <option value="">Tất cả vai trò</option>
+                    <option value="">Táº¥t cáº£ vai trÃ²</option>
                     @foreach (var r in UserRoles.AllRoles)
                     {
                         var sIf = (Model.RoleFilter == r) ? "selected" : "";
-                        @* Cần dùng @Html.Raw để bind thuộc tính selected nếu lồng loop Razor *@
+                        @* Cáº§n dÃ¹ng @Html.Raw Ä‘á»ƒ bind thuá»™c tÃ­nh selected náº¿u lá»“ng loop Razor *@
                         if(Model.RoleFilter == r) {
                             <option value="@r" selected>@r</option>
                         } else {
@@ -44,16 +44,16 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label text-muted small mb-1">Trạng thái (IsActive)</label>
+                <label class="form-label text-muted small mb-1">Tráº¡ng thÃ¡i (IsActive)</label>
                 <select name="isActive" class="form-select">
-                    <option value="" selected="@(Model.IsActiveFilter == null ? "selected" : null)">Tất cả trạng thái</option>
-                    <option value="true" selected="@(Model.IsActiveFilter == true ? "selected" : null)">Đang hoạt động</option>
-                    <option value="false" selected="@(Model.IsActiveFilter == false ? "selected" : null)">Đã bị vô hiệu hóa</option>
+                    <option value="" selected="@(Model.IsActiveFilter == null ? "selected" : null)">Táº¥t cáº£ tráº¡ng thÃ¡i</option>
+                    <option value="true" selected="@(Model.IsActiveFilter == true ? "selected" : null)">Äang hoáº¡t Ä‘á»™ng</option>
+                    <option value="false" selected="@(Model.IsActiveFilter == false ? "selected" : null)">ÄÃ£ bá»‹ vÃ´ hiá»‡u hÃ³a</option>
                 </select>
             </div>
 
             <div class="col-md-2 d-grid">
-                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-filter me-1"></i> Lọc dữ liệu</button>
+                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-filter me-1"></i> Lá»c dá»¯ liá»‡u</button>
             </div>
         </form>
     </div>
@@ -61,7 +61,7 @@
 
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Tổng: @Model.TotalCount người dùng</h5>
+        <h5 class="mb-0">Tá»•ng: @Model.TotalCount ngÆ°á»i dÃ¹ng</h5>
     </div>
 
     <div class="card-body">
@@ -69,11 +69,11 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Khách hàng</th>
-                        <th>Vai trò</th>
-                        <th>Bảo mật</th>
-                        <th>Mốc thời gian</th>
-                        <th class="text-end">Thao tác</th>
+                        <th>KhÃ¡ch hÃ ng</th>
+                        <th>Vai trÃ²</th>
+                        <th>Báº£o máº­t</th>
+                        <th>Má»‘c thá»i gian</th>
+                        <th class="text-end">Thao tÃ¡c</th>
                     </tr>
                 </thead>
 
@@ -83,8 +83,8 @@
                         <tr>
                             <td colspan="5">
                                 <div class="empty-state py-5">
-                                    <i class="fas fa-user-slash text-muted" style="font-size:3rem"></i>
-                                    <p class="mt-3 text-muted">Không tìm thấy người dùng nào khớp với bộ lọc</p>
+                                    <i class="fas fa-user-slash text-muted icon-3rem"></i>
+                                    <p class="mt-3 text-muted">KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng nÃ o khá»›p vá»›i bá»™ lá»c</p>
                                 </div>
                             </td>
                         </tr>
@@ -98,11 +98,11 @@
                             
                             <tr>
                                 <td>
-                                    <div class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(u.FullName) ? "- Không Rõ Tên -" : u.FullName)</div>
+                                    <div class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(u.FullName) ? "- KhÃ´ng RÃµ TÃªn -" : u.FullName)</div>
                                     <div class="text-muted small">@u.Email</div>
                                     @if (!string.IsNullOrWhiteSpace(u.Phone))
                                     {
-                                        <div class="text-muted small"><i class="fas fa-phone-alt me-1" style="font-size:10px"></i> @u.Phone</div>
+                                        <div class="text-muted small"><i class="fas fa-phone-alt me-1 icon-10px"></i> @u.Phone</div>
                                     }
                                 </td>
                                 
@@ -128,29 +128,29 @@
                                     @if (isLocked)
                                     {
                                         <div class="small mt-1 text-danger">
-                                            <i class="fas fa-lock me-1"></i> Khóa tới: @(u.LockedUntil?.ToLocalTime().ToString("HH:mm dd/MM")) 
+                                            <i class="fas fa-lock me-1"></i> KhÃ³a tá»›i: @(u.LockedUntil?.ToLocalTime().ToString("HH:mm dd/MM")) 
                                         </div>
                                     }
                                     @if (u.FailedLoginAttempts > 0)
                                     {
-                                        <div class="small text-warning"><i class="fas fa-exclamation-triangle me-1"></i> @u.FailedLoginAttempts lần sai pass</div>
+                                        <div class="small text-warning"><i class="fas fa-exclamation-triangle me-1"></i> @u.FailedLoginAttempts láº§n sai pass</div>
                                     }
                                 </td>
 
                                 <td class="text-muted small">
-                                    Mới: @u.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")<br/>
-                                    Cập nhật: @u.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                    Má»›i: @u.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")<br/>
+                                    Cáº­p nháº­t: @u.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
                                 </td>
 
                                 <td class="text-end">
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" @(isSelf ? "disabled" : "")>
-                                            <i class="fas fa-cog"></i> H.Động
+                                            <i class="fas fa-cog"></i> H.Äá»™ng
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end shadow">
                                             
-                                            <!-- Thay đổi Role -->
-                                            <li><h6 class="dropdown-header">Thay đổi quyền</h6></li>
+                                            <!-- Thay Ä‘á»•i Role -->
+                                            <li><h6 class="dropdown-header">Thay Ä‘á»•i quyá»n</h6></li>
                                             @foreach (var r in UserRoles.AllRoles)
                                             {
                                                 if (u.Role != r)
@@ -160,8 +160,8 @@
                                                             @Html.AntiForgeryToken()
                                                             <input type="hidden" name="userId" value="@u.Id" />
                                                             <input type="hidden" name="newRole" value="@r" />
-                                                            <button type="submit" class="dropdown-item py-2" onclick="return confirm('Chuyển @u.Email sang Role @r?');">
-                                                                <i class="fas fa-user-tag me-2 text-muted"></i> Nâng/hạ quyền @r
+                                                            <button type="submit" class="dropdown-item py-2" onclick="return confirm('Chuyá»ƒn @u.Email sang Role @r?');">
+                                                                <i class="fas fa-user-tag me-2 text-muted"></i> NÃ¢ng/háº¡ quyá»n @r
                                                             </button>
                                                         </form>
                                                     </li>
@@ -170,24 +170,24 @@
                                             
                                             <li><hr class="dropdown-divider"></li>
 
-                                            <!-- Vô hiệu hóa/Kích hoạt -->
+                                            <!-- VÃ´ hiá»‡u hÃ³a/KÃ­ch hoáº¡t -->
                                             <li>
                                                 <form method="post" action="/Admin/ToggleUserActive">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="id" value="@u.Id" />
                                                     <button type="submit" class="dropdown-item py-2 @(u.IsActive ? "text-danger" : "text-success")">
-                                                        <i class="fas @(u.IsActive ? "fa-ban" : "fa-check-circle") me-2"></i> @(u.IsActive ? "Vô hiệu hóa tài khoản" : "Mở khóa tài khoản")
+                                                        <i class="fas @(u.IsActive ? "fa-ban" : "fa-check-circle") me-2"></i> @(u.IsActive ? "VÃ´ hiá»‡u hÃ³a tÃ i khoáº£n" : "Má»Ÿ khÃ³a tÃ i khoáº£n")
                                                     </button>
                                                 </form>
                                             </li>
 
-                                            <!-- Xóa hoàn toàn (nguy hiểm) -->
+                                            <!-- XÃ³a hoÃ n toÃ n (nguy hiá»ƒm) -->
                                             <li>
                                                 <form method="post" action="/Admin/DeleteUser">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="id" value="@u.Id" />
-                                                    <button type="submit" class="dropdown-item text-danger py-2" onclick="return confirm('CẢNH BÁO: Xóa VĨNH VIỄN người dùng này? Sẽ gây lỗi nếu user đã có đơn hàng/log.');">
-                                                        <i class="fas fa-trash-alt me-2"></i> Xóa vĩnh viễn (Nguy hiểm)
+                                                    <button type="submit" class="dropdown-item text-danger py-2" onclick="return confirm('Cáº¢NH BÃO: XÃ³a VÄ¨NH VIá»„N ngÆ°á»i dÃ¹ng nÃ y? Sáº½ gÃ¢y lá»—i náº¿u user Ä‘Ã£ cÃ³ Ä‘Æ¡n hÃ ng/log.');">
+                                                        <i class="fas fa-trash-alt me-2"></i> XÃ³a vÄ©nh viá»…n (Nguy hiá»ƒm)
                                                     </button>
                                                 </form>
                                             </li>
@@ -204,7 +204,7 @@
     </div>
 </div>
 
-<!-- Phân trang -->
+<!-- PhÃ¢n trang -->
 @if (Model.TotalPages > 1)
 {
     <nav aria-label="Page navigation" class="mt-4">
@@ -226,3 +226,4 @@
         </ul>
     </nav>
 }
+

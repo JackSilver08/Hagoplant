@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Hago Tree Admin</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Inter & Outfit -->
@@ -14,157 +15,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     @RenderSection("Styles", required: false)
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f5f8;
-            color: #2b3445;
-            -webkit-font-smoothing: antialiased;
-        }
-        h1, h2, h3, h4, h5, h6, .brand-text {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-        }
-        .text-primary-custom { color: #10b981 !important; }
-        .bg-primary-custom { background-color: #10b981 !important; }
-        .btn-primary-custom {
-            background-color: #10b981;
-            border-color: #10b981;
-            color: white;
-            border-radius: 8px;
-            font-weight: 500;
-            padding: 8px 16px;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
-            transition: all 0.2s ease;
-        }
-        .btn-primary-custom:hover { 
-            background-color: #059669; 
-            border-color: #059669; 
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.3);
-        }
-        .btn-secondary-custom {
-            background-color: transparent; 
-            border-color: #e5e7eb; 
-            color: #4b5563;
-        }
-        .btn-secondary-custom:hover { background-color: #f3f4f6; color: #111827; }
-
-        /* Header Admin */
-        .admin-header {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            height: 72px;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .footerlogo { width: 42px; height: 42px; object-fit: contain; }
-
-        /* Sidebar Admin */
-        .admin-sidebar {
-            background: #ffffff;
-            color: #4b5563;
-            min-height: calc(100vh - 72px);
-            border-right: 1px solid #e5e7eb;
-            position: sticky;
-            top: 72px;
-        }
-        .admin-sidebar .nav-link {
-            color: #4b5563;
-            padding: 10px 16px;
-            border-radius: 8px;
-            margin: 4px 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-        }
-        .admin-sidebar .nav-link:hover {
-            background-color: #f3f4f6; 
-            color: #111827; 
-        }
-        .admin-sidebar .nav-link.active {
-            background-color: #ecfdf5; 
-            color: #10b981;
-            font-weight: 600;
-        }
-        .admin-sidebar .nav-link i { width: 28px; font-size: 1.1rem; }
-
-        /* Content area */
-        .admin-content {
-            padding: 32px;
-            min-height: calc(100vh - 72px);
-        }
-
-        /* Cards */
-        .admin-card {
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            transition: box-shadow 0.3s ease;
-        }
-        .admin-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-        }
-        .admin-card-header {
-            background: #ffffff;
-            color: #111827;
-            padding: 20px 24px;
-            border-bottom: 1px solid #f3f4f6;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-        }
-
-        .table-search { max-width: 300px; border-radius: 8px; border: 1px solid #d1d5db; padding: 0.5rem 1rem;}
-        .table-search:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center; padding: 60px 20px; color: #6b7280;
-        }
-        .empty-state i {
-            font-size: 4rem; color: #e5e7eb; margin-bottom: 20px;
-        }
-
-        /* Tables override */
-        .table > :not(caption) > * > * {
-            padding: 1rem 1.25rem;
-            color: #4b5563;
-        }
-        .table-light th {
-            font-weight: 600;
-            color: #374151;
-            background-color: #f9fafb;
-            border-bottom: 2px solid #e5e7eb;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        @@media (max-width: 768px) {
-            .admin-content { padding: 16px; }
-            .table-search { max-width: 100%; margin-bottom: 15px; }
-            .admin-sidebar { min-height: auto; border-right: none; border-bottom: 1px solid #e5e7eb; position: relative; top: 0;}
-        }
-    </style>
 </head>
-<body>
+<body class="admin-layout">
 
     <header class="admin-header d-flex align-items-center px-4">
         <a href="/Admin/Index" class="text-decoration-none d-flex align-items-center">
             <img class="footerlogo me-3" src="~/images/HagoGreen.png" alt="Logo" />
-            <h4 class="brand-text text-dark mb-0 ms-1" style="font-weight: 700; font-size: 1.25rem;">HAGO TREE</h4>
-            <span class="badge bg-primary-custom ms-3 px-2 py-1 small rounded-pill">Quản trị</span>
+            <h4 class="brand-text text-dark mb-0 ms-1 admin-brand-title">HAGO TREE</h4>
+            <span class="badge bg-primary-custom ms-3 px-2 py-1 small rounded-pill">Quáº£n trá»‹</span>
         </a>
         <div class="ms-auto d-flex align-items-center">
-            <a href="/" class="btn btn-sm btn-outline-secondary me-3"><i class="fas fa-external-link-alt me-1"></i>Trang chủ</a>
+            <a href="/" class="btn btn-sm btn-outline-secondary me-3"><i class="fas fa-external-link-alt me-1"></i>Trang chá»§</a>
             <form method="post" action="/Account/Logout" class="d-inline">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-sm btn-danger px-3"><i class="fas fa-sign-out-alt me-1"></i> Đăng xuất</button>
+                <button type="submit" class="btn btn-sm btn-danger px-3"><i class="fas fa-sign-out-alt me-1"></i> ÄÄƒng xuáº¥t</button>
             </form>
         </div>
     </header>
@@ -177,29 +41,29 @@
             }
             <div class="col-lg-2 col-md-3 bg-white">
                 <div class="admin-sidebar p-3">
-                    <div class="text-xs font-weight-bold text-uppercase text-muted mb-3 px-2" style="font-size:0.75rem; letter-spacing:1px;">MENU CHÍNH</div>
+                    <div class="text-xs font-weight-bold text-uppercase text-muted mb-3 px-2 admin-sidebar-heading">MENU CHÃNH</div>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link @(currentUrl.EndsWith("/admin") || currentUrl.EndsWith("/admin/index") ? "active" : "")" href="/Admin/Index#dashboard">
-                                <i class="fas fa-chart-line"></i> Tổng quan
+                                <i class="fas fa-chart-line"></i> Tá»•ng quan
                             </a>
                         </li>
                     </ul>
-                    <div class="text-xs font-weight-bold text-uppercase text-muted mb-3 px-2" style="font-size:0.75rem; letter-spacing:1px;">QUẢN LÝ DỮ LIỆU</div>
+                    <div class="text-xs font-weight-bold text-uppercase text-muted mb-3 px-2 admin-sidebar-heading">QUáº¢N LÃ Dá»® LIá»†U</div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link @(currentUrl.Contains("/users") ? "active" : "")" href="/Admin/Users">
-                                <i class="fas fa-users-cog"></i> Người dùng
+                                <i class="fas fa-users-cog"></i> NgÆ°á»i dÃ¹ng
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentUrl.Contains("/orders") ? "active" : "")" href="/Admin/Orders">
-                                <i class="fas fa-shopping-bag"></i> Đơn hàng
+                                <i class="fas fa-shopping-bag"></i> ÄÆ¡n hÃ ng
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/Admin/Index#products">
-                                <i class="fas fa-leaf"></i> Sản phẩm
+                                <i class="fas fa-leaf"></i> Sáº£n pháº©m
                             </a>
                         </li>
                         <li class="nav-item">
@@ -209,7 +73,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentUrl.Contains("/auditlogs") ? "active" : "")" href="/Admin/AuditLogs">
-                                <i class="fas fa-shield-alt"></i> Nhật ký hệ thống
+                                <i class="fas fa-shield-alt"></i> Nháº­t kÃ½ há»‡ thá»‘ng
                             </a>
                         </li>
                     </ul>
@@ -219,11 +83,11 @@
             <!-- Main Content -->
             <div class="col-lg-10 col-md-9 pt-2">
                 <div class="admin-content">
-                    <!-- Toast thông báo -->
+                    <!-- Toast thÃ´ng bÃ¡o -->
                     @if (TempData["Toast.Message"] != null)
                     {
                         var isOk = (string)TempData["Toast.Ok"] == "1";
-                        <div class="alert alert-@(isOk ? "success" : "danger") alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid @(isOk ? "#198754" : "#dc3545");">
+                        <div class="alert alert-@(isOk ? "success" : "danger") alert-dismissible fade show shadow-sm @(isOk ? "admin-alert-success" : "admin-alert-danger")" role="alert">
                             <i class="fas @(isOk ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
                             @TempData["Toast.Message"]
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -242,3 +106,5 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+
+

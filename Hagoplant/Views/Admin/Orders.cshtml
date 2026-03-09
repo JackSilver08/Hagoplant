@@ -1,31 +1,31 @@
-@model Hagoplant.ViewModels.AdminOrderListVm
+﻿@model Hagoplant.ViewModels.AdminOrderListVm
 @using Hagoplant.Models
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Quản lý Đơn Hàng";
+    ViewData["Title"] = "Quáº£n lÃ½ ÄÆ¡n HÃ ng";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary-custom mb-0"><i class="fas fa-shopping-cart me-2"></i>Quản lý Đơn Hàng</h2>
+    <h2 class="text-primary-custom mb-0"><i class="fas fa-shopping-cart me-2"></i>Quáº£n lÃ½ ÄÆ¡n HÃ ng</h2>
 </div>
 
-<!-- Bộ lọc tìm kiếm -->
-<div class="admin-card mb-4" style="border:none; box-shadow:0 3px 10px rgba(0,0,0,0.05);">
+<!-- Bá»™ lá»c tÃ¬m kiáº¿m -->
+<div class="admin-card admin-card-soft mb-4">
     <div class="card-body">
         <form method="get" action="/Admin/Orders" class="row g-3 align-items-end">
             <div class="col-md-5">
-                <label class="form-label text-muted small mb-1">Tìm theo Mã đơn, Email, Tên</label>
+                <label class="form-label text-muted small mb-1">TÃ¬m theo MÃ£ Ä‘Æ¡n, Email, TÃªn</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-                    <input type="text" name="search" class="form-control" value="@Model.SearchQuery" placeholder="Ví dụ: #ORD-1234...">
+                    <input type="text" name="search" class="form-control" value="@Model.SearchQuery" placeholder="VÃ­ dá»¥: #ORD-1234...">
                 </div>
             </div>
             
             <div class="col-md-4">
-                <label class="form-label text-muted small mb-1">Trạng thái (Status)</label>
+                <label class="form-label text-muted small mb-1">Tráº¡ng thÃ¡i (Status)</label>
                 <select name="status" class="form-select">
-                    <option value="">Tất cả trạng thái</option>
+                    <option value="">Táº¥t cáº£ tráº¡ng thÃ¡i</option>
                     @foreach (var s in OrderStatuses.AllStatuses)
                     {
                         if(Model.StatusFilter == s){
@@ -38,7 +38,7 @@
             </div>
 
             <div class="col-md-3 d-grid">
-                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-filter me-1"></i> Tìm Đơn Hàng</button>
+                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-filter me-1"></i> TÃ¬m ÄÆ¡n HÃ ng</button>
             </div>
         </form>
     </div>
@@ -46,7 +46,7 @@
 
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Tổng: @Model.TotalCount đơn hàng</h5>
+        <h5 class="mb-0">Tá»•ng: @Model.TotalCount Ä‘Æ¡n hÃ ng</h5>
     </div>
 
     <div class="card-body p-0">
@@ -54,11 +54,11 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-3">Mã Đơn / Ngày tạo</th>
-                        <th>Khách hàng</th>
-                        <th>Thanh toán</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end pe-3">Thao tác</th>
+                        <th class="ps-3">MÃ£ ÄÆ¡n / NgÃ y táº¡o</th>
+                        <th>KhÃ¡ch hÃ ng</th>
+                        <th>Thanh toÃ¡n</th>
+                        <th>Tráº¡ng thÃ¡i</th>
+                        <th class="text-end pe-3">Thao tÃ¡c</th>
                     </tr>
                 </thead>
 
@@ -68,8 +68,8 @@
                         <tr>
                             <td colspan="5">
                                 <div class="empty-state py-5">
-                                    <i class="fas fa-box-open text-muted" style="font-size:3rem"></i>
-                                    <p class="mt-3 text-muted">Không tìm thấy đơn hàng nào</p>
+                                    <i class="fas fa-box-open text-muted icon-3rem"></i>
+                                    <p class="mt-3 text-muted">KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng nÃ o</p>
                                 </div>
                             </td>
                         </tr>
@@ -105,12 +105,12 @@
                                 
                                 <td>
                                     <div class="fw-semibold">@o.CustomerName</div>
-                                    <div class="text-muted small"><i class="fas fa-envelope me-1" style="font-size:10px"></i> @o.Email</div>
-                                    <div class="text-muted small"><i class="fas fa-phone-alt me-1" style="font-size:10px"></i> @o.Phone</div>
+                                    <div class="text-muted small"><i class="fas fa-envelope me-1 icon-10px"></i> @o.Email</div>
+                                    <div class="text-muted small"><i class="fas fa-phone-alt me-1 icon-10px"></i> @o.Phone</div>
                                 </td>
 
                                 <td>
-                                    <div class="fw-bold fs-6 text-danger">@string.Format("{0:N0} ₫", o.TotalAmount)</div>
+                                    <div class="fw-bold fs-6 text-danger">@string.Format("{0:N0} â‚«", o.TotalAmount)</div>
                                     <span class="badge @pbClass">@o.PaymentStatus</span>
                                     @if(o.PaymentMethod != "COD") {
                                         <div class="text-muted small mt-1">@o.PaymentMethod</div>
@@ -123,12 +123,12 @@
 
                                 <td class="text-end pe-3">
                                     <button class="btn btn-sm btn-outline-primary mb-1 w-100" data-bs-toggle="modal" data-bs-target="#updateStatusModal-@o.Id">
-                                        <i class="fas fa-sync-alt me-1"></i> Cập nhật Status
+                                        <i class="fas fa-sync-alt me-1"></i> Cáº­p nháº­t Status
                                     </button>
                                 </td>
                             </tr>
 
-                            <!-- Modal cập nhật trạng thái đơn hàng -->
+                            <!-- Modal cáº­p nháº­t tráº¡ng thÃ¡i Ä‘Æ¡n hÃ ng -->
                             <div class="modal fade" id="updateStatusModal-@o.Id" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content text-start">
@@ -137,28 +137,28 @@
                                             <input type="hidden" name="OrderId" value="@o.Id" />
 
                                             <div class="modal-header bg-light">
-                                                <h5 class="modal-title">Cập nhật đơn hàng #@(o.OrderNumber ?? o.Id.ToString().Substring(0,8).ToUpper())</h5>
+                                                <h5 class="modal-title">Cáº­p nháº­t Ä‘Æ¡n hÃ ng #@(o.OrderNumber ?? o.Id.ToString().Substring(0,8).ToUpper())</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-bold">Trạng thái hiện tại:</label>
+                                                    <label class="form-label fw-bold">Tráº¡ng thÃ¡i hiá»‡n táº¡i:</label>
                                                     <span class="badge @bClass ms-2">@OrderStatuses.GetDisplayName(o.Status)</span>
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-bold">Trạng thái MỚI</label>
+                                                    <label class="form-label fw-bold">Tráº¡ng thÃ¡i Má»šI</label>
                                                     <select class="form-select status-select" name="NewStatus" data-target="cancel-reason-@o.Id" required>
-                                                        <option value="">-- Chọn trạng thái mới --</option>
+                                                        <option value="">-- Chá»n tráº¡ng thÃ¡i má»›i --</option>
                                                         @foreach(var ns in OrderStatuses.AllStatuses) {
                                                             if (ns != o.Status)
                                                             {
-                                                                // Chỉ cho phép chuyển trạng thái theo đúng State Machine
+                                                                // Chá»‰ cho phÃ©p chuyá»ƒn tráº¡ng thÃ¡i theo Ä‘Ãºng State Machine
                                                                 bool canTrans = OrderStatuses.CanTransition(o.Status, ns);
                                                                 if(canTrans) {
-                                                                    <option value="@ns">Chuyển sang: @OrderStatuses.GetDisplayName(ns)</option>
+                                                                    <option value="@ns">Chuyá»ƒn sang: @OrderStatuses.GetDisplayName(ns)</option>
                                                                 } else {
-                                                                    <option value="@ns" disabled>(Không hợp lệ) @OrderStatuses.GetDisplayName(ns)</option>
+                                                                    <option value="@ns" disabled>(KhÃ´ng há»£p lá»‡) @OrderStatuses.GetDisplayName(ns)</option>
                                                                 }
                                                             }
                                                         }
@@ -166,18 +166,18 @@
                                                 </div>
 
                                                 <div class="mb-3 cancel-reason-group d-none" id="cancel-reason-@o.Id">
-                                                    <label class="form-label fw-bold text-danger">Lý do HỦY ĐƠN HÀNG (Bắt buộc khi HỦY)</label>
-                                                    <textarea class="form-control" name="CancelReason" rows="2" placeholder="Nhập lý do hủy đơn cho khách hàng..."></textarea>
+                                                    <label class="form-label fw-bold text-danger">LÃ½ do Há»¦Y ÄÆ N HÃ€NG (Báº¯t buá»™c khi Há»¦Y)</label>
+                                                    <textarea class="form-control" name="CancelReason" rows="2" placeholder="Nháº­p lÃ½ do há»§y Ä‘Æ¡n cho khÃ¡ch hÃ ng..."></textarea>
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-bold text-muted">Ghi chú nội bộ Admin (Tùy chọn)</label>
-                                                    <textarea class="form-control" name="AdminNotes" rows="2" placeholder="Ghi chú thêm về đơn hàng (không hiển thị cho khách)..."></textarea>
+                                                    <label class="form-label fw-bold text-muted">Ghi chÃº ná»™i bá»™ Admin (TÃ¹y chá»n)</label>
+                                                    <textarea class="form-control" name="AdminNotes" rows="2" placeholder="Ghi chÃº thÃªm vá» Ä‘Æ¡n hÃ ng (khÃ´ng hiá»ƒn thá»‹ cho khÃ¡ch)..."></textarea>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-save me-1"></i> Lưu thay đổi</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ÄÃ³ng</button>
+                                                <button type="submit" class="btn btn-primary-custom"><i class="fas fa-save me-1"></i> LÆ°u thay Ä‘á»•i</button>
                                             </div>
                                         </form>
                                     </div>
@@ -191,7 +191,7 @@
     </div>
 </div>
 
-<!-- Phân trang -->
+<!-- PhÃ¢n trang -->
 @if (Model.TotalPages > 1)
 {
     var qString = $"&search={Model.SearchQuery}&status={Model.StatusFilter}";
@@ -218,7 +218,7 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Hiển thị khung nhập "Lý do hủy đơn" nếu chọn status là Cancelled
+            // Hiá»ƒn thá»‹ khung nháº­p "LÃ½ do há»§y Ä‘Æ¡n" náº¿u chá»n status lÃ  Cancelled
             $('.status-select').change(function() {
                 var val = $(this).val();
                 var targetId = $(this).data('target');
@@ -233,3 +233,4 @@
         });
     </script>
 }
+

@@ -1,8 +1,8 @@
-@using Hagoplant.Models
+﻿@using Hagoplant.Models
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Nhật Ký Hệ Thống (Audit Logs)";
+    ViewData["Title"] = "Nháº­t KÃ½ Há»‡ Thá»‘ng (Audit Logs)";
 
     var logs = ViewBag.Logs as List<AuditLog>;
     var totalCount = (int)ViewBag.TotalCount;
@@ -11,22 +11,22 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary-custom mb-0"><i class="fas fa-shield-alt me-2"></i>Nhật ký Hệ Thống</h2>
+    <h2 class="text-primary-custom mb-0"><i class="fas fa-shield-alt me-2"></i>Nháº­t kÃ½ Há»‡ Thá»‘ng</h2>
     <div>
         <span class="badge bg-secondary-subtle text-secondary py-2 px-3 fs-6 rounded-pill">
-            <i class="fas fa-database me-1"></i> @totalCount bản ghi log
+            <i class="fas fa-database me-1"></i> @totalCount báº£n ghi log
         </span>
     </div>
 </div>
 
-<!-- Bộ Lọc Audit Logs -->
-<div class="admin-card mb-4" style="border:none; box-shadow:0 3px 10px rgba(0,0,0,0.05);">
+<!-- Bá»™ Lá»c Audit Logs -->
+<div class="admin-card admin-card-soft mb-4">
     <div class="card-body bg-light rounded-3 p-4">
         <form method="get" action="/Admin/AuditLogs" class="row g-3">
             <div class="col-md-3">
-                <label class="form-label text-muted fw-bold small">Hành động (Action)</label>
+                <label class="form-label text-muted fw-bold small">HÃ nh Ä‘á»™ng (Action)</label>
                 <select name="action" class="form-select">
-                    <option value="">Tất cả thao tác</option>
+                    <option value="">Táº¥t cáº£ thao tÃ¡c</option>
                     @foreach(var act in AuditActions.AllActions)
                     {
                         if(ViewBag.ActionFilter == act){
@@ -39,40 +39,40 @@
             </div>
             
             <div class="col-md-3">
-                <label class="form-label text-muted fw-bold small">Email Người dùng</label>
+                <label class="form-label text-muted fw-bold small">Email NgÆ°á»i dÃ¹ng</label>
                 <input type="text" name="userEmail" class="form-control" value="@ViewBag.UserEmailFilter" placeholder="admin@domain.com">
             </div>
 
             <div class="col-md-2">
-                <label class="form-label text-muted fw-bold small">Từ ngày</label>
+                <label class="form-label text-muted fw-bold small">Tá»« ngÃ y</label>
                 <input type="date" name="from" class="form-control" value="@(Context.Request.Query["from"])">
             </div>
 
             <div class="col-md-2">
-                <label class="form-label text-muted fw-bold small">Tới ngày</label>
+                <label class="form-label text-muted fw-bold small">Tá»›i ngÃ y</label>
                 <input type="date" name="to" class="form-control" value="@(Context.Request.Query["to"])">
             </div>
 
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary-custom w-100"><i class="fas fa-filter me-1"></i> Truy xuất</button>
+                <button type="submit" class="btn btn-primary-custom w-100"><i class="fas fa-filter me-1"></i> Truy xuáº¥t</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Bảng Log -->
+<!-- Báº£ng Log -->
 <div class="admin-card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0 align-middle text-sm" style="font-size:0.9rem;">
+            <table class="table table-hover table-striped mb-0 align-middle text-sm text-09rem">
                 <thead class="table-dark">
                     <tr>
-                        <th class="py-3 px-3">Thời gian</th>
-                        <th>Hành động (Action)</th>
-                        <th>Người thực hiện</th>
-                        <th>Mục tiêu (Entity)</th>
-                        <th>Trạng thái</th>
-                        <th>Môi trường (IP)</th>
+                        <th class="py-3 px-3">Thá»i gian</th>
+                        <th>HÃ nh Ä‘á»™ng (Action)</th>
+                        <th>NgÆ°á»i thá»±c hiá»‡n</th>
+                        <th>Má»¥c tiÃªu (Entity)</th>
+                        <th>Tráº¡ng thÃ¡i</th>
+                        <th>MÃ´i trÆ°á»ng (IP)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
                                 <i class="fas fa-ghost fs-1 mb-3 opacity-25"></i>
-                                <br/>Không có dữ liệu nhật ký phù hợp (Audit Logs is empty).
+                                <br/>KhÃ´ng cÃ³ dá»¯ liá»‡u nháº­t kÃ½ phÃ¹ há»£p (Audit Logs is empty).
                             </td>
                         </tr>
                     }
@@ -92,7 +92,7 @@
                             var badgeClass = a.Result == AuditResult.Success ? "bg-success" : (a.Result == AuditResult.Failure ? "bg-danger" : "bg-warning");
                             
                             <tr>
-                                <td class="px-3" style="width:160px;">
+                                <td class="px-3 cell-w-160">
                                     <strong>@a.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong><br/>
                                     <span class="text-muted"><i class="far fa-clock"></i> @a.CreatedAt.ToLocalTime().ToString("HH:mm:ss")</span>
                                 </td>
@@ -101,7 +101,7 @@
                                     <span class="badge bg-secondary mb-1">@a.Action</span>
                                     @if (!string.IsNullOrEmpty(a.Details))
                                     {
-                                        <div class="text-muted font-monospace mt-1" style="font-size:0.8rem;">
+                                        <div class="text-muted font-monospace mt-1 text-08rem">
                                             &gt; @(a.Details.Length > 80 ? a.Details.Substring(0, 80) + "..." : a.Details)
                                         </div>
                                     }
@@ -110,7 +110,7 @@
                                 <td>
                                     @if(a.UserId.HasValue){
                                         <div class="fw-bold">@a.UserEmail</div>
-                                        <div class="text-muted" style="font-size:10px;">ID: @a.UserId.Value.ToString().Substring(0,8)...</div>
+                                        <div class="text-muted text-10px">ID: @a.UserId.Value.ToString().Substring(0,8)...</div>
                                     } else {
                                         <span class="text-muted font-monospace">System/Guest</span>
                                     }
@@ -121,7 +121,7 @@
                                     {
                                         <span class="badge border border-dark text-dark fw-bold">@a.EntityType</span>
                                         @if(!string.IsNullOrEmpty(a.EntityId)) {
-                                            <div class="mt-1 font-monospace text-muted" style="font-size:10px;">@a.EntityId.Substring(0, Math.Min(a.EntityId.Length, 12))...</div>
+                                            <div class="mt-1 font-monospace text-muted text-10px">@a.EntityId.Substring(0, Math.Min(a.EntityId.Length, 12))...</div>
                                         }
                                     }
                                     else
@@ -137,9 +137,9 @@
                                     }
                                 </td>
 
-                                <td style="max-width:200px; word-wrap:break-word;">
+                                <td class="cell-max-200">
                                     <code>@a.IpAddress</code>
-                                    <div class="text-muted text-truncate" title="@a.UserAgent" style="max-width:180px; font-size:10px;">@a.UserAgent</div>
+                                    <div class="text-muted text-truncate agent-truncate" title="@a.UserAgent">@a.UserAgent</div>
                                 </td>
                             </tr>
                         }
@@ -150,7 +150,7 @@
     </div>
 </div>
 
-<!-- Phân trang Audit -->
+<!-- PhÃ¢n trang Audit -->
 @if (totalPages > 1)
 {
     var qString = $"&action={ViewBag.ActionFilter}&userEmail={ViewBag.UserEmailFilter}&from={Context.Request.Query["from"]}&to={Context.Request.Query["to"]}";
@@ -173,3 +173,4 @@
         </ul>
     </nav>
 }
+

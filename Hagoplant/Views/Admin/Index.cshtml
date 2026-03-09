@@ -1,8 +1,8 @@
-@model Hagoplant.ViewModels.AdminDashboardVm
+﻿@model Hagoplant.ViewModels.AdminDashboardVm
 @using System.Linq
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Tổng quan hệ thống";
+    ViewData["Title"] = "Tá»•ng quan há»‡ thá»‘ng";
 }
 
 @section Styles {
@@ -95,35 +95,35 @@
                 font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             }
 
-        /* === PRODUCT MODALS: luôn scroll được, nút luôn hiện === */
+        /* === PRODUCT MODALS: luÃ´n scroll Ä‘Æ°á»£c, nÃºt luÃ´n hiá»‡n === */
         #addProductModal .modal-dialog,
         #editProductModal .modal-dialog {
-            max-width: 980px; /* tùy bạn */
+            max-width: 980px; /* tÃ¹y báº¡n */
         }
 
         #addProductModal .modal-content,
         #editProductModal .modal-content {
-            max-height: 125vh; /* quan trọng: khóa chiều cao */
+            max-height: 125vh; /* quan trá»ng: khÃ³a chiá»u cao */
             display: flex;
             flex-direction: column;
         }
 
         #addProductModal .modal-body,
         #editProductModal .modal-body {
-            overflow-y: auto; /* body cuộn */
+            overflow-y: auto; /* body cuá»™n */
             flex: 1 1 auto;
         }
 
         #addProductModal .modal-footer,
         #editProductModal .modal-footer {
-            position: sticky; /* footer luôn hiện */
+            position: sticky; /* footer luÃ´n hiá»‡n */
             bottom: 0;
             background: #fff;
             z-index: 10;
             border-top: 1px solid #eee;
         }
 
-        /* === BLOG MODALS: giới hạn chiều cao để modal luôn cuộn được === */
+        /* === BLOG MODALS: giá»›i háº¡n chiá»u cao Ä‘á»ƒ modal luÃ´n cuá»™n Ä‘Æ°á»£c === */
         #addBlogModal .modal-dialog,
         #editBlogModal .modal-dialog {
             max-width: 1140px;
@@ -139,7 +139,7 @@
             overflow-y: auto;
         }
 
-        /* footer luôn hiện, không bị trôi mất khi scroll */
+        /* footer luÃ´n hiá»‡n, khÃ´ng bá»‹ trÃ´i máº¥t khi scroll */
         #addBlogModal .modal-footer,
         #editBlogModal .modal-footer {
             position: sticky;
@@ -149,10 +149,10 @@
             border-top: 1px solid #eee;
         }
 
-        /* === EasyMDE/CodeMirror: KHÓA chiều cao để bài dài scroll bên trong editor === */
+        /* === EasyMDE/CodeMirror: KHÃ“A chiá»u cao Ä‘á»ƒ bÃ i dÃ i scroll bÃªn trong editor === */
         #addBlogModal .EasyMDEContainer .CodeMirror,
         #editBlogModal .EasyMDEContainer .CodeMirror {
-            height: 52vh; /* bạn có thể tăng/giảm */
+            height: 52vh; /* báº¡n cÃ³ thá»ƒ tÄƒng/giáº£m */
             max-height: 52vh;
         }
 
@@ -161,7 +161,7 @@
             max-height: 52vh;
         }
 
-        /* Preview bạn đã có overflow:auto rồi, ok */
+        /* Preview báº¡n Ä‘Ã£ cÃ³ overflow:auto rá»“i, ok */
 
         .imglogo {
             width: 50px;
@@ -181,36 +181,36 @@
 <!-- dashboard -->
 <section id="dashboard" class="section-content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-dark mb-0 brand-text">Tổng quan hệ thống</h2>
+        <h2 class="text-dark mb-0 brand-text">Tá»•ng quan há»‡ thá»‘ng</h2>
     </div>
 
     <div class="row mb-5">
         <div class="col-xl-3 col-md-6 mb-4 mb-xl-0">
             <div class="stat-card revenue">
                 <i class="fas fa-wallet text-white"></i>
-                <div class="number">@string.Format("{0:N0} ₫", Model.TotalRevenue)</div>
-                <div class="label">Doanh thu tích lũy</div>
+                <div class="number">@string.Format("{0:N0} â‚«", Model.TotalRevenue)</div>
+                <div class="label">Doanh thu tÃ­ch lÅ©y</div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 mb-xl-0">
             <div class="stat-card users">
                 <i class="fas fa-users text-white"></i>
                 <div class="number">@Model.TotalUsers</div>
-                <div class="label">Người dùng</div>
+                <div class="label">NgÆ°á»i dÃ¹ng</div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 mb-xl-0">
             <div class="stat-card products">
                 <i class="fas fa-spa text-white"></i>
                 <div class="number">@Model.TotalProducts</div>
-                <div class="label">Sản phẩm</div>
+                <div class="label">Sáº£n pháº©m</div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="stat-card orders">
                 <i class="fas fa-shopping-bag text-white"></i>
                 <div class="number">@Model.TotalOrders</div>
-                <div class="label">Đơn hàng</div>
+                <div class="label">ÄÆ¡n hÃ ng</div>
             </div>
         </div>
     </div>
@@ -219,9 +219,9 @@
         <div class="col-md-8 mb-4">
             <div class="admin-card h-100">
                 <div class="admin-card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 text-dark">Doanh thu 6 tháng gần nhất</h6>
+                    <h6 class="mb-0 text-dark">Doanh thu 6 thÃ¡ng gáº§n nháº¥t</h6>
                 </div>
-                <div class="card-body p-4 w-100" style="height: 350px;">
+                <div class="card-body p-4 w-100 panel-h-350">
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
@@ -229,9 +229,9 @@
         <div class="col-md-4 mb-4">
             <div class="admin-card h-100">
                 <div class="admin-card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 text-dark">Phân loại sản phẩm</h6>
+                    <h6 class="mb-0 text-dark">PhÃ¢n loáº¡i sáº£n pháº©m</h6>
                 </div>
-                <div class="card-body p-4 w-100 d-flex justify-content-center align-items-center" style="height: 350px;">
+                <div class="card-body p-4 w-100 d-flex justify-content-center align-items-center panel-h-350">
                     <canvas id="productChart"></canvas>
                 </div>
             </div>
@@ -242,23 +242,23 @@
 <section id="products" class="section-content d-none">
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="text-primary-custom mb-0">Quản lý sản phẩm</h2>
+                            <h2 class="text-primary-custom mb-0">Quáº£n lÃ½ sáº£n pháº©m</h2>
                             <button class="btn btn-primary-custom"
                                     data-bs-toggle="modal"
                                     data-bs-target="#addProductModal">
-                                <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                                <i class="fas fa-plus me-2"></i>ThÃªm sáº£n pháº©m
                             </button>
                         </div>
 
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-tree me-2"></i>Danh sách sản phẩm
+                                    <i class="fas fa-tree me-2"></i>Danh sÃ¡ch sáº£n pháº©m
                                 </h5>
                                 <input id="productSearch"
                                        type="text"
                                        class="form-control table-search"
-                                       placeholder="Tìm theo tên, slug, id..." />
+                                       placeholder="TÃ¬m theo tÃªn, slug, id..." />
                             </div>
 
                             <div class="card-body">
@@ -267,15 +267,15 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th style="min-width:180px;">ID</th>
-                                                <th style="width:90px;">Ảnh</th>
-                                                <th style="min-width:220px;">Tên sản phẩm</th>
+                                                <th style="width:90px;">áº¢nh</th>
+                                                <th style="min-width:220px;">TÃªn sáº£n pháº©m</th>
                                                 <th style="min-width:200px;">Slug</th>
-                                                <th style="min-width:120px;">Giá</th>
-                                                <th style="min-width:120px;">Giá sale</th>
-                                                <th style="min-width:110px;">Đang bán</th>
-                                                <th style="min-width:110px;">Nổi bật</th>
-                                                <th style="min-width:170px;">Ngày tạo</th>
-                                                <th style="min-width:140px;">Thao tác</th>
+                                                <th style="min-width:120px;">GiÃ¡</th>
+                                                <th style="min-width:120px;">GiÃ¡ sale</th>
+                                                <th style="min-width:110px;">Äang bÃ¡n</th>
+                                                <th style="min-width:110px;">Ná»•i báº­t</th>
+                                                <th style="min-width:170px;">NgÃ y táº¡o</th>
+                                                <th style="min-width:140px;">Thao tÃ¡c</th>
                                             </tr>
                                         </thead>
 
@@ -286,7 +286,7 @@
                                                     <td colspan="10">
                                                         <div class="empty-state py-5 text-center">
                                                             <i class="fas fa-tree"></i>
-                                                            <p class="mb-0">Chưa có sản phẩm nào</p>
+                                                            <p class="mb-0">ChÆ°a cÃ³ sáº£n pháº©m nÃ o</p>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -304,8 +304,7 @@
                                                             @if (!string.IsNullOrWhiteSpace(p.ImageUrl))
                                                             {
                                                                 <img src="@p.ImageUrl"
-                                                                     class="rounded"
-                                                                     style="width:60px;height:60px;object-fit:cover;" />
+                                                                     class="rounded thumb-60" />
                                                             }
                                                             else
                                                             {
@@ -372,7 +371,7 @@
                                                             <form method="post"
                                                                   action="/Admin/DeleteProduct"
                                                                   class="d-inline"
-                                                                  onsubmit="return confirm('Xóa sản phẩm này?');">
+                                                                  onsubmit="return confirm('XÃ³a sáº£n pháº©m nÃ y?');">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="id" value="@p.Id" />
                                                                 <button type="submit"
@@ -393,17 +392,17 @@
 <!-- blog -->
 <section id="blog" class="section-content d-none">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="text-primary-custom mb-0">Quản lý bài viết blog</h2>
+                            <h2 class="text-primary-custom mb-0">Quáº£n lÃ½ bÃ i viáº¿t blog</h2>
                             <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addBlogModal">
-                                <i class="fas fa-plus me-2"></i>Viết bài mới
+                                <i class="fas fa-plus me-2"></i>Viáº¿t bÃ i má»›i
                             </button>
                         </div>
 
                         <div class="admin-card">
                             <div class="admin-card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="fas fa-blog me-2"></i>Danh sách bài viết</h5>
+                                <h5 class="mb-0"><i class="fas fa-blog me-2"></i>Danh sÃ¡ch bÃ i viáº¿t</h5>
                                 <input id="blogSearch" type="text" class="form-control table-search"
-                                       placeholder="Tìm theo tiêu đề, slug, id...">
+                                       placeholder="TÃ¬m theo tiÃªu Ä‘á», slug, id...">
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -411,11 +410,11 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Tiêu đề</th>
-                                                <th>Tác giả</th>
-                                                <th>Ngày đăng</th>
-                                                <th>Lượt xem</th>
-                                                <th>Thao tác</th>
+                                                <th>TiÃªu Ä‘á»</th>
+                                                <th>TÃ¡c giáº£</th>
+                                                <th>NgÃ y Ä‘Äƒng</th>
+                                                <th>LÆ°á»£t xem</th>
+                                                <th>Thao tÃ¡c</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -425,7 +424,7 @@
                                                     <td colspan="6">
                                                         <div class="empty-state py-5">
                                                             <i class="fas fa-blog"></i>
-                                                            <p>Chưa có bài viết nào</p>
+                                                            <p>ChÆ°a cÃ³ bÃ i viáº¿t nÃ o</p>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -454,7 +453,7 @@
                                                             <form method="post"
                                                                   action="/Admin/DeleteBlogPost"
                                                                   class="d-inline"
-                                                                  onsubmit="return confirm('Xóa bài viết này?');">
+                                                                  onsubmit="return confirm('XÃ³a bÃ i viáº¿t nÃ y?');">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="id" value="@b.Id" />
                                                                 <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
@@ -462,7 +461,7 @@
                                                                 </button>
                                                             </form>
 
-                                                            <!-- JSON data cho JS đọc (tránh data-* bị vỡ do HTML dài) -->
+                                                            <!-- JSON data cho JS Ä‘á»c (trÃ¡nh data-* bá»‹ vá»¡ do HTML dÃ i) -->
                                                             <script type="application/json" id="blog-data-@b.Id">
                                                                 @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
                                                                     id = b.Id,
@@ -487,15 +486,15 @@
                     </section>
 <!-- reports -->
 <section id="reports" class="section-content d-none">
-                        <h2 class="text-primary-custom mb-4">Báo cáo & Thống kê</h2>
+                        <h2 class="text-primary-custom mb-4">BÃ¡o cÃ¡o & Thá»‘ng kÃª</h2>
                         <div class="row">
                             <div class="col-12">
                                 <div class="admin-card">
-                                    <div class="admin-card-header"><h5 class="mb-0">Thống kê chi tiết</h5></div>
+                                    <div class="admin-card-header"><h5 class="mb-0">Thá»‘ng kÃª chi tiáº¿t</h5></div>
                                     <div class="card-body p-5">
                                         <div class="empty-state">
                                             <i class="fas fa-chart-bar"></i>
-                                            <p>Chưa có dữ liệu để hiển thị báo cáo</p>
+                                            <p>ChÆ°a cÃ³ dá»¯ liá»‡u Ä‘á»ƒ hiá»ƒn thá»‹ bÃ¡o cÃ¡o</p>
                                         </div>
                                     </div>
                                 </div>
@@ -503,15 +502,15 @@
                         </div>
                     </section>
 
-<!-- Modal Thêm sản phẩm -->
+<!-- Modal ThÃªm sáº£n pháº©m -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary-custom text-white">
                     <h5 class="modal-title" id="addProductModalLabel">
-                        <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                        <i class="fas fa-plus me-2"></i>ThÃªm sáº£n pháº©m
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ÄÃ³ng"></button>
                 </div>
 
                 <form method="post"
@@ -527,15 +526,15 @@
 
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <label class="form-label">TÃªn sáº£n pháº©m <span class="text-danger">*</span></label>
                                 <input type="text"
                                        class="form-control"
                                        id="productName"
                                        name="Name"
                                        required
                                        maxlength="200"
-                                       placeholder="Ví dụ: Cây Trầu Bà Leo Cột" />
-                                <div class="invalid-feedback">Vui lòng nhập tên sản phẩm.</div>
+                                       placeholder="VÃ­ dá»¥: CÃ¢y Tráº§u BÃ  Leo Cá»™t" />
+                                <div class="invalid-feedback">Vui lÃ²ng nháº­p tÃªn sáº£n pháº©m.</div>
                             </div>
 
                             <div class="col-md-4">
@@ -547,21 +546,21 @@
                                        required
                                        maxlength="250"
                                        placeholder="cay-trau-ba-leo-cot" />
-                                <div class="invalid-feedback">Vui lòng nhập slug.</div>
-                                <small class="text-muted">Tự tạo từ tên, bạn có thể sửa lại.</small>
+                                <div class="invalid-feedback">Vui lÃ²ng nháº­p slug.</div>
+                                <small class="text-muted">Tá»± táº¡o tá»« tÃªn, báº¡n cÃ³ thá»ƒ sá»­a láº¡i.</small>
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Mô tả</label>
+                                <label class="form-label">MÃ´ táº£</label>
                                 <textarea class="form-control"
                                           id="productDescription"
                                           name="Description"
                                           rows="4"
-                                          placeholder="Mô tả ngắn về sản phẩm..."></textarea>
+                                          placeholder="MÃ´ táº£ ngáº¯n vá» sáº£n pháº©m..."></textarea>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Giá gốc (Price) <span class="text-danger">*</span></label>
+                                <label class="form-label">GiÃ¡ gá»‘c (Price) <span class="text-danger">*</span></label>
                                 <input type="number"
                                        class="form-control"
                                        id="productPrice"
@@ -570,24 +569,24 @@
                                        step="0.01"
                                        min="0"
                                        placeholder="0" />
-                                <div class="invalid-feedback">Vui lòng nhập giá hợp lệ.</div>
+                                <div class="invalid-feedback">Vui lÃ²ng nháº­p giÃ¡ há»£p lá»‡.</div>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Giá sale (SalePrice)</label>
+                                <label class="form-label">GiÃ¡ sale (SalePrice)</label>
                                 <input type="number"
                                        class="form-control"
                                        id="productSalePrice"
                                        name="SalePrice"
                                        step="0.01"
                                        min="0"
-                                       placeholder="(không bắt buộc)" />
-                                <small class="text-muted">Có thể để trống.</small>
+                                       placeholder="(khÃ´ng báº¯t buá»™c)" />
+                                <small class="text-muted">CÃ³ thá»ƒ Ä‘á»ƒ trá»‘ng.</small>
                             </div>
 
-                            <!-- Trạng thái: KHÔNG hidden boolean -->
+                            <!-- Tráº¡ng thÃ¡i: KHÃ”NG hidden boolean -->
                             <div class="col-md-4">
-                                <label class="form-label">Trạng thái</label>
+                                <label class="form-label">Tráº¡ng thÃ¡i</label>
                                 <div class="d-flex gap-3 align-items-center mt-1">
                                     <div class="form-check">
                                         <input class="form-check-input"
@@ -596,7 +595,7 @@
                                                name="IsActive"
                                                value="true"
                                                checked />
-                                        <label class="form-check-label" for="productIsActive">Đang bán</label>
+                                        <label class="form-check-label" for="productIsActive">Äang bÃ¡n</label>
                                     </div>
 
                                     <div class="form-check">
@@ -605,35 +604,35 @@
                                                id="productIsFeatured"
                                                name="IsFeatured"
                                                value="true" />
-                                        <label class="form-check-label" for="productIsFeatured">Nổi bật</label>
+                                        <label class="form-check-label" for="productIsFeatured">Ná»•i báº­t</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Upload ảnh -> Cloudinary (JS upload và set ImageUrl hidden) -->
+                            <!-- Upload áº£nh -> Cloudinary (JS upload vÃ  set ImageUrl hidden) -->
                             <div class="col-md-8">
-                                <label class="form-label">Ảnh sản phẩm</label>
+                                <label class="form-label">áº¢nh sáº£n pháº©m</label>
                                 <input type="file"
                                        class="form-control"
                                        id="productImageFile"
                                        accept="image/*" />
-                                <small class="text-muted">Chọn ảnh để upload lên Cloudinary; link sẽ tự lưu vào database.</small>
+                                <small class="text-muted">Chá»n áº£nh Ä‘á»ƒ upload lÃªn Cloudinary; link sáº½ tá»± lÆ°u vÃ o database.</small>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Xem trước ảnh</label>
-                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
-                                    <img id="productImagePreview" alt="preview" style="max-height:110px;max-width:100%;display:none;" />
-                                    <span id="productImageEmpty" class="text-muted">Chưa có ảnh</span>
+                                <label class="form-label">Xem trÆ°á»›c áº£nh</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center preview-box-120">
+                                    <img id="productImagePreview" alt="preview" class="preview-img-110" />
+                                    <span id="productImageEmpty" class="text-muted">ChÆ°a cÃ³ áº£nh</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
                         <button type="submit" class="btn btn-primary-custom">
-                            <i class="fas fa-save me-2"></i>Lưu sản phẩm
+                            <i class="fas fa-save me-2"></i>LÆ°u sáº£n pháº©m
                         </button>
                     </div>
                 </form>
@@ -641,12 +640,12 @@
         </div>
     </div>
 
-    <!-- Modal Sửa sản phẩm -->
+    <!-- Modal Sá»­a sáº£n pháº©m -->
     <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary-custom text-white">
-                    <h5 class="modal-title"><i class="fas fa-pen me-2"></i>Sửa sản phẩm</h5>
+                    <h5 class="modal-title"><i class="fas fa-pen me-2"></i>Sá»­a sáº£n pháº©m</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -658,16 +657,16 @@
 
                     <input type="hidden" name="id" id="editId" />
 
-                    <!-- JS sẽ set URL ảnh mới vào đây (nếu upload ảnh mới) -->
+                    <!-- JS sáº½ set URL áº£nh má»›i vÃ o Ä‘Ã¢y (náº¿u upload áº£nh má»›i) -->
                     <input type="hidden" name="ImageUrl" id="editImageUrlHidden" />
 
-                    <!-- Luôn giữ URL ảnh hiện tại để server có thể giữ lại nếu không upload mới -->
+                    <!-- LuÃ´n giá»¯ URL áº£nh hiá»‡n táº¡i Ä‘á»ƒ server cÃ³ thá»ƒ giá»¯ láº¡i náº¿u khÃ´ng upload má»›i -->
                     <input type="hidden" name="ExistingImageUrl" id="editExistingImageUrl" />
 
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label class="form-label">Tên sản phẩm *</label>
+                                <label class="form-label">TÃªn sáº£n pháº©m *</label>
                                 <input type="text" class="form-control" id="editName" name="Name" required />
                             </div>
 
@@ -677,23 +676,23 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Mô tả</label>
+                                <label class="form-label">MÃ´ táº£</label>
                                 <textarea class="form-control" id="editDescription" name="Description" rows="4"></textarea>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Giá *</label>
+                                <label class="form-label">GiÃ¡ *</label>
                                 <input type="number" class="form-control" id="editPrice" name="Price" step="0.01" min="0" required />
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Giá sale</label>
+                                <label class="form-label">GiÃ¡ sale</label>
                                 <input type="number" class="form-control" id="editSalePrice" name="SalePrice" step="0.01" min="0" />
                             </div>
 
-                            <!-- Trạng thái: KHÔNG hidden boolean -->
+                            <!-- Tráº¡ng thÃ¡i: KHÃ”NG hidden boolean -->
                             <div class="col-md-4">
-                                <label class="form-label">Trạng thái</label>
+                                <label class="form-label">Tráº¡ng thÃ¡i</label>
                                 <div class="d-flex gap-3 align-items-center mt-1">
                                     <div class="form-check">
                                         <input class="form-check-input"
@@ -701,7 +700,7 @@
                                                id="editIsActive"
                                                name="IsActive"
                                                value="true" />
-                                        <label class="form-check-label" for="editIsActive">Đang bán</label>
+                                        <label class="form-check-label" for="editIsActive">Äang bÃ¡n</label>
                                     </div>
 
                                     <div class="form-check">
@@ -710,26 +709,26 @@
                                                id="editIsFeatured"
                                                name="IsFeatured"
                                                value="true" />
-                                        <label class="form-check-label" for="editIsFeatured">Nổi bật</label>
+                                        <label class="form-check-label" for="editIsFeatured">Ná»•i báº­t</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Chọn ảnh mới (nếu cần). JS upload và set editImageUrlHidden -->
+                            <!-- Chá»n áº£nh má»›i (náº¿u cáº§n). JS upload vÃ  set editImageUrlHidden -->
                             <div class="col-md-8">
-                                <label class="form-label">Đổi ảnh sản phẩm (nếu cần)</label>
+                                <label class="form-label">Äá»•i áº£nh sáº£n pháº©m (náº¿u cáº§n)</label>
                                 <input type="file"
                                        class="form-control"
                                        id="editImageFile"
                                        accept="image/*" />
-                                <small class="text-muted">Nếu không chọn ảnh mới, hệ thống sẽ giữ ảnh hiện tại.</small>
+                                <small class="text-muted">Náº¿u khÃ´ng chá»n áº£nh má»›i, há»‡ thá»‘ng sáº½ giá»¯ áº£nh hiá»‡n táº¡i.</small>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Xem trước ảnh</label>
-                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
-                                    <img id="editImgPreview" alt="preview" style="max-height:110px;max-width:100%;display:none;" />
-                                    <span id="editImgEmpty" class="text-muted">Chưa có ảnh</span>
+                                <label class="form-label">Xem trÆ°á»›c áº£nh</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center preview-box-120">
+                                    <img id="editImgPreview" alt="preview" class="preview-img-110" />
+                                    <span id="editImgEmpty" class="text-muted">ChÆ°a cÃ³ áº£nh</span>
                                 </div>
                             </div>
 
@@ -737,9 +736,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
                         <button type="submit" class="btn btn-primary-custom">
-                            <i class="fas fa-save me-2"></i>Cập nhật
+                            <i class="fas fa-save me-2"></i>Cáº­p nháº­t
                         </button>
                     </div>
                 </form>
@@ -748,21 +747,21 @@
     </div>
 
 
-    <!-- Modal Viết bài Blog -->
+    <!-- Modal Viáº¿t bÃ i Blog -->
     <div class="modal fade" id="addBlogModal" tabindex="-1" aria-labelledby="addBlogModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary-custom text-white">
                     <h5 class="modal-title" id="addBlogModalLabel">
-                        <i class="fas fa-pen-nib me-2"></i>Viết bài blog mới
+                        <i class="fas fa-pen-nib me-2"></i>Viáº¿t bÃ i blog má»›i
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ÄÃ³ng"></button>
                 </div>
 
                 <form method="post" action="/Admin/CreateBlogPost" id="addBlogForm" novalidate>
                     @Html.AntiForgeryToken()
 
-                    <!-- DB của bạn cần ContentHtml, CoverImageUrl, PublishedAt,... -->
+                    <!-- DB cá»§a báº¡n cáº§n ContentHtml, CoverImageUrl, PublishedAt,... -->
                     <input type="hidden" name="ContentHtml" id="blogContentHtml" />
                     <input type="hidden" name="CoverImageUrl" id="blogCoverImageUrl" />
                     <input type="hidden" name="PublishedAt" id="blogPublishedAt" />
@@ -770,62 +769,62 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                <label class="form-label">TiÃªu Ä‘á» <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="blogTitle" name="Title" required maxlength="250"
-                                       placeholder="Ví dụ: 5 cách chọn cây để bàn giúp tập trung" />
-                                <div class="invalid-feedback">Vui lòng nhập tiêu đề.</div>
+                                       placeholder="VÃ­ dá»¥: 5 cÃ¡ch chá»n cÃ¢y Ä‘á»ƒ bÃ n giÃºp táº­p trung" />
+                                <div class="invalid-feedback">Vui lÃ²ng nháº­p tiÃªu Ä‘á».</div>
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Slug <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="blogSlug" name="Slug" required maxlength="250"
                                        placeholder="5-cach-chon-cay-de-ban-giup-tap-trung" />
-                                <small class="text-muted">Tự tạo từ tiêu đề, bạn có thể sửa.</small>
-                                <div class="invalid-feedback">Vui lòng nhập slug.</div>
+                                <small class="text-muted">Tá»± táº¡o tá»« tiÃªu Ä‘á», báº¡n cÃ³ thá»ƒ sá»­a.</small>
+                                <div class="invalid-feedback">Vui lÃ²ng nháº­p slug.</div>
                             </div>
 
                             <div class="col-md-8">
-                                <label class="form-label">Tóm tắt (Excerpt)</label>
+                                <label class="form-label">TÃ³m táº¯t (Excerpt)</label>
                                 <textarea class="form-control" id="blogExcerpt" name="Excerpt" rows="2"
-                                          placeholder="Tóm tắt ngắn 1–2 câu... (có thể để trống, hệ thống tự sinh)"></textarea>
+                                          placeholder="TÃ³m táº¯t ngáº¯n 1â€“2 cÃ¢u... (cÃ³ thá»ƒ Ä‘á»ƒ trá»‘ng, há»‡ thá»‘ng tá»± sinh)"></textarea>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Trạng thái</label>
+                                <label class="form-label">Tráº¡ng thÃ¡i</label>
                                 <select class="form-select" id="blogStatus" name="Status">
-                                    <option value="draft" selected>Nháp (draft)</option>
-                                    <option value="published">Đăng ngay (published)</option>
-                                    <option value="archived">Lưu trữ (archived)</option>
+                                    <option value="draft" selected>NhÃ¡p (draft)</option>
+                                    <option value="published">ÄÄƒng ngay (published)</option>
+                                    <option value="archived">LÆ°u trá»¯ (archived)</option>
                                 </select>
-                                <small class="text-muted">Nếu “Đăng ngay”, hệ thống tự set thời gian đăng.</small>
+                                <small class="text-muted">Náº¿u â€œÄÄƒng ngayâ€, há»‡ thá»‘ng tá»± set thá»i gian Ä‘Äƒng.</small>
                             </div>
 
                             <div class="col-md-8">
-                                <label class="form-label">Ảnh bìa</label>
+                                <label class="form-label">áº¢nh bÃ¬a</label>
                                 <input type="file" class="form-control" id="blogCoverFile" accept="image/*">
-                                <small class="text-muted">Chọn ảnh để upload lên Cloudinary; link sẽ lưu vào DB.</small>
+                                <small class="text-muted">Chá»n áº£nh Ä‘á»ƒ upload lÃªn Cloudinary; link sáº½ lÆ°u vÃ o DB.</small>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Xem trước ảnh bìa</label>
-                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
-                                    <img id="blogCoverPreview" alt="cover" style="max-height:110px;max-width:100%;display:none;" />
-                                    <span id="blogCoverEmpty" class="text-muted">Chưa có ảnh</span>
+                                <label class="form-label">Xem trÆ°á»›c áº£nh bÃ¬a</label>
+                                <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center preview-box-120">
+                                    <img id="blogCoverPreview" alt="cover" class="preview-img-110" />
+                                    <span id="blogCoverEmpty" class="text-muted">ChÆ°a cÃ³ áº£nh</span>
                                 </div>
                             </div>
 
                             <hr class="my-2">
 
                             <div class="col-lg-6">
-                                <label class="form-label">Nội dung (Markdown) <span class="text-danger">*</span></label>
+                                <label class="form-label">Ná»™i dung (Markdown) <span class="text-danger">*</span></label>
                                 <textarea id="blogMarkdown" name="ContentMarkdown"></textarea>
-                                <small class="text-muted">Bạn viết Markdown. Khi lưu, hệ thống chuyển thành HTML và gửi về backend.</small>
+                                <small class="text-muted">Báº¡n viáº¿t Markdown. Khi lÆ°u, há»‡ thá»‘ng chuyá»ƒn thÃ nh HTML vÃ  gá»­i vá» backend.</small>
                             </div>
 
                             <div class="col-lg-6">
-                                <label class="form-label">Xem trước (HTML)</label>
+                                <label class="form-label">Xem trÆ°á»›c (HTML)</label>
                                 <div id="blogPreview" class="markdown-preview">
-                                    <div class="text-muted">Preview sẽ hiển thị tại đây.</div>
+                                    <div class="text-muted">Preview sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.</div>
                                 </div>
                             </div>
 
@@ -833,24 +832,24 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
                         <button type="submit" class="btn btn-primary-custom">
-                            <i class="fas fa-save me-2"></i>Lưu bài viết
+                            <i class="fas fa-save me-2"></i>LÆ°u bÃ i viáº¿t
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-        <!-- Modal Sửa bài Blog -->
+        <!-- Modal Sá»­a bÃ i Blog -->
         <div class="modal fade" id="editBlogModal" tabindex="-1" aria-labelledby="editBlogModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header bg-primary-custom text-white">
                         <h5 class="modal-title" id="editBlogModalLabel">
-                            <i class="fas fa-pen me-2"></i>Sửa bài blog
+                            <i class="fas fa-pen me-2"></i>Sá»­a bÃ i blog
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="ÄÃ³ng"></button>
                     </div>
 
                     <form method="post" action="/Admin/UpdateBlogPost" id="editBlogForm" novalidate>
@@ -863,63 +862,63 @@
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-8">
-                                    <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                    <label class="form-label">TiÃªu Ä‘á» <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="editBlogTitle" name="Title" required maxlength="250">
                                 </div>
 
                                 <div class="col-md-4">
                                     <label class="form-label">Slug <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="editBlogSlug" name="Slug" required maxlength="250">
-                                    <small class="text-muted">Tự tạo từ tiêu đề, bạn có thể sửa.</small>
+                                    <small class="text-muted">Tá»± táº¡o tá»« tiÃªu Ä‘á», báº¡n cÃ³ thá»ƒ sá»­a.</small>
                                 </div>
 
                                 <div class="col-md-8">
-                                    <label class="form-label">Tóm tắt (Excerpt)</label>
+                                    <label class="form-label">TÃ³m táº¯t (Excerpt)</label>
                                     <textarea class="form-control" id="editBlogExcerpt" name="Excerpt" rows="2"
-                                              placeholder="Tóm tắt ngắn 1–2 câu..."></textarea>
+                                              placeholder="TÃ³m táº¯t ngáº¯n 1â€“2 cÃ¢u..."></textarea>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Trạng thái</label>
+                                    <label class="form-label">Tráº¡ng thÃ¡i</label>
                                     <select class="form-select" id="editBlogStatus" name="Status">
-                                        <option value="draft">Nháp (draft)</option>
-                                        <option value="published">Đăng (published)</option>
-                                        <option value="archived">Lưu trữ (archived)</option>
+                                        <option value="draft">NhÃ¡p (draft)</option>
+                                        <option value="published">ÄÄƒng (published)</option>
+                                        <option value="archived">LÆ°u trá»¯ (archived)</option>
                                     </select>
                                 </div>
 
                                 <div class="col-md-8">
-                                    <label class="form-label">Đổi ảnh bìa (nếu cần)</label>
+                                    <label class="form-label">Äá»•i áº£nh bÃ¬a (náº¿u cáº§n)</label>
                                     <input type="file" class="form-control" id="editBlogCoverFile" accept="image/*">
-                                    <small class="text-muted">Nếu không chọn ảnh mới, hệ thống sẽ giữ ảnh bìa hiện tại.</small>
+                                    <small class="text-muted">Náº¿u khÃ´ng chá»n áº£nh má»›i, há»‡ thá»‘ng sáº½ giá»¯ áº£nh bÃ¬a hiá»‡n táº¡i.</small>
 
                                     <div class="mt-2">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearEditCover">
-                                            Xóa ảnh bìa
+                                            XÃ³a áº£nh bÃ¬a
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Xem trước ảnh bìa</label>
-                                    <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
-                                        <img id="editBlogCoverPreview" alt="cover" style="max-height:110px;max-width:100%;display:none;" />
-                                        <span id="editBlogCoverEmpty" class="text-muted">Chưa có ảnh</span>
+                                    <label class="form-label">Xem trÆ°á»›c áº£nh bÃ¬a</label>
+                                    <div class="border rounded p-2 bg-light d-flex align-items-center justify-content-center preview-box-120">
+                                        <img id="editBlogCoverPreview" alt="cover" class="preview-img-110" />
+                                        <span id="editBlogCoverEmpty" class="text-muted">ChÆ°a cÃ³ áº£nh</span>
                                     </div>
                                 </div>
 
                                 <hr class="my-2">
 
                                 <div class="col-lg-6">
-                                    <label class="form-label">Nội dung (Markdown) <span class="text-danger">*</span></label>
+                                    <label class="form-label">Ná»™i dung (Markdown) <span class="text-danger">*</span></label>
                                     <textarea id="editBlogMarkdown"></textarea>
-                                    <small class="text-muted">Bài cũ lưu HTML, hệ thống sẽ cố gắng chuyển về text để bạn chỉnh sửa.</small>
+                                    <small class="text-muted">BÃ i cÅ© lÆ°u HTML, há»‡ thá»‘ng sáº½ cá»‘ gáº¯ng chuyá»ƒn vá» text Ä‘á»ƒ báº¡n chá»‰nh sá»­a.</small>
                                 </div>
 
                                 <div class="col-lg-6">
-                                    <label class="form-label">Xem trước (HTML)</label>
+                                    <label class="form-label">Xem trÆ°á»›c (HTML)</label>
                                     <div id="editBlogPreview" class="markdown-preview">
-                                        <div class="text-muted">Preview sẽ hiển thị tại đây.</div>
+                                        <div class="text-muted">Preview sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.</div>
                                     </div>
                                 </div>
 
@@ -927,9 +926,9 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Há»§y</button>
                             <button type="submit" class="btn btn-primary-custom">
-                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                <i class="fas fa-save me-2"></i>LÆ°u thay Ä‘á»•i
                             </button>
                         </div>
                     </form>
@@ -957,7 +956,7 @@
             return (text || "")
               .toString().trim().toLowerCase()
               .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-              .replace(/đ/g, "d")
+              .replace(/Ä‘/g, "d")
               .replace(/[^a-z0-9\s-]/g, "")
               .replace(/\s+/g, "-")
               .replace(/-+/g, "-")
@@ -1012,10 +1011,10 @@
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-              const msg = data?.error?.message || "Upload Cloudinary thất bại.";
+              const msg = data?.error?.message || "Upload Cloudinary tháº¥t báº¡i.";
               throw new Error(msg);
             }
-            if (!data.secure_url) throw new Error("Không nhận được secure_url từ Cloudinary.");
+            if (!data.secure_url) throw new Error("KhÃ´ng nháº­n Ä‘Æ°á»£c secure_url tá»« Cloudinary.");
             return data.secure_url;
           }
 
@@ -1031,7 +1030,7 @@
 
               if (!file.type?.startsWith("image/")) {
                 e.preventDefault();
-                alert("Vui lòng chọn đúng định dạng ảnh (image/*).");
+                alert("Vui lÃ²ng chá»n Ä‘Ãºng Ä‘á»‹nh dáº¡ng áº£nh (image/*).");
                 return;
               }
 
@@ -1042,7 +1041,7 @@
 
               if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = "Đang tải ảnh...";
+                submitBtn.innerHTML = "Äang táº£i áº£nh...";
               }
 
               try {
@@ -1054,7 +1053,7 @@
                 form.submit();
               } catch (err) {
                 console.error(err);
-                alert(err?.message || "Upload ảnh thất bại. Vui lòng thử lại.");
+                alert(err?.message || "Upload áº£nh tháº¥t báº¡i. Vui lÃ²ng thá»­ láº¡i.");
                 if (submitBtn) {
                   submitBtn.disabled = false;
                   submitBtn.innerHTML = oldHtml;
@@ -1088,7 +1087,7 @@ if (window.location.hash) {
     showSection('dashboard');
 }
 
-// Lắng nghe sự kiện hashchange
+// Láº¯ng nghe sá»± kiá»‡n hashchange
 window.addEventListener('hashchange', function() {
     const h = window.location.hash.replace('#', '');
     if (h && document.getElementById(h)) {
@@ -1198,7 +1197,7 @@ window.addEventListener('hashchange', function() {
             const blogCoverPreview = document.getElementById("blogCoverPreview");
             const blogCoverEmpty = document.getElementById("blogCoverEmpty");
 
-            // preview ảnh bìa
+            // preview áº£nh bÃ¬a
             bindFilePreview(blogCoverFile, blogCoverPreview, blogCoverEmpty);
 
             // auto slug
@@ -1216,12 +1215,12 @@ window.addEventListener('hashchange', function() {
                     function renderBlogPreview(md) {
           const mk = window.marked;
           if (!mk) {
-            console.error("Marked chưa load. Kiểm tra lại <script src='...marked...'>");
+            console.error("Marked chÆ°a load. Kiá»ƒm tra láº¡i <script src='...marked...'>");
             return;
           }
           const rawHtml = mk.parse(md || "");
           const safeHtml = DOMPurify.sanitize(rawHtml);
-          blogPreview.innerHTML = safeHtml || '<div class="text-muted">Preview sẽ hiển thị tại đây.</div>';
+          blogPreview.innerHTML = safeHtml || '<div class="text-muted">Preview sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.</div>';
         }
 
 
@@ -1279,7 +1278,7 @@ window.addEventListener('hashchange', function() {
 
                 const md = blogMde ? blogMde.value() : (blogMarkdown?.value || "");
                 if (!md.trim()) {
-                  alert("Vui lòng nhập nội dung bài viết.");
+                  alert("Vui lÃ²ng nháº­p ná»™i dung bÃ i viáº¿t.");
                   return;
                 }
 
@@ -1302,13 +1301,13 @@ window.addEventListener('hashchange', function() {
                 const file = blogCoverFile?.files?.[0];
                 if (file) {
                   if (!file.type?.startsWith("image/")) {
-                    alert("Ảnh bìa phải là định dạng image/*.");
+                    alert("áº¢nh bÃ¬a pháº£i lÃ  Ä‘á»‹nh dáº¡ng image/*.");
                     return;
                   }
 
                   if (submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = "Đang tải ảnh...";
+                    submitBtn.innerHTML = "Äang táº£i áº£nh...";
                   }
 
                   try {
@@ -1317,7 +1316,7 @@ window.addEventListener('hashchange', function() {
                     blogCoverUrlHidden.value = url;
                   } catch (err) {
                     console.error(err);
-                    alert(err?.message || "Upload ảnh bìa thất bại.");
+                    alert(err?.message || "Upload áº£nh bÃ¬a tháº¥t báº¡i.");
                     if (submitBtn) {
                       submitBtn.disabled = false;
                       submitBtn.innerHTML = oldHtml;
@@ -1326,7 +1325,7 @@ window.addEventListener('hashchange', function() {
                   } finally {
                     if (submitBtn) {
                       submitBtn.disabled = false;
-                      submitBtn.innerHTML = oldHtml || "Lưu bài viết";
+                      submitBtn.innerHTML = oldHtml || "LÆ°u bÃ i viáº¿t";
                     }
                   }
                 }
@@ -1364,7 +1363,7 @@ window.addEventListener('hashchange', function() {
           if (!mk) return;
           const rawHtml = mk.parse(md || "");
           const safeHtml = DOMPurify.sanitize(rawHtml);
-          targetEl.innerHTML = safeHtml || '<div class="text-muted">Preview sẽ hiển thị tại đây.</div>';
+          targetEl.innerHTML = safeHtml || '<div class="text-muted">Preview sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.</div>';
         }
 
         function htmlToPlainText(html) {
@@ -1473,7 +1472,7 @@ window.addEventListener('hashchange', function() {
 
             const md = editBlogMde ? editBlogMde.value() : (editBlogMarkdown?.value || "");
             if (!md.trim()) {
-              alert("Vui lòng nhập nội dung bài viết.");
+              alert("Vui lÃ²ng nháº­p ná»™i dung bÃ i viáº¿t.");
               return;
             }
 
@@ -1493,13 +1492,13 @@ window.addEventListener('hashchange', function() {
             const file = editBlogCoverFile?.files?.[0];
             if (file) {
               if (!file.type?.startsWith("image/")) {
-                alert("Ảnh bìa phải là định dạng image/*.");
+                alert("áº¢nh bÃ¬a pháº£i lÃ  Ä‘á»‹nh dáº¡ng image/*.");
                 return;
               }
 
               if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = "Đang tải ảnh...";
+                submitBtn.innerHTML = "Äang táº£i áº£nh...";
               }
 
               try {
@@ -1508,7 +1507,7 @@ window.addEventListener('hashchange', function() {
                 editBlogCoverUrlHidden.value = url;
               } catch (err) {
                 console.error(err);
-                alert(err?.message || "Upload ảnh bìa thất bại.");
+                alert(err?.message || "Upload áº£nh bÃ¬a tháº¥t báº¡i.");
                 if (submitBtn) {
                   submitBtn.disabled = false;
                   submitBtn.innerHTML = oldHtml;
@@ -1517,7 +1516,7 @@ window.addEventListener('hashchange', function() {
               } finally {
                 if (submitBtn) {
                   submitBtn.disabled = false;
-                  submitBtn.innerHTML = oldHtml || "Lưu thay đổi";
+                  submitBtn.innerHTML = oldHtml || "LÆ°u thay Ä‘á»•i";
                 }
               }
             }
@@ -1579,7 +1578,7 @@ window.addEventListener('hashchange', function() {
                     data: {
                         labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueLabels)),
                         datasets: [{
-                            label: 'Doanh thu (₫)',
+                            label: 'Doanh thu (â‚«)',
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueData)),
                             borderColor: '#8b5cf6',
                             backgroundColor: 'rgba(139, 92, 246, 0.1)',
@@ -1599,7 +1598,7 @@ window.addEventListener('hashchange', function() {
                             tooltip: { mode: 'index', intersect: false }
                         },
                         scales: {
-                            y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { callback: function(value) { return value.toLocaleString('vi-VN') + ' ₫'; } } },
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { callback: function(value) { return value.toLocaleString('vi-VN') + ' â‚«'; } } },
                             x: { grid: { display: false } }
                         }
                     }
@@ -1635,3 +1634,4 @@ window.addEventListener('hashchange', function() {
 
     </script>
 }
+
